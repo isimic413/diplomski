@@ -1,0 +1,11 @@
+﻿using System;
+
+namespace ExamPreparation.DAL.Common
+{
+    interface ITestingArea
+    {
+        System.Guid Id { get; set; }
+        string Abrv { get; set; }
+        string Title { get; set; }
+    }
+}
