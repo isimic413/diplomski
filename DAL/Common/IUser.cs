@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface IUser
+    public interface IUser
     {
         System.Guid Id { get; set; }
         string Email { get; set; }

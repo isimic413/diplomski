@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface IUserRole
+    public interface IUserRole
     {
         System.Guid Id { get; set; }
         System.Guid UserId { get; set; }

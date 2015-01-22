@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface IAnswerChoice
+    public interface IAnswerChoice
     {
         System.Guid Id { get; set; }
         System.Guid ProblemId { get; set; }

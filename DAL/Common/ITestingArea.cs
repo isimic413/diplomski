@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface ITestingArea
+    public interface ITestingArea
     {
         System.Guid Id { get; set; }
         string Abrv { get; set; }

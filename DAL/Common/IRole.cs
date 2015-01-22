@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface IRole
+    public interface IRole
     {
         System.Guid Id { get; set; }
         string Abrv { get; set; }

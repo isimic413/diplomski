@@ -2,7 +2,7 @@
 
 namespace ExamPreparation.DAL.Common
 {
-    interface IExam
+    public interface IExam
     {
         System.Guid Id { get; set; }
         System.Guid TestingAreaId { get; set; }

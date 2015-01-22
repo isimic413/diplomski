@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C578ABE1-1310-4589-9044-0295A73BA55B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExamPreparation.Repo</RootNamespace>
+    <AssemblyName>ExamPreparation.Repo</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\IRepoAnswerChoice.cs" />
+    <Compile Include="Common\IRepoAnswerChoicePicture.cs" />
+    <Compile Include="Common\IRepoAnswerStep.cs" />
+    <Compile Include="Common\IRepoAnswerStepPicture.cs" />
+    <Compile Include="Common\IRepoExam.cs" />
+    <Compile Include="Common\IRepoExamProblem.cs" />
+    <Compile Include="Common\IRepoProblem.cs" />
+    <Compile Include="Common\IRepoProblemPicture.cs" />
+    <Compile Include="Common\IRepoProblemType.cs" />
+    <Compile Include="Common\IRepoRole.cs" />
+    <Compile Include="Common\IRepository.cs" />
+    <Compile Include="Common\IRepoTestingArea.cs" />
+    <Compile Include="Common\IRepoTestingAreaProblem.cs" />
+    <Compile Include="Common\IRepoUser.cs" />
+    <Compile Include="Common\IRepoUserAnswer.cs" />
+    <Compile Include="Common\IRepoUserRole.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DAL\ExamPreparation.DAL.csproj">
+      <Project>{9cf56d48-d983-469b-9154-665e7f739442}</Project>
+      <Name>ExamPreparation.DAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
