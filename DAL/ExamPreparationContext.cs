@@ -9,7 +9,7 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace ExamPreparation.DAL
 {
-    class ExamPreparationContext : DbContext
+    public class ExamPreparationContext : DbContext
     {
         public DbSet<AnswerChoice> AnswerChoices { get; set; }
         public DbSet<AnswerChoicePicture> AnswerChoicePictures { get; set; }

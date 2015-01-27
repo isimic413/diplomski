@@ -33,15 +33,14 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Repository\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Common\IRepoAnswerChoice.cs" />
-    <Compile Include="Common\IRepoAnswerChoicePicture.cs" />
-    <Compile Include="Common\IRepoAnswerStep.cs" />
-    <Compile Include="Common\IRepoAnswerStepPicture.cs" />
+    <Compile Include="Common\IRepoAnswerChoice .cs" />
+    <Compile Include="Common\IRepoAnswerChoicePicture .cs" />
+    <Compile Include="Common\IRepoAnswerStep .cs" />
+    <Compile Include="Common\IRepoAnswerStepPicture .cs" />
     <Compile Include="Common\IRepoExam.cs" />
     <Compile Include="Common\IRepoExamProblem.cs" />
     <Compile Include="Common\IRepoProblem.cs" />
@@ -55,9 +54,35 @@
     <Compile Include="Common\IRepoUserAnswer.cs" />
     <Compile Include="Common\IRepoUserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\RepoProblem.cs" />
+    <Compile Include="Repository\Repo.cs" />
+    <Compile Include="Repository\RepoAnswerChoice.cs" />
+    <Compile Include="Repository\RepoAnswerChoicePicture.cs" />
+    <Compile Include="Repository\RepoAnswerStep.cs" />
+    <Compile Include="Repository\RepoAnswerStepPicture.cs" />
+    <Compile Include="Repository\RepoExam.cs" />
+    <Compile Include="Repository\RepoExamProblem.cs" />
+    <Compile Include="Repository\RepoProblemPicture.cs" />
+    <Compile Include="Repository\RepoProblemType.cs" />
+    <Compile Include="Repository\RepoRole.cs" />
+    <Compile Include="Repository\RepoTestingArea.cs" />
+    <Compile Include="Repository\RepoTestingAreaProblem.cs" />
+    <Compile Include="Repository\RepoUser.cs" />
+    <Compile Include="Repository\RepoUserAnswer.cs" />
+    <Compile Include="Repository\RepoUserRole.cs" />
+    <Compile Include="Start.cs" />
+    <Compile Include="UnitOfWork\IUoW.cs" />
+    <Compile Include="UnitOfWork\UoW.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DAL\ExamPreparation.DAL.csproj">
