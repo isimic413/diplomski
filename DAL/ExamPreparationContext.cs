@@ -27,7 +27,6 @@ namespace ExamPreparation.DAL
         public DbSet<UserAnswer> UserAnswers { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
