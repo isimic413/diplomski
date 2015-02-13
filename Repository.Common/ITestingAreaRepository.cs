@@ -5,7 +5,7 @@ using ExamPreparation.DAL.Models;
 
 namespace ExamPreparation.Repository.Common
 {
-    public interface TestingAreaIRepository
+    public interface ITestingAreaRepository
     {
         IQueryable<TestingArea> GetAll();
         TestingArea GetById(Guid id);

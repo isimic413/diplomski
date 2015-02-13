@@ -1,38 +1,22 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ExamPreparation.DAL.Common;
+using System;
+using System.Collections.Generic;
 
 namespace ExamPreparation.DAL.Models
 {
-    public partial class AnswerStep : IAnswerStep
+    public partial class AnswerStep
     {
         public AnswerStep()
         {
+            this.AnswerStepPictures = new List<AnswerStepPicture>();
         }
 
-        [Key]
         public System.Guid Id { get; set; }
-
-        [ForeignKey("Problem")]
-        [Required]
         public System.Guid ProblemId { get; set; }
-        public virtual Problem Problem { get; set; }
-
-        [Required(ErrorMessage = "*")]
-        [Display(Name = "Step number")]
-        public System.Int16 StepNumber { get; set; } // Int16 = smallint
-
-        [Required]
-        [Display(Name = "Points")]
-        public System.SByte Points { get; set; }
-
-        [Required(ErrorMessage = "*")]
-        [Display(Name = "Problem text")]
+        public short StepNumber { get; set; }
+        public byte Points { get; set; }
         public string Text { get; set; }
-
-        [Required]
-        [Display(Name = "Has picture")]
-        public Boolean HasPicture { get; set; }
+        public bool HasPicture { get; set; }
+        public virtual Problem Problem { get; set; }
+        public virtual ICollection<AnswerStepPicture> AnswerStepPictures { get; set; }
     }
 }

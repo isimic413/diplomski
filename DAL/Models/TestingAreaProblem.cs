@@ -1,27 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ExamPreparation.DAL.Common;
+using System;
+using System.Collections.Generic;
 
 namespace ExamPreparation.DAL.Models
 {
-    public partial class TestingAreaProblem : ITestingAreaProblem
+    public partial class TestingAreaProblem
     {
-        public TestingAreaProblem()
-        {
-        }
-
-        [Key]
         public System.Guid Id { get; set; }
-
-        [ForeignKey("Problem")]
-        [Required]
         public System.Guid ProblemId { get; set; }
-        public virtual Problem Problem { get; set; }
-
-        [ForeignKey("TestingArea")]
-        [Required]
         public System.Guid TestingAreaId { get; set; }
+        public virtual Problem Problem { get; set; }
         public virtual TestingArea TestingArea { get; set; }
     }
 }

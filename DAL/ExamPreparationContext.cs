@@ -1,16 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExamPreparation.DAL.Models;
 using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Data.Entity.Infrastructure;
+using ExamPreparation.DAL.Models;
+using ExamPreparation.DAL.Models.Mapping;
 
 namespace ExamPreparation.DAL
 {
-    public class ExamPreparationContext : DbContext
+    public partial class ExamPreparationContext : DbContext
     {
+        static ExamPreparationContext()
+        {
+            Database.SetInitializer<ExamPreparationContext>(null);
+        }
+
+        public ExamPreparationContext()
+            : base("Name=ExamPreparationContext")
+        {
+        }
+
         public DbSet<AnswerChoice> AnswerChoices { get; set; }
         public DbSet<AnswerChoicePicture> AnswerChoicePictures { get; set; }
         public DbSet<AnswerStep> AnswerSteps { get; set; }
@@ -29,70 +35,21 @@ namespace ExamPreparation.DAL
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
-
-            // Problem
-            modelBuilder.Entity<AnswerStepPicture>()
-                .HasRequired(c => c.AnswerStep);
-            modelBuilder.Entity<AnswerStep>()
-                .HasRequired(c => c.Problem)
-                .WithMany(q => q.Steps);
-
-            modelBuilder.Entity<AnswerChoicePicture>()
-                .HasRequired(c => c.AnswerChoice);
-            modelBuilder.Entity<AnswerChoice>()
-                .HasRequired(c => c.Problem)
-                .WithMany(q => q.Choices);
-
-            modelBuilder.Entity<ProblemPicture>()
-                .HasRequired(c => c.Problem);
-
-            modelBuilder.Entity<TestingAreaProblem>()
-                .HasRequired(c => c.Problem)
-                .WithMany(q => q.TestingAreas);
-
-            modelBuilder.Entity<ExamProblem>()
-                .HasRequired(c => c.Problem)
-                .WithMany(q => q.Exams);
-
-            modelBuilder.Entity<UserAnswer>()
-                .HasRequired(c => c.Problem)
-                .WithMany(q => q.UserAnswers);
-
-            // ProblemType
-            modelBuilder.Entity<Problem>()
-                .HasRequired(c => c.ProblemType)
-                .WithMany(q => q.Problems);
-            
-            // TestingArea
-            modelBuilder.Entity<TestingAreaProblem>()
-                .HasRequired(c => c.TestingArea)
-                .WithMany(q => q.Problems);
-
-            modelBuilder.Entity<Exam>()
-                .HasRequired(c => c.TestingArea)
-                .WithMany(q => q.Exams);
-
-            // Exam
-            modelBuilder.Entity<ExamProblem>()
-                .HasRequired(c => c.Exam)
-                .WithMany(q => q.Problems);
-
-            // Role
-            modelBuilder.Entity<UserRole>()
-                .HasRequired(c => c.Role)
-                .WithMany(q => q.Users);
-
-            // User
-            modelBuilder.Entity<UserRole>()
-                .HasRequired(c => c.User)
-                .WithMany(q => q.Roles);
-
-            modelBuilder.Entity<UserAnswer>()
-                .HasRequired(c => c.User)
-                .WithMany(q => q.Answers);
-
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Configurations.Add(new AnswerChoiceMap());
+            modelBuilder.Configurations.Add(new AnswerChoicePictureMap());
+            modelBuilder.Configurations.Add(new AnswerStepMap());
+            modelBuilder.Configurations.Add(new AnswerStepPictureMap());
+            modelBuilder.Configurations.Add(new ExamMap());
+            modelBuilder.Configurations.Add(new ExamProblemMap());
+            modelBuilder.Configurations.Add(new ProblemMap());
+            modelBuilder.Configurations.Add(new ProblemPictureMap());
+            modelBuilder.Configurations.Add(new ProblemTypeMap());
+            modelBuilder.Configurations.Add(new RoleMap());
+            modelBuilder.Configurations.Add(new TestingAreaMap());
+            modelBuilder.Configurations.Add(new TestingAreaProblemMap());
+            modelBuilder.Configurations.Add(new UserMap());
+            modelBuilder.Configurations.Add(new UserAnswerMap());
+            modelBuilder.Configurations.Add(new UserRoleMap());
         }
     }
 }

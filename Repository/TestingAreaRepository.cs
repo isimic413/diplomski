@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExamPreparation.DAL;
 using ExamPreparation.DAL.Models;
 using ExamPreparation.Repository;
 using ExamPreparation.Repository.Common;
 
 namespace ExamPreparation.Repository
 {
-    public class TestingAreaRepository : TestingAreaIRepository
+    public class TestingAreaRepository : ITestingAreaRepository
     {
         protected Repository Repository { get; set; }
 
-        public TestingAreaRepository(ExamPreparationContext dbContext)
+        public TestingAreaRepository(Repository repository)
         {
-            Repository = new Repository(dbContext);
+            Repository = repository;
         }
 
         public virtual IQueryable<TestingArea> GetAll()

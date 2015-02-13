@@ -7,7 +7,7 @@ using ExamPreparation.DAL;
 
 namespace ExamPreparation.Repository
 {
-    public class Repository : IRepository
+    public class Repository : IRepository // dodati SaveChanges i Clear
     {
         protected ExamPreparationContext DbContext { get; set; }
 
@@ -15,7 +15,7 @@ namespace ExamPreparation.Repository
         {
             if (dbContext == null)
             {
-                throw new ArgumentNullException("Null DbContext");
+                throw new ArgumentNullException("DbContext");
             }
             DbContext = dbContext;
         }
@@ -77,5 +77,13 @@ namespace ExamPreparation.Repository
             Delete<T>(entity);
         }
 
+        public void SaveChanges()
+        {
+            DbContext.SaveChanges();
+        }
+
+        public void Clear()
+        { 
+        }
     }
 }

@@ -1,45 +1,32 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ExamPreparation.DAL.Common;
 
 namespace ExamPreparation.DAL.Models
 {
-    public partial class Problem : IProblem
+    public partial class Problem
     {
         public Problem()
         {
+            this.AnswerChoices = new List<AnswerChoice>();
+            this.AnswerSteps = new List<AnswerStep>();
+            this.ExamProblems = new List<ExamProblem>();
+            this.ProblemPictures = new List<ProblemPicture>();
+            this.TestingAreaProblems = new List<TestingAreaProblem>();
+            this.UserAnswers = new List<UserAnswer>();
         }
 
-        [Key]
         public System.Guid Id { get; set; }
-
-        [ForeignKey("ProblemType")]
-        [Required]
         public System.Guid ProblemTypeId { get; set; }
-        public virtual ProblemType ProblemType { get; set; }
-
-        [Required(ErrorMessage = "*")]
-        [Display(Name = "Problem text")]
         public string Text { get; set; }
-
-        [Required]
-        [Display(Name = "Points")]
-        public System.SByte Points { get; set; }
-
-        [Required]
-        [Display(Name = "Has picture")]
-        public Boolean HasPicture { get; set; }
-
-        [Required]
-        [Display(Name = "Has steps")]
-        public Boolean HasSteps { get; set; }
-
-        public virtual ICollection<TestingAreaProblem> TestingAreas { get; set; }
-        public virtual ICollection<ExamProblem> Exams { get; set; }
-        public virtual ICollection<AnswerStep> Steps { get; set; }
-        public virtual ICollection<AnswerChoice> Choices { get; set; }
+        public byte Points { get; set; }
+        public bool HasPicture { get; set; }
+        public bool HasSteps { get; set; }
+        public virtual ICollection<AnswerChoice> AnswerChoices { get; set; }
+        public virtual ICollection<AnswerStep> AnswerSteps { get; set; }
+        public virtual ICollection<ExamProblem> ExamProblems { get; set; }
+        public virtual ProblemType ProblemType { get; set; }
+        public virtual ICollection<ProblemPicture> ProblemPictures { get; set; }
+        public virtual ICollection<TestingAreaProblem> TestingAreaProblems { get; set; }
         public virtual ICollection<UserAnswer> UserAnswers { get; set; }
     }
 }
