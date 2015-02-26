@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using ExamPreparation.DAL;
+using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
@@ -11,9 +12,9 @@ namespace ExamPreparation.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
-        protected ExamPreparationContext DbContext { get; set; }
+        protected IExamPreparationContext DbContext { get; set; }
 
-        public UnitOfWork(ExamPreparationContext dbContext)
+        public UnitOfWork(IExamPreparationContext dbContext)
         {
             if (dbContext == null)
             {
@@ -85,8 +86,8 @@ namespace ExamPreparation.Repository
         }
 
         public void Dispose()
-        { 
+        {
+            DbContext.Dispose();
         }
-
     }
 }

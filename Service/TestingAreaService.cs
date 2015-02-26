@@ -3,32 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExamPreparation.Model;
+using ExamPreparation.Model.Common;
 using ExamPreparation.Repository;
 using ExamPreparation.Repository.Common;
-using Ninject;
+using ExamPreparation.Service.Common;
 
 namespace ExamPreparation.Service
 {
-    public class TestingAreaService // !
+    public class TestingAreaService : ITestingAreaService
     {
-        protected UnitOfWork UnitOfWork;
-        protected ITestingAreaRepository Repository;
-
-        Ninject.IKernel kernel = new StandardKernel(new Binding());
+        protected ITestingAreaRepository Repository { get; set; }
 
         public TestingAreaService(ITestingAreaRepository repository)
         {
             Repository = repository;
         }
 
-        public void GetByAbrv(string abrv) // !
+        public IQueryable<ITestingArea> GetAll()
         {
-           // Repository.GetAll().Where(c => c.Abrv.Equals(abrv));
+            return Repository.GetAll();
         }
 
-        public void GetByTitle(string title) // !
+        public ITestingArea GetById(Guid id)
         {
+            return Repository.GetById(id);
         }
 
+        public void Add(ITestingArea entity)
+        {
+            Repository.Add(entity);
+        }
+
+        public void Update(ITestingArea entity)
+        {
+            Repository.Update(entity);
+        }
+
+        public void Delete(ITestingArea entity)
+        {
+            Repository.Delete(entity);
+        }
+
+        public void Delete(Guid id)
+        {
+            Repository.Delete(id);
+        }
     }
 }

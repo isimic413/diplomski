@@ -47,13 +47,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DAL.Common\DAL.Common.csproj">
-      <Project>{23587b01-a165-4309-ad79-6274b3488d2b}</Project>
-      <Name>DAL.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{9cf56d48-d983-469b-9154-665e7f739442}</Project>
-      <Name>DAL</Name>
+    <ProjectReference Include="..\Model.Common\Model.Common.csproj">
+      <Project>{81750286-652c-4d76-86c0-5f41aaa30d24}</Project>
+      <Name>Model.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

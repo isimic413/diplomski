@@ -14,7 +14,7 @@ namespace ExamPreparation.DAL.Models
         public System.Guid TestingAreaId { get; set; }
         public short Year { get; set; }
         public short Month { get; set; }
-        public Nullable<System.TimeSpan> duration { get; set; }
+        public System.TimeSpan Duration { get; set; }
         public virtual TestingArea TestingArea { get; set; }
         public virtual ICollection<ExamProblem> ExamProblems { get; set; }
     }

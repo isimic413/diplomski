@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ExamPreparation.DAL.Common;
 
 namespace ExamPreparation.DAL.Models
 {
-    public partial class TestingArea : ITestingArea
+    public partial class TestingArea
     {
         public TestingArea()
         {

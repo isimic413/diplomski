@@ -17,7 +17,7 @@ namespace ExamPreparation.DAL.Models.Mapping
             this.Property(t => t.TestingAreaId).HasColumnName("TestingAreaId");
             this.Property(t => t.Year).HasColumnName("Year");
             this.Property(t => t.Month).HasColumnName("Month");
-            this.Property(t => t.duration).HasColumnName("duration");
+            this.Property(t => t.Duration).HasColumnName("Duration");
 
             // Relationships
             this.HasRequired(t => t.TestingArea)

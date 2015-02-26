@@ -1,11 +1,11 @@
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using ExamPreparation.DAL.Models;
 using ExamPreparation.DAL.Models.Mapping;
+using ExamPreparation.DAL.Models;
 
 namespace ExamPreparation.DAL
 {
-    public partial class ExamPreparationContext : DbContext
+    public partial class ExamPreparationContext : DbContext, IExamPreparationContext
     {
         static ExamPreparationContext()
         {

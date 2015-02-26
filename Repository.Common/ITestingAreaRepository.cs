@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExamPreparation.DAL.Models;
+using ExamPreparation.Model.Common;
 
 namespace ExamPreparation.Repository.Common
 {
     public interface ITestingAreaRepository
     {
-        IQueryable<TestingArea> GetAll();
-        TestingArea GetById(Guid id);
-        void Add(TestingArea entity);
-        void Update(TestingArea entity);
-        void Delete(TestingArea entity);
+        IQueryable<ITestingArea> GetAll();
+        ITestingArea GetById(Guid id);
+        void Add(ITestingArea entity);
+        void Update(ITestingArea entity);
+        void Delete(ITestingArea entity);
         void Delete(Guid id);
     }
 }
