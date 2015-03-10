@@ -1,15 +1,12 @@
-[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(WebApi.App_Start.NinjectWebCommon), "Start")]
-[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(WebApi.App_Start.NinjectWebCommon), "Stop")]
+[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(ExamPreparation.WebApi.App_Start.NinjectWebCommon), "Start")]
+[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(ExamPreparation.WebApi.App_Start.NinjectWebCommon), "Stop")]
 
-// loadextensions -> true
-// extension patterns
-
-namespace WebApi.App_Start
+namespace ExamPreparation.WebApi.App_Start
 {
     using System;
     using System.Web;
     using System.Web.Http;
-
+    using System.Linq;
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 
     using Ninject;
@@ -44,8 +41,11 @@ namespace WebApi.App_Start
         /// <returns>The created kernel.</returns>
         private static IKernel CreateKernel()
         {
-            var kernel = new StandardKernel(new NinjectSettings { LoadExtensions = true });
-            kernel.Load(new ExamPreparation.Model.DIModule(), new ExamPreparation.Repository.DIModule(), new ExamPreparation.Service.DIModule()); // ?
+            var settings = new NinjectSettings();
+            settings.LoadExtensions = true;
+            settings.ExtensionSearchPatterns = settings.ExtensionSearchPatterns
+                .Union(new string[] { "ExamPreparation.*.dll" }).ToArray();
+            var kernel = new StandardKernel(settings);
 
             try
             {

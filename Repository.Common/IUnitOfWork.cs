@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExamPreparation.Repository.Common
 {
     public interface IUnitOfWork
     {
-        void Commit();
-        void Dispose();
+        Task<int> CommitAsync();
+        void DisposeAsync();
 
-        IQueryable<T> GetAll<T>() where T : class;
-        T GetById<T>(Guid id) where T : class;
-        void Add<T>(T entity) where T : class;
-        void Update<T>(T entity) where T : class;
-        void Delete<T>(T entity) where T : class;
-        void Delete<T>(Guid id) where T : class;
+        void AddAsync<T>(T entity) where T : class;
+        void UpdateAsync<T>(T entity) where T : class;
+        void DeleteAsync<T>(T entity) where T : class;
+        void DeleteAsync<T>(Guid id) where T : class;
     }
 }

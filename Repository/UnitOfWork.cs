@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
-using ExamPreparation.DAL;
-using ExamPreparation.Model.Common;
-using ExamPreparation.Repository.Common;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Transactions;
+
+using ExamPreparation.DAL.Models;
+using ExamPreparation.Model.Common;
+using ExamPreparation.Repository.Common;
 
 namespace ExamPreparation.Repository
 {
@@ -23,17 +25,7 @@ namespace ExamPreparation.Repository
             DbContext = dbContext;
         }
 
-        public virtual IQueryable<T> GetAll<T>() where T: class
-        {
-            return DbContext.Set<T>();
-        }
-
-        public virtual T GetById<T>(Guid id) where T: class
-        {
-            return DbContext.Set<T>().Find(id);
-        }
-
-        public virtual void Add<T>(T entity) where T : class
+        public virtual void AddAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if(dbEntityEntry.State != EntityState.Detached)
@@ -46,7 +38,7 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual void Update<T>(T entity) where T : class
+        public virtual void UpdateAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if (dbEntityEntry.State == EntityState.Detached)
@@ -56,7 +48,7 @@ namespace ExamPreparation.Repository
             dbEntityEntry.State = EntityState.Modified;
         }
 
-        public virtual void Delete<T>(T entity) where T : class
+        public virtual void DeleteAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if (dbEntityEntry.State != EntityState.Deleted)
@@ -70,22 +62,22 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual void Delete<T>(Guid id) where T : class
+        public virtual void DeleteAsync<T>(Guid id) where T : class
         {
-            var entity = GetById<T>(id);
+            var entity = DbContext.Set<T>().Find(id);
             if (entity == null)
             {
                 return;
             }
-            Delete<T>(entity);
+            DeleteAsync<T>(entity);
         }
 
-        public void Commit()
+        public Task<int> CommitAsync()
         {
-            DbContext.SaveChanges();
+            return DbContext.SaveChangesAsync();
         }
 
-        public void Dispose()
+        public void DisposeAsync()
         {
             DbContext.Dispose();
         }

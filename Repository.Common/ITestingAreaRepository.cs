@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ExamPreparation.Model.Common;
 
 namespace ExamPreparation.Repository.Common
 {
     public interface ITestingAreaRepository
     {
-        IQueryable<ITestingArea> GetAll();
-        ITestingArea GetById(Guid id);
-        void Add(ITestingArea entity);
-        void Update(ITestingArea entity);
-        void Delete(ITestingArea entity);
-        void Delete(Guid id);
+        IUnitOfWork UnitOfWork { get; set; }
+
+        void CreateUnitOfWork();
+
+        Task<List<ITestingArea>> GetPageAsync(int pageSize=0, int pageNumber=0);
+
+        Task<List<ITestingArea>> GetAllAsync();
+        Task<ITestingArea> GetByIdAsync(Guid id);
+        Task<int> AddAsync(ITestingArea entity);
+        Task<int> UpdateAsync(ITestingArea entity);
+        Task<int> DeleteAsync(ITestingArea entity);
+        Task<int> DeleteAsync(Guid id);
+
+        void UnitOfWorkAdd(IUnitOfWork unitOfWork, ITestingArea entity);
     }
 }

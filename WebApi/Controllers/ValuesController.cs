@@ -5,9 +5,9 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace WebApi.Controllers
+namespace ExamPreparation.WebApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ValuesController : ApiController
     {
         // GET api/values
@@ -33,8 +33,9 @@ namespace WebApi.Controllers
         }
 
         // DELETE api/values/5
-        public void Delete(int id)
+        public string Delete(int id)
         {
+            return "Test (Delete method)";
         }
     }
 }

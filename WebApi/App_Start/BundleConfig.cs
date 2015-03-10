@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace WebApi
+namespace ExamPreparation.WebApi
 {
     public class BundleConfig
     {

@@ -5,13 +5,15 @@
     var efHost = (EfTextTemplateHost)Host;
     var code = new CodeGenerationTools(this);
 #>
+using System;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Threading.Tasks;
 using <#= code.EscapeNamespace(efHost.MappingNamespace) #>;
 
 namespace <#= code.EscapeNamespace(efHost.Namespace) #>
 {
-    public partial class <#= efHost.EntityContainer.Name #> : DbContext
+    public partial class <#= efHost.EntityContainer.Name #> : DbContext, I<#= efHost.EntityContainer.Name #>
     {
         static <#= efHost.EntityContainer.Name #>()
         {
@@ -44,4 +46,20 @@ namespace <#= code.EscapeNamespace(efHost.Namespace) #>
 #>
         }
     }
+
+
+    public interface I<#= efHost.EntityContainer.Name #> : IDisposable
+    {
+<#
+    foreach (var set in efHost.EntityContainer.BaseEntitySets.OfType<EntitySet>())
+    {
+#>
+        DbSet<<#= set.ElementType.Name #>> <#= set.Name #> { get; set; }
+<#
+    }
+#>
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+    DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
+    Task<int> SaveChangesAsync();
+   }
 }

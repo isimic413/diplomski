@@ -1,5 +1,4 @@
 ﻿using System;
-using ExamPreparation.DAL;
 using ExamPreparation.Model.Common;
 
 namespace ExamPreparation.Model
@@ -8,8 +7,6 @@ namespace ExamPreparation.Model
     {
         public override void Load()
         {
-            Bind<IExamPreparationContext>().To<ExamPreparationContext>();
-
             Bind<IAnswerChoice>().To<AnswerChoice>();
             Bind<IAnswerChoicePicture>().To<AnswerChoicePicture>();
             Bind<IAnswerStep>().To<AnswerStep>();

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ExamPreparation.Model;
+using System.Transactions;
+
 using ExamPreparation.Model.Common;
-using ExamPreparation.Repository;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Service.Common;
 
@@ -14,40 +14,73 @@ namespace ExamPreparation.Service
     public class TestingAreaService : ITestingAreaService
     {
         protected ITestingAreaRepository Repository { get; set; }
+        protected IUnitOfWork UnitOfWork;
 
         public TestingAreaService(ITestingAreaRepository repository)
         {
             Repository = repository;
         }
 
-        public IQueryable<ITestingArea> GetAll()
+        public Task<List<ITestingArea>> GetPageAsync(int pageSize, int pageNumber)
         {
-            return Repository.GetAll();
+            return Repository.GetPageAsync(pageSize, pageNumber);
         }
 
-        public ITestingArea GetById(Guid id)
+        public Task<List<ITestingArea>> GetAllAsync()
         {
-            return Repository.GetById(id);
+            return Repository.GetAllAsync();
         }
 
-        public void Add(ITestingArea entity)
+        public Task<ITestingArea> GetByIdAsync(Guid id)
         {
-            Repository.Add(entity);
+            return Repository.GetByIdAsync(id);
         }
 
-        public void Update(ITestingArea entity)
+        public Task<int> AddAsync(ITestingArea entity)
         {
-            Repository.Update(entity);
+            return Repository.AddAsync(entity);
         }
 
-        public void Delete(ITestingArea entity)
+        public Task<int> UpdateAsync(ITestingArea entity)
         {
-            Repository.Delete(entity);
+            try
+            {
+                return Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
-        public void Delete(Guid id)
+        public Task<int> DeleteAsync(ITestingArea entity)
         {
-            Repository.Delete(id);
+            return Repository.DeleteAsync(entity);
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            return Repository.DeleteAsync(id);
+        }
+
+        public Task<int> AddUoWAsync(ITestingArea entity)
+        {
+            using(TransactionScope scope = new TransactionScope())
+            {
+                Repository.CreateUnitOfWork();
+                UnitOfWork = Repository.UnitOfWork;
+
+                Repository.UnitOfWorkAdd(UnitOfWork, entity); // zbog mapiranja - Service ne vidi modele iz DAL-a
+                var result = UnitOfWork.CommitAsync();
+                
+                if(result.Result == 1)
+                {
+                    scope.Complete();
+                }
+                
+                scope.Dispose();
+                return result;
+            }
         }
     }
 }

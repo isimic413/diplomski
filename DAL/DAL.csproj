@@ -76,8 +76,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExamPreparationContext.cs" />
-    <Compile Include="IExamPreparationContext.cs" />
+    <Compile Include="Models\ExamPreparationContext.cs" />
     <Compile Include="Models\Mapping\AnswerChoiceMap.cs" />
     <Compile Include="Models\Mapping\AnswerChoicePictureMap.cs" />
     <Compile Include="Models\Mapping\AnswerStepMap.cs" />
