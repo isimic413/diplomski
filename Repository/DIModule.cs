@@ -16,7 +16,20 @@ namespace ExamPreparation.Repository
             Bind<IUnitOfWork>().To<UnitOfWork>();
             Bind<IUnitOfWorkFactory>().ToFactory();
 
+            Bind<IAnswerChoiceRepository>().To<AnswerChoiceRepository>();
+            Bind<IAnswerChoicePictureRepository>().To<AnswerChoicePictureRepository>();
+            Bind<IAnswerStepRepository>().To<AnswerStepRepository>();
+            Bind<IAnswerStepPictureRepository>().To<AnswerStepPictureRepository>();
+            Bind<IExamRepository>().To<ExamRepository>();
+            Bind<IExamProblemRepository>().To<ExamProblemRepository>();
+            Bind<IProblemRepository>().To<ProblemRepository>();
+            Bind<IProblemPictureRepository>().To<ProblemPictureRepository>();
+            Bind<IProblemTypeRepository>().To<ProblemTypeRepository>();
+            Bind<IRoleRepository>().To<RoleRepository>();
             Bind<ITestingAreaRepository>().To<TestingAreaRepository>();
+            Bind<IUserRepository>().To<UserRepository>();
+            Bind<IUserAnswerRepository>().To<UserAnswerRepository>();
+            Bind<IUserRoleRepository>().To<UserRoleRepository>();
         }
     }
 }

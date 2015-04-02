@@ -12,7 +12,6 @@ using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
-using ExamPreparation.WebApi.Models;
 
 namespace ExamPreparation.WebApi.Controllers
 {
@@ -52,7 +51,8 @@ namespace ExamPreparation.WebApi.Controllers
             {
                 var testingAreas = await Service.GetAllAsync();
                 var testingAreaResult = Mapper.Map<List<TestingArea>>(testingAreas);
-                return Ok(Mapper.Map<List<TestingArea>, List<TestingAreaModel>>(testingAreaResult));
+                // return Ok(Mapper.Map<List<TestingArea>, List<TestingAreaModel>>(testingAreaResult));
+                return Ok(testingAreaResult);
             }
             catch 
             {
@@ -69,7 +69,8 @@ namespace ExamPreparation.WebApi.Controllers
             if (iTestingArea != null)
             {
                 var testingArea = Mapper.Map<TestingArea>(iTestingArea);
-                return Ok(Mapper.Map<TestingArea, TestingAreaModel>(testingArea));
+                //return Ok(Mapper.Map<TestingArea, TestingAreaModel>(testingArea));
+                return Ok(testingArea);
             }
             else return NotFound();
         }

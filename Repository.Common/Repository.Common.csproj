@@ -38,9 +38,22 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAnswerChoicePictureRepository.cs" />
+    <Compile Include="IAnswerChoiceRepository.cs" />
+    <Compile Include="IAnswerStepPictureRepository.cs" />
+    <Compile Include="IAnswerStepRepository.cs" />
+    <Compile Include="IExamProblemRepository.cs" />
+    <Compile Include="IExamRepository.cs" />
+    <Compile Include="IProblemPictureRepository.cs" />
+    <Compile Include="IProblemRepository.cs" />
+    <Compile Include="IProblemTypeRepository.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="IRoleRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="IUnitOfWorkFactory.cs" />
+    <Compile Include="IUserAnswerRepository.cs" />
+    <Compile Include="IUserRepository.cs" />
+    <Compile Include="IUserRoleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ITestingAreaRepository.cs" />
   </ItemGroup>

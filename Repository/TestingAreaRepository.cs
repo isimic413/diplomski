@@ -61,9 +61,14 @@ namespace ExamPreparation.Repository
         {
             try
             {
+                
                 var testingArea = Mapper.Map<ExamModel.TestingArea>(entity);
                 var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
                 return Repository.AddAsync<DALModel.TestingArea>(dalTestingArea);
+                 
+                /* -- ne radi ovako...
+                var testingArea = Mapper.Map<ITestingArea, DALModel.TestingArea>(entity);
+                return Repository.AddAsync<DALModel.TestingArea>(testingArea); */
             }
             catch (Exception e)
             {
@@ -98,11 +103,11 @@ namespace ExamPreparation.Repository
             return Repository.DeleteAsync<DALModel.TestingArea>(id);
         }
 
-        public virtual void UnitOfWorkAdd(IUnitOfWork unitOfWork, ITestingArea entity)
+        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, ITestingArea entity)
         {
             var testingArea = Mapper.Map<ExamModel.TestingArea>(entity);
             var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
-            unitOfWork.AddAsync<DALModel.TestingArea>(dalTestingArea);
+            return unitOfWork.AddAsync<DALModel.TestingArea>(dalTestingArea);
         }
     }
 }

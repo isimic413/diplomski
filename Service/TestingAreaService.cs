@@ -70,7 +70,7 @@ namespace ExamPreparation.Service
                 Repository.CreateUnitOfWork();
                 UnitOfWork = Repository.UnitOfWork;
 
-                Repository.UnitOfWorkAdd(UnitOfWork, entity); // zbog mapiranja - Service ne vidi modele iz DAL-a
+                Repository.AddAsync(UnitOfWork, entity); 
                 var result = UnitOfWork.CommitAsync();
                 
                 if(result.Result == 1)

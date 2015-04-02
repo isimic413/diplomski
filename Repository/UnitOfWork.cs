@@ -25,51 +25,99 @@ namespace ExamPreparation.Repository
             DbContext = dbContext;
         }
 
-        public virtual void AddAsync<T>(T entity) where T : class
+        public virtual Task<int> AddAsync<T>(T entity) where T : class
         {
-            DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
-            if(dbEntityEntry.State != EntityState.Detached)
+            try
             {
-                dbEntityEntry.State = EntityState.Added;
+                DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
+                if (dbEntityEntry.State != EntityState.Detached)
+                {
+                    dbEntityEntry.State = EntityState.Added;
+                }
+                else
+                {
+                    DbContext.Set<T>().Add(entity);
+                }
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 1;
+                });
             }
-            else
+            catch (Exception e)
             {
-                DbContext.Set<T>().Add(entity);
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 0;
+                });
             }
+            
         }
 
-        public virtual void UpdateAsync<T>(T entity) where T : class
+        public virtual Task<int> UpdateAsync<T>(T entity) where T : class
         {
-            DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
-            if (dbEntityEntry.State == EntityState.Detached)
+            try
             {
-                DbContext.Set<T>().Attach(entity);
+                DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
+                if (dbEntityEntry.State == EntityState.Detached)
+                {
+                    DbContext.Set<T>().Attach(entity);
+                }
+                dbEntityEntry.State = EntityState.Modified;
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 1;
+                });
             }
-            dbEntityEntry.State = EntityState.Modified;
+            catch (Exception e)
+            {
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 0;
+                });
+            }
+            
         }
 
-        public virtual void DeleteAsync<T>(T entity) where T : class
+        public virtual Task<int> DeleteAsync<T>(T entity) where T : class
         {
-            DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
-            if (dbEntityEntry.State != EntityState.Deleted)
+            try
             {
-                dbEntityEntry.State = EntityState.Deleted;
+                DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
+                if (dbEntityEntry.State != EntityState.Deleted)
+                {
+                    dbEntityEntry.State = EntityState.Deleted;
+                }
+                else
+                {
+                    DbContext.Set<T>().Attach(entity);
+                    DbContext.Set<T>().Remove(entity);
+                }
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 1;
+                });
             }
-            else
+            catch (Exception e)
             {
-                DbContext.Set<T>().Attach(entity);
-                DbContext.Set<T>().Remove(entity);
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 0;
+                });
             }
+            
         }
 
-        public virtual void DeleteAsync<T>(Guid id) where T : class
+        public virtual Task<int> DeleteAsync<T>(Guid id) where T : class
         {
             var entity = DbContext.Set<T>().Find(id);
             if (entity == null)
             {
-                return;
+                return Task<int>.Factory.StartNew(() =>
+                {
+                    return 0;
+                });
             }
-            DeleteAsync<T>(entity);
+            return DeleteAsync<T>(entity);
         }
 
         public Task<int> CommitAsync()

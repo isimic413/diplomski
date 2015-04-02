@@ -11,11 +11,6 @@ namespace ExamPreparation.DAL.Models.Mapping
             this.HasKey(t => t.Id);
 
             // Properties
-            this.Property(t => t.ProblemNumber)
-                .IsRequired()
-                .IsFixedLength()
-                .HasMaxLength(10);
-
             // Table & Column Mappings
             this.ToTable("ExamProblem");
             this.Property(t => t.Id).HasColumnName("Id");

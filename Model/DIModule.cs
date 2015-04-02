@@ -18,7 +18,6 @@ namespace ExamPreparation.Model
             Bind<IProblemType>().To<ProblemType>();
             Bind<IRole>().To<Role>();
             Bind<ITestingArea>().To<TestingArea>();
-            Bind<ITestingAreaProblem>().To<TestingAreaProblem>();
             Bind<IUser>().To<User>();
             Bind<IUserAnswer>().To<UserAnswer>();
             Bind<IUserRole>().To<UserRole>();

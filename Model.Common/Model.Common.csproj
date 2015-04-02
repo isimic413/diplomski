@@ -49,7 +49,6 @@
     <Compile Include="IProblemType.cs" />
     <Compile Include="IRole.cs" />
     <Compile Include="ITestingArea.cs" />
-    <Compile Include="ITestingAreaProblem.cs" />
     <Compile Include="IUser.cs" />
     <Compile Include="IUserAnswer.cs" />
     <Compile Include="IUserRole.cs" />

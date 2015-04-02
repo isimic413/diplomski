@@ -29,7 +29,6 @@ namespace ExamPreparation.DAL.Models
         public DbSet<ProblemType> ProblemTypes { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<TestingArea> TestingAreas { get; set; }
-        public DbSet<TestingAreaProblem> TestingAreaProblems { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserAnswer> UserAnswers { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
@@ -47,7 +46,6 @@ namespace ExamPreparation.DAL.Models
             modelBuilder.Configurations.Add(new ProblemTypeMap());
             modelBuilder.Configurations.Add(new RoleMap());
             modelBuilder.Configurations.Add(new TestingAreaMap());
-            modelBuilder.Configurations.Add(new TestingAreaProblemMap());
             modelBuilder.Configurations.Add(new UserMap());
             modelBuilder.Configurations.Add(new UserAnswerMap());
             modelBuilder.Configurations.Add(new UserRoleMap());
@@ -68,7 +66,6 @@ namespace ExamPreparation.DAL.Models
         DbSet<ProblemType> ProblemTypes { get; set; }
         DbSet<Role> Roles { get; set; }
         DbSet<TestingArea> TestingAreas { get; set; }
-        DbSet<TestingAreaProblem> TestingAreaProblems { get; set; }
         DbSet<User> Users { get; set; }
         DbSet<UserAnswer> UserAnswers { get; set; }
         DbSet<UserRole> UserRoles { get; set; }

@@ -7,6 +7,6 @@ namespace ExamPreparation.Model.Common
         System.Guid Id { get; set; }
         System.Guid ProblemId { get; set; }
         System.Guid ExamId { get; set; }
-        string ProblemNumber { get; set; }
+        short ProblemNumber { get; set; }
     }
 }

@@ -8,13 +8,13 @@ namespace ExamPreparation.DAL.Models
         public TestingArea()
         {
             this.Exams = new List<Exam>();
-            this.TestingAreaProblems = new List<TestingAreaProblem>();
+            this.Problems = new List<Problem>();
         }
 
         public System.Guid Id { get; set; }
         public string Title { get; set; }
         public string Abrv { get; set; }
         public virtual ICollection<Exam> Exams { get; set; }
-        public virtual ICollection<TestingAreaProblem> TestingAreaProblems { get; set; }
+        public virtual ICollection<Problem> Problems { get; set; }
     }
 }

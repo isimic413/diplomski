@@ -18,6 +18,7 @@ namespace ExamPreparation.DAL.Models.Mapping
             // Table & Column Mappings
             this.ToTable("Problem");
             this.Property(t => t.Id).HasColumnName("Id");
+            this.Property(t => t.TestingAreaId).HasColumnName("TestingAreaId");
             this.Property(t => t.ProblemTypeId).HasColumnName("ProblemTypeId");
             this.Property(t => t.Text).HasColumnName("Text");
             this.Property(t => t.Points).HasColumnName("Points");
@@ -28,6 +29,9 @@ namespace ExamPreparation.DAL.Models.Mapping
             this.HasRequired(t => t.ProblemType)
                 .WithMany(t => t.Problems)
                 .HasForeignKey(d => d.ProblemTypeId);
+            this.HasRequired(t => t.TestingArea)
+                .WithMany(t => t.Problems)
+                .HasForeignKey(d => d.TestingAreaId);
 
         }
     }

@@ -21,6 +21,6 @@ namespace ExamPreparation.Repository.Common
         Task<int> DeleteAsync(ITestingArea entity);
         Task<int> DeleteAsync(Guid id);
 
-        void UnitOfWorkAdd(IUnitOfWork unitOfWork, ITestingArea entity);
+        Task<int> AddAsync(IUnitOfWork unitOfWork, ITestingArea entity);
     }
 }

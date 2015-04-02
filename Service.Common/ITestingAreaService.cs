@@ -8,7 +8,6 @@ namespace ExamPreparation.Service.Common
 {
     public interface ITestingAreaService
     {
-
         Task<List<ITestingArea>> GetPageAsync(int pageSize, int pageNumber);
 
         Task<List<ITestingArea>> GetAllAsync();
