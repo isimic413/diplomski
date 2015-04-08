@@ -16,93 +16,66 @@ namespace ExamPreparation.Repository
     public class AnswerChoicePictureRepository: IAnswerChoicePictureRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public AnswerChoicePictureRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public virtual async Task<List<IAnswerChoicePicture>> GetAsync(string sortOrder = "choiceId", 
+            int pageNumber = 0, int pageSize = 50)
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            pageSize = (pageSize > 50)? 50 : pageSize;
+
+            var dalPage = await Repository.WhereAsync<DALModel.AnswerChoicePicture>()
+               .OrderBy(item => item.AnswerChoiceId)
+               .Skip<DALModel.AnswerChoicePicture>((pageNumber - 1) * pageSize)
+               .Take<DALModel.AnswerChoicePicture>(pageSize)
+               .ToListAsync<DALModel.AnswerChoicePicture>();
+
+            // Cannot implicitly convert type List<ExamModel.AnswerChoicePicture> to List<IAnswerChoicePicture>
+            return new List<IAnswerChoicePicture>(Mapper.Map<List<ExamModel.AnswerChoicePicture>>(dalPage));
         }
 
-        public virtual Task<List<IAnswerChoicePicture>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
+        public virtual async Task<IAnswerChoicePicture> GetAsync(Guid id)
         {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.AnswerChoicePicture>()
-                .OrderBy(item => item.AnswerChoiceId)
-                .Skip<DALModel.AnswerChoicePicture>((pageNumber - 1) * pageSize)
-                .Take<DALModel.AnswerChoicePicture>(pageSize)
-                .ToListAsync<DALModel.AnswerChoicePicture>()
-                .Result;
-
-            var answerChoicePictures = Mapper.Map<List<DALModel.AnswerChoicePicture>, List<ExamModel.AnswerChoicePicture>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.AnswerChoicePicture>, List<IAnswerChoicePicture>>(answerChoicePictures));
+            var dalAnswerChoicePicture = await Repository.SingleAsync<DALModel.AnswerChoicePicture>(id);
+            return Mapper.Map<ExamModel.AnswerChoicePicture>(dalAnswerChoicePicture);
         }
 
-        public virtual Task<List<IAnswerChoicePicture>> GetAllAsync()
-        {
-            var dalAnswerChoicePictures = Repository.WhereAsync<DALModel.AnswerChoicePicture>().ToListAsync<DALModel.AnswerChoicePicture>().Result;
-            var answerChoicePictures = Mapper.Map<List<DALModel.AnswerChoicePicture>, List<ExamModel.AnswerChoicePicture>>(dalAnswerChoicePictures);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.AnswerChoicePicture>, List<IAnswerChoicePicture>>(answerChoicePictures));
-        }
-
-        public virtual Task<IAnswerChoicePicture> GetByIdAsync(Guid id)
-        {
-            var dalAnswerChoicePicture = Repository.SingleAsync<DALModel.AnswerChoicePicture>(id).Result;
-            IAnswerChoicePicture answerChoicePicture = Mapper.Map<DALModel.AnswerChoicePicture, ExamModel.AnswerChoicePicture>(dalAnswerChoicePicture);
-            return Task.Factory.StartNew(() => answerChoicePicture);
-        }
-
-        public virtual Task<int> AddAsync(IAnswerChoicePicture entity)
+        public virtual async Task<int> AddAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                var answerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture>(entity);
-                var dalAnswerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture, DALModel.AnswerChoicePicture>(answerChoicePicture);
-                return Repository.AddAsync<DALModel.AnswerChoicePicture>(dalAnswerChoicePicture);
+                return await Repository.AddAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
             }
-            catch (Exception e)
+            catch 
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
 
         }
 
-        public virtual Task<int> UpdateAsync(IAnswerChoicePicture entity)
+        public virtual async Task<int> UpdateAsync(IAnswerChoicePicture entity)
         {
-            var answerChoicePicture = Mapper.Map<IAnswerChoicePicture, ExamModel.AnswerChoicePicture>(entity);
-            var dalAnswerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture, DALModel.AnswerChoicePicture>(answerChoicePicture);
             try
             {
-                return Repository.UpdateAsync<DALModel.AnswerChoicePicture>(dalAnswerChoicePicture);
+                return await Repository.UpdateAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(IAnswerChoicePicture entity)
+        public virtual async Task<int> DeleteAsync(IAnswerChoicePicture entity)
         {
-            var answerChoicePicture = Mapper.Map<IAnswerChoicePicture, ExamModel.AnswerChoicePicture>(entity);
-            var dalAnswerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture, DALModel.AnswerChoicePicture>(answerChoicePicture);
-            return Repository.DeleteAsync<DALModel.AnswerChoicePicture>(dalAnswerChoicePicture);
+            return await Repository.DeleteAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.AnswerChoicePicture>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerChoicePicture entity)
-        {
-            var answerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture>(entity);
-            var dalAnswerChoicePicture = Mapper.Map<ExamModel.AnswerChoicePicture, DALModel.AnswerChoicePicture>(answerChoicePicture);
-            return unitOfWork.AddAsync<DALModel.AnswerChoicePicture>(dalAnswerChoicePicture);
+            return await Repository.DeleteAsync<DALModel.AnswerChoicePicture>(id);
         }
     }
 }

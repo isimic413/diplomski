@@ -38,12 +38,12 @@ namespace ExamPreparation.Repository
             return DbContext.Set<T>().AsNoTracking();
         }
 
-        public virtual Task<T> SingleAsync<T>(Guid id) where T : class
+        public virtual async Task<T> SingleAsync<T>(Guid id) where T : class
         {
-            return DbContext.Set<T>().FindAsync(id);
+            return await DbContext.Set<T>().FindAsync(id);
         }
 
-        public virtual Task<int> AddAsync<T>(T entity) where T : class
+        public virtual async Task<int> AddAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if(dbEntityEntry.State != EntityState.Detached)
@@ -54,10 +54,10 @@ namespace ExamPreparation.Repository
             {
                 DbContext.Set<T>().Add(entity);
             }
-            return DbContext.SaveChangesAsync();
+            return await DbContext.SaveChangesAsync();
         }
 
-        public virtual Task<int> UpdateAsync<T>(T entity) where T : class
+        public virtual async Task<int> UpdateAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if (dbEntityEntry.State == EntityState.Detached)
@@ -67,7 +67,7 @@ namespace ExamPreparation.Repository
             dbEntityEntry.State = EntityState.Modified;
             try
             {
-                return DbContext.SaveChangesAsync();
+                return await DbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -76,7 +76,7 @@ namespace ExamPreparation.Repository
             
         }
 
-        public virtual Task<int> DeleteAsync<T>(T entity) where T : class
+        public virtual async Task<int> DeleteAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if (dbEntityEntry.State != EntityState.Deleted)
@@ -88,17 +88,17 @@ namespace ExamPreparation.Repository
                 DbContext.Set<T>().Attach(entity);
                 DbContext.Set<T>().Remove(entity);
             }
-            return DbContext.SaveChangesAsync();
+            return await DbContext.SaveChangesAsync();
         }
 
-        public virtual Task<int> DeleteAsync<T>(Guid id) where T : class
+        public virtual async Task<int> DeleteAsync<T>(Guid id) where T : class
         {
             var entity = SingleAsync<T>(id).Result;
             if (entity == null)
             {
                 throw new DllNotFoundException();
             }
-            return DeleteAsync<T>(entity);
+            return await DeleteAsync<T>(entity);
         }
     }
 }

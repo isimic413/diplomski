@@ -8,19 +8,15 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IAnswerChoiceRepository
     {
-        IUnitOfWork UnitOfWork { get; set; }
+        IUnitOfWork CreateUnitOfWork();
 
-        void CreateUnitOfWork();
-
-        Task<List<IAnswerChoice>> GetPageAsync(int pageSize=0, int pageNumber=0);
-
-        Task<List<IAnswerChoice>> GetAllAsync();
-        Task<IAnswerChoice> GetByIdAsync(Guid id);
-        Task<int> AddAsync(IAnswerChoice entity);
-        Task<int> UpdateAsync(IAnswerChoice entity);
+        Task<List<IAnswerChoice>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50);
+        Task<IAnswerChoice> GetAsync(Guid id);
+        //Task<int> AddAsync(IAnswerChoice entity);
+        Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null);
+        Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null);
         Task<int> DeleteAsync(IAnswerChoice entity);
         Task<int> DeleteAsync(Guid id);
 
-        Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerChoice entity);
     }
 }

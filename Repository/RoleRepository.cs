@@ -16,93 +16,85 @@ namespace ExamPreparation.Repository
     public class RoleRepository: IRoleRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public RoleRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public virtual async Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50)
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            List<DALModel.Role> page;
+            pageSize = (pageSize > 50) ? 50 : pageSize;
+
+            switch (sortOrder)
+            {
+                case "title":
+                    page = await Repository.WhereAsync<DALModel.Role>()
+                        .OrderBy(item => item.Title)
+                        .Skip<DALModel.Role>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.Role>(pageSize)
+                        .ToListAsync<DALModel.Role>();
+                    break;
+
+                case "abrv":
+                    page = await Repository.WhereAsync<DALModel.Role>()
+                        .OrderBy(item => item.Abrv)
+                        .Skip<DALModel.Role>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.Role>(pageSize)
+                        .ToListAsync<DALModel.Role>();
+                    break;
+
+                default: // case "roleId"
+                    page = await Repository.WhereAsync<DALModel.Role>()
+                        .OrderBy(item => item.Id)
+                        .Skip<DALModel.Role>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.Role>(pageSize)
+                        .ToListAsync<DALModel.Role>();
+                    break;
+            }
+
+            return new List<IRole>(Mapper.Map<List<ExamModel.Role>>(page));
         }
 
-        public virtual Task<List<IRole>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
+        public virtual async Task<IRole> GetAsync(Guid id)
         {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.Role>()
-                .OrderBy(item => item.Abrv)
-                .Skip<DALModel.Role>((pageNumber - 1) * pageSize)
-                .Take<DALModel.Role>(pageSize)
-                .ToListAsync<DALModel.Role>()
-                .Result;
-
-            var roles = Mapper.Map<List<DALModel.Role>, List<ExamModel.Role>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.Role>, List<IRole>>(roles));
+            var dalProblemType = await Repository.SingleAsync<DALModel.Role>(id);
+            return Mapper.Map<ExamModel.Role>(dalProblemType);
         }
 
-        public virtual Task<List<IRole>> GetAllAsync()
-        {
-            var dalRoles = Repository.WhereAsync<DALModel.Role>().ToListAsync<DALModel.Role>().Result;
-            var roles = Mapper.Map<List<DALModel.Role>, List<ExamModel.Role>>(dalRoles);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.Role>, List<IRole>>(roles));
-        }
-
-        public virtual Task<IRole> GetByIdAsync(Guid id)
-        {
-            var dalRole = Repository.SingleAsync<DALModel.Role>(id).Result;
-            IRole role = Mapper.Map<DALModel.Role, ExamModel.Role>(dalRole);
-            return Task.Factory.StartNew(() => role);
-        }
-
-        public virtual Task<int> AddAsync(IRole entity)
+        public virtual async Task<int> AddAsync(IRole entity)
         {
             try
             {
-                var role = Mapper.Map<ExamModel.Role>(entity);
-                var dalRole = Mapper.Map<ExamModel.Role, DALModel.Role>(role);
-                return Repository.AddAsync<DALModel.Role>(dalRole);
+                return await Repository.AddAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
-
         }
 
-        public virtual Task<int> UpdateAsync(IRole entity)
+        public virtual async Task<int> UpdateAsync(IRole entity)
         {
-            var role = Mapper.Map<IRole, ExamModel.Role>(entity);
-            var dalRole = Mapper.Map<ExamModel.Role, DALModel.Role>(role);
             try
             {
-                return Repository.UpdateAsync<DALModel.Role>(dalRole);
+                return await Repository.UpdateAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(IRole entity)
+        public virtual async Task<int> DeleteAsync(IRole entity)
         {
-            var role = Mapper.Map<IRole, ExamModel.Role>(entity);
-            var dalRole = Mapper.Map<ExamModel.Role, DALModel.Role>(role);
-            return Repository.DeleteAsync<DALModel.Role>(dalRole);
+            return await Repository.DeleteAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.Role>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IRole entity)
-        {
-            var role = Mapper.Map<ExamModel.Role>(entity);
-            var dalRole = Mapper.Map<ExamModel.Role, DALModel.Role>(role);
-            return unitOfWork.AddAsync<DALModel.Role>(dalRole);
+            return await Repository.DeleteAsync<DALModel.Role>(id);
         }
     }
 }

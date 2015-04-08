@@ -16,98 +16,85 @@ namespace ExamPreparation.Repository
     public class TestingAreaRepository : ITestingAreaRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public TestingAreaRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public virtual async Task<List<ITestingArea>> GetAsync(string sortOrder = "areaId", int pageNumber = 0, int pageSize = 50)
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            List<DALModel.TestingArea> page;
+            pageSize = (pageSize > 50) ? 50 : pageSize;
+
+            switch (sortOrder)
+            {
+                case "title":
+                    page = await Repository.WhereAsync<DALModel.TestingArea>()
+                        .OrderBy(item => item.Title)
+                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.TestingArea>(pageSize)
+                        .ToListAsync<DALModel.TestingArea>();
+                    break;
+
+                case "abrv":
+                    page = await Repository.WhereAsync<DALModel.TestingArea>()
+                        .OrderBy(item => item.Abrv)
+                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.TestingArea>(pageSize)
+                        .ToListAsync<DALModel.TestingArea>();
+                    break;
+
+                default: // case "areaId"
+                    page = await Repository.WhereAsync<DALModel.TestingArea>()
+                        .OrderBy(item => item.Id)
+                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.TestingArea>(pageSize)
+                        .ToListAsync<DALModel.TestingArea>();
+                    break;
+            }
+
+            return new List<ITestingArea>(Mapper.Map<List<ExamModel.TestingArea>>(page));
         }
 
-        public virtual Task<List<ITestingArea>> GetPageAsync(int pageSize=0, int pageNumber=0)
+        public virtual async Task<ITestingArea> GetAsync(Guid id) 
         {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.TestingArea>()
-                .OrderBy(item => item.Abrv)
-                .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
-                .Take<DALModel.TestingArea>(pageSize)
-                .ToListAsync<DALModel.TestingArea>()
-                .Result;
-
-            var testingAreas = Mapper.Map<List<DALModel.TestingArea>, List<ExamModel.TestingArea>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.TestingArea>, List<ITestingArea>>(testingAreas));
+            var dalTestingArea = await Repository.SingleAsync<DALModel.TestingArea>(id);
+            return Mapper.Map<ExamModel.TestingArea>(dalTestingArea);
         }
 
-        public virtual Task<List<ITestingArea>> GetAllAsync()
-        {
-            var dalTestingAreas = Repository.WhereAsync<DALModel.TestingArea>().ToListAsync<DALModel.TestingArea>().Result;
-            var testingAreas = Mapper.Map<List<DALModel.TestingArea>, List<ExamModel.TestingArea>>(dalTestingAreas);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.TestingArea>, List<ITestingArea>>(testingAreas));
-        }
-
-        public virtual Task<ITestingArea> GetByIdAsync(Guid id) 
-        {
-            var dalTestingArea = Repository.SingleAsync<DALModel.TestingArea>(id).Result;
-            ITestingArea testingArea = Mapper.Map<DALModel.TestingArea, ExamModel.TestingArea>(dalTestingArea);
-            return Task.Factory.StartNew(() => testingArea);
-        }
-
-        public virtual Task<int> AddAsync(ITestingArea entity)
+        public virtual async Task<int> AddAsync(ITestingArea entity)
         {
             try
             {
-                
-                var testingArea = Mapper.Map<ExamModel.TestingArea>(entity);
-                var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
-                return Repository.AddAsync<DALModel.TestingArea>(dalTestingArea);
-                 
-                /* -- ne radi ovako...
-                var testingArea = Mapper.Map<ITestingArea, DALModel.TestingArea>(entity);
-                return Repository.AddAsync<DALModel.TestingArea>(testingArea); */
+                return await Repository.AddAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
-            
         }
 
-        public virtual Task<int> UpdateAsync(ITestingArea entity)
+        public virtual async Task<int> UpdateAsync(ITestingArea entity)
         {
-            var testingArea = Mapper.Map<ITestingArea, ExamModel.TestingArea>(entity);
-            var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
             try
             {
-                return Repository.UpdateAsync<DALModel.TestingArea>(dalTestingArea);
+                return await Repository.UpdateAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(ITestingArea entity)
+        public virtual async Task<int> DeleteAsync(ITestingArea entity)
         {
-            var testingArea = Mapper.Map<ITestingArea, ExamModel.TestingArea>(entity);
-            var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
-            return Repository.DeleteAsync<DALModel.TestingArea>(dalTestingArea);
+            return await Repository.DeleteAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.TestingArea>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, ITestingArea entity)
-        {
-            var testingArea = Mapper.Map<ExamModel.TestingArea>(entity);
-            var dalTestingArea = Mapper.Map<ExamModel.TestingArea, DALModel.TestingArea>(testingArea);
-            return unitOfWork.AddAsync<DALModel.TestingArea>(dalTestingArea);
+            return await Repository.DeleteAsync<DALModel.TestingArea>(id);
         }
     }
 }

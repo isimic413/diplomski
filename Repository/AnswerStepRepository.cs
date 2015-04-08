@@ -16,93 +16,128 @@ namespace ExamPreparation.Repository
     public class AnswerStepRepository: IAnswerStepRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public AnswerStepRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public IUnitOfWork CreateUnitOfWork()
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            return Repository.CreateUnitOfWork();
         }
 
-        public virtual Task<List<IAnswerStep>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
+        public virtual async Task<List<IAnswerStep>> GetAsync(
+            string sortOrderFirst = "problemId", string sortOrderSecond = "stepNumber",
+            int pageNumber = 0, int pageSize = 500)
         {
-            if (pageSize <= 0) return GetAllAsync();
+            pageSize = (pageSize > 50) ? 50 : pageSize;
 
-            var dalPage = Repository.WhereAsync<DALModel.AnswerStep>()
+            var page = await Repository.WhereAsync<DALModel.AnswerStep>()
                 .OrderBy(item => item.ProblemId)
+                .ThenBy(item => item.StepNumber)
                 .Skip<DALModel.AnswerStep>((pageNumber - 1) * pageSize)
                 .Take<DALModel.AnswerStep>(pageSize)
-                .ToListAsync<DALModel.AnswerStep>()
-                .Result;
+                .ToListAsync<DALModel.AnswerStep>();
 
-            var answerSteps = Mapper.Map<List<DALModel.AnswerStep>, List<ExamModel.AnswerStep>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.AnswerStep>, List<IAnswerStep>>(answerSteps));
+            return new List<IAnswerStep>(Mapper.Map<List<ExamModel.AnswerStep>>(page));
         }
 
-        public virtual Task<List<IAnswerStep>> GetAllAsync()
+        public virtual async Task<IAnswerStep> GetAsync(Guid id)
         {
-            var dalAnswerSteps = Repository.WhereAsync<DALModel.AnswerStep>().ToListAsync<DALModel.AnswerStep>().Result;
-            var answerSteps = Mapper.Map<List<DALModel.AnswerStep>, List<ExamModel.AnswerStep>>(dalAnswerSteps);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.AnswerStep>, List<IAnswerStep>>(answerSteps));
+            var dalAnswerStep = await Repository.SingleAsync<DALModel.AnswerStep>(id);
+            return Mapper.Map<ExamModel.AnswerStep>(dalAnswerStep);
         }
 
-        public virtual Task<IAnswerStep> GetByIdAsync(Guid id)
-        {
-            var dalAnswerStep = Repository.SingleAsync<DALModel.AnswerStep>(id).Result;
-            IAnswerStep answerStep = Mapper.Map<DALModel.AnswerStep, ExamModel.AnswerStep>(dalAnswerStep);
-            return Task.Factory.StartNew(() => answerStep);
-        }
-
-        public virtual Task<int> AddAsync(IAnswerStep entity)
+        public virtual async Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
             try
             {
-                var answerStep = Mapper.Map<ExamModel.AnswerStep>(entity);
-                var dalAnswerStep = Mapper.Map<ExamModel.AnswerStep, DALModel.AnswerStep>(answerStep);
-                return Repository.AddAsync<DALModel.AnswerStep>(dalAnswerStep);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
+                if (picture != null && entity.HasPicture)
+                {
+                    IUnitOfWork unitOfWork = CreateUnitOfWork();
 
+                    await unitOfWork.AddAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                    await unitOfWork.AddAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(picture));
+
+                    return await unitOfWork.CommitAsync();
+                }
+                else if (picture == null && !entity.HasPicture)
+                {
+                    return await Repository.AddAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
-        public virtual Task<int> UpdateAsync(IAnswerStep entity)
+        public virtual async Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture) // picture...?
         {
-            var answerStep = Mapper.Map<IAnswerStep, ExamModel.AnswerStep>(entity);
-            var dalAnswerStep = Mapper.Map<ExamModel.AnswerStep, DALModel.AnswerStep>(answerStep);
             try
             {
-                return Repository.UpdateAsync<DALModel.AnswerStep>(dalAnswerStep);
+                if (picture != null && entity.HasPicture)
+                {
+                    IUnitOfWork unitOfWork = CreateUnitOfWork();
+
+                    await unitOfWork.UpdateAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                    await unitOfWork.UpdateAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(picture));
+
+                    return await unitOfWork.CommitAsync();
+                }
+                else if (picture == null && !entity.HasPicture)
+                {
+                    return await Repository.UpdateAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                }
+                else
+                {
+                    return 0;
+                }
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(IAnswerStep entity)
+        public virtual async Task<int> DeleteAsync(IAnswerStep entity)
         {
-            var answerStep = Mapper.Map<IAnswerStep, ExamModel.AnswerStep>(entity);
-            var dalAnswerStep = Mapper.Map<ExamModel.AnswerStep, DALModel.AnswerStep>(answerStep);
-            return Repository.DeleteAsync<DALModel.AnswerStep>(dalAnswerStep);
+
+            try
+            {
+                if (entity.HasPicture)
+                {
+                    IUnitOfWork unitOfWork = CreateUnitOfWork();
+                    var pictures = Repository.WhereAsync<DALModel.AnswerStepPicture>()
+                        .Where(e => e.AnswerStepId == entity.Id);
+
+                    await unitOfWork.DeleteAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                    foreach (var picture in pictures)
+                    {
+                        await unitOfWork.DeleteAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(picture));
+                    }
+
+                    return await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    return await Repository.DeleteAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
+                }
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.AnswerStep>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerStep entity)
-        {
-            var answerStep = Mapper.Map<ExamModel.AnswerStep>(entity);
-            var dalAnswerStep = Mapper.Map<ExamModel.AnswerStep, DALModel.AnswerStep>(answerStep);
-            return unitOfWork.AddAsync<DALModel.AnswerStep>(dalAnswerStep);
+            return await Repository.DeleteAsync<DALModel.AnswerStep>(id);
         }
     }
 }

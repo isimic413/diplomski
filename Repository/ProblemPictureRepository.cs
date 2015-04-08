@@ -16,93 +16,65 @@ namespace ExamPreparation.Repository
     public class ProblemPictureRepository: IProblemPictureRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public ProblemPictureRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public virtual async Task<List<IProblemPicture>> GetAsync(string sortOrder = "problemId", 
+            int pageNumber = 0, int pageSize = 50)
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
-        }
+            pageSize = (pageSize > 50) ? 50 : pageSize;
 
-        public virtual Task<List<IProblemPicture>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
-        {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.ProblemPicture>()
+            var page = await Repository.WhereAsync<DALModel.ProblemPicture>()
                 .OrderBy(item => item.ProblemId)
                 .Skip<DALModel.ProblemPicture>((pageNumber - 1) * pageSize)
                 .Take<DALModel.ProblemPicture>(pageSize)
-                .ToListAsync<DALModel.ProblemPicture>()
-                .Result;
+                .ToListAsync<DALModel.ProblemPicture>();
 
-            var problemPictures = Mapper.Map<List<DALModel.ProblemPicture>, List<ExamModel.ProblemPicture>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.ProblemPicture>, List<IProblemPicture>>(problemPictures));
+            return new List<IProblemPicture>(Mapper.Map<List<ExamModel.ProblemPicture>>(page));
         }
 
-        public virtual Task<List<IProblemPicture>> GetAllAsync()
+        public virtual async Task<IProblemPicture> GetAsync(Guid id)
         {
-            var dalProblemPictures = Repository.WhereAsync<DALModel.ProblemPicture>().ToListAsync<DALModel.ProblemPicture>().Result;
-            var problemPictures = Mapper.Map<List<DALModel.ProblemPicture>, List<ExamModel.ProblemPicture>>(dalProblemPictures);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.ProblemPicture>, List<IProblemPicture>>(problemPictures));
+            var dalProblemPicture = await Repository.SingleAsync<DALModel.ProblemPicture>(id);
+            return Mapper.Map<ExamModel.ProblemPicture>(dalProblemPicture);
         }
 
-        public virtual Task<IProblemPicture> GetByIdAsync(Guid id)
-        {
-            var dalProblemPicture = Repository.SingleAsync<DALModel.ProblemPicture>(id).Result;
-            IProblemPicture problemPicture = Mapper.Map<DALModel.ProblemPicture, ExamModel.ProblemPicture>(dalProblemPicture);
-            return Task.Factory.StartNew(() => problemPicture);
-        }
-
-        public virtual Task<int> AddAsync(IProblemPicture entity)
+        public virtual async Task<int> AddAsync(IProblemPicture entity)
         {
             try
             {
-                var problemPicture = Mapper.Map<ExamModel.ProblemPicture>(entity);
-                var dalProblemPicture = Mapper.Map<ExamModel.ProblemPicture, DALModel.ProblemPicture>(problemPicture);
-                return Repository.AddAsync<DALModel.ProblemPicture>(dalProblemPicture);
+                return await Repository.AddAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
-
         }
 
-        public virtual Task<int> UpdateAsync(IProblemPicture entity)
+        public virtual async Task<int> UpdateAsync(IProblemPicture entity)
         {
-            var problemPicture = Mapper.Map<IProblemPicture, ExamModel.ProblemPicture>(entity);
-            var dalProblemPicture = Mapper.Map<ExamModel.ProblemPicture, DALModel.ProblemPicture>(problemPicture);
             try
             {
-                return Repository.UpdateAsync<DALModel.ProblemPicture>(dalProblemPicture);
+                return await Repository.UpdateAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(IProblemPicture entity)
+        public virtual async Task<int> DeleteAsync(IProblemPicture entity)
         {
-            var problemPicture = Mapper.Map<IProblemPicture, ExamModel.ProblemPicture>(entity);
-            var dalProblemPicture = Mapper.Map<ExamModel.ProblemPicture, DALModel.ProblemPicture>(problemPicture);
-            return Repository.DeleteAsync<DALModel.ProblemPicture>(dalProblemPicture);
+
+            return await Repository.DeleteAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.ProblemPicture>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IProblemPicture entity)
-        {
-            var problemPicture = Mapper.Map<ExamModel.ProblemPicture>(entity);
-            var dalProblemPicture = Mapper.Map<ExamModel.ProblemPicture, DALModel.ProblemPicture>(problemPicture);
-            return unitOfWork.AddAsync<DALModel.ProblemPicture>(dalProblemPicture);
+            return await Repository.DeleteAsync<DALModel.ProblemPicture>(id);
         }
     }
 }

@@ -8,19 +8,11 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IAnswerChoicePictureRepository
     {
-        IUnitOfWork UnitOfWork { get; set; }
-
-        void CreateUnitOfWork();
-
-        Task<List<IAnswerChoicePicture>> GetPageAsync(int pageSize = 0, int pageNumber = 0);
-
-        Task<List<IAnswerChoicePicture>> GetAllAsync();
-        Task<IAnswerChoicePicture> GetByIdAsync(Guid id);
+        Task<List<IAnswerChoicePicture>> GetAsync(string sortOrder = "choiceId", int pageNumber = 0, int pageSize = 50);
+        Task<IAnswerChoicePicture> GetAsync(Guid id);
         Task<int> AddAsync(IAnswerChoicePicture entity);
         Task<int> UpdateAsync(IAnswerChoicePicture entity);
         Task<int> DeleteAsync(IAnswerChoicePicture entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerChoicePicture entity);
     }
 }

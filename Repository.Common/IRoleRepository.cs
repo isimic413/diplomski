@@ -8,19 +8,11 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IRoleRepository
     {
-        IUnitOfWork UnitOfWork { get; set; }
-
-        void CreateUnitOfWork();
-
-        Task<List<IRole>> GetPageAsync(int pageSize = 0, int pageNumber = 0);
-
-        Task<List<IRole>> GetAllAsync();
-        Task<IRole> GetByIdAsync(Guid id);
+        Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50);
+        Task<IRole> GetAsync(Guid id);
         Task<int> AddAsync(IRole entity);
         Task<int> UpdateAsync(IRole entity);
         Task<int> DeleteAsync(IRole entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<int> AddAsync(IUnitOfWork unitOfWork, IRole entity);
     }
 }

@@ -25,7 +25,7 @@ namespace ExamPreparation.Repository
             DbContext = dbContext;
         }
 
-        public virtual Task<int> AddAsync<T>(T entity) where T : class
+        public virtual async Task<int> AddAsync<T>(T entity) where T : class
         {
             try
             {
@@ -38,22 +38,16 @@ namespace ExamPreparation.Repository
                 {
                     DbContext.Set<T>().Add(entity);
                 }
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 1;
-                });
+                return 1;
             }
-            catch (Exception e)
+            catch
             {
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 0;
-                });
+                return 0;
             }
             
         }
 
-        public virtual Task<int> UpdateAsync<T>(T entity) where T : class
+        public virtual async Task<int> UpdateAsync<T>(T entity) where T : class
         {
             try
             {
@@ -63,22 +57,16 @@ namespace ExamPreparation.Repository
                     DbContext.Set<T>().Attach(entity);
                 }
                 dbEntityEntry.State = EntityState.Modified;
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 1;
-                });
+                return 1;
             }
-            catch (Exception e)
+            catch
             {
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 0;
-                });
+                return 0;
             }
             
         }
 
-        public virtual Task<int> DeleteAsync<T>(T entity) where T : class
+        public virtual async Task<int> DeleteAsync<T>(T entity) where T : class
         {
             try
             {
@@ -92,40 +80,37 @@ namespace ExamPreparation.Repository
                     DbContext.Set<T>().Attach(entity);
                     DbContext.Set<T>().Remove(entity);
                 }
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 1;
-                });
+                return 1;
             }
-            catch (Exception e)
+            catch
             {
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 0;
-                });
+                return 0;
             }
             
         }
 
-        public virtual Task<int> DeleteAsync<T>(Guid id) where T : class
+        public virtual async Task<int> DeleteAsync<T>(Guid id) where T : class
         {
             var entity = DbContext.Set<T>().Find(id);
             if (entity == null)
             {
-                return Task<int>.Factory.StartNew(() =>
-                {
-                    return 0;
-                });
+                return 0;
             }
-            return DeleteAsync<T>(entity);
+            return await DeleteAsync<T>(entity);
         }
 
-        public Task<int> CommitAsync()
+        public async Task<int> CommitAsync()
         {
-            return DbContext.SaveChangesAsync();
+            int result = 0;
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                result = await DbContext.SaveChangesAsync();
+                scope.Complete();
+            }
+            return result;
         }
 
-        public void DisposeAsync()
+        public void Dispose()
         {
             DbContext.Dispose();
         }

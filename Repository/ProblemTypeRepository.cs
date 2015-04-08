@@ -16,93 +16,85 @@ namespace ExamPreparation.Repository
     public class ProblemTypeRepository: IProblemTypeRepository
     {
         protected IRepository Repository { get; set; }
-        public IUnitOfWork UnitOfWork { get; set; }
 
         public ProblemTypeRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public virtual async Task<List<IProblemType>> GetAsync(string sortOrder = "typeId", int pageNumber = 0, int pageSize = 50)
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            List<DALModel.ProblemType> page;
+            pageSize = (pageSize > 50) ? 50 : pageSize;
+
+            switch (sortOrder)
+            {
+                case "title":
+                    page = await Repository.WhereAsync<DALModel.ProblemType>()
+                        .OrderBy(item => item.Title)
+                        .Skip<DALModel.ProblemType>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.ProblemType>(pageSize)
+                        .ToListAsync<DALModel.ProblemType>();
+                    break;
+
+                case "abrv":
+                    page = await Repository.WhereAsync<DALModel.ProblemType>()
+                        .OrderBy(item => item.Abrv)
+                        .Skip<DALModel.ProblemType>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.ProblemType>(pageSize)
+                        .ToListAsync<DALModel.ProblemType>();
+                    break;
+
+                default: // case "typeId"
+                    page = await Repository.WhereAsync<DALModel.ProblemType>()
+                        .OrderBy(item => item.Id)
+                        .Skip<DALModel.ProblemType>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.ProblemType>(pageSize)
+                        .ToListAsync<DALModel.ProblemType>();
+                    break;
+            }
+
+            return new List<IProblemType>(Mapper.Map<List<ExamModel.ProblemType>>(page));
         }
 
-        public virtual Task<List<IProblemType>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
+        public virtual async Task<IProblemType> GetAsync(Guid id)
         {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.ProblemType>()
-                .OrderBy(item => item.Abrv)
-                .Skip<DALModel.ProblemType>((pageNumber - 1) * pageSize)
-                .Take<DALModel.ProblemType>(pageSize)
-                .ToListAsync<DALModel.ProblemType>()
-                .Result;
-
-            var problemTypes = Mapper.Map<List<DALModel.ProblemType>, List<ExamModel.ProblemType>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.ProblemType>, List<IProblemType>>(problemTypes));
+            var dalProblemType = await Repository.SingleAsync<DALModel.ProblemType>(id);
+            return Mapper.Map<ExamModel.ProblemType>(dalProblemType);
         }
 
-        public virtual Task<List<IProblemType>> GetAllAsync()
-        {
-            var dalProblemTypes = Repository.WhereAsync<DALModel.ProblemType>().ToListAsync<DALModel.ProblemType>().Result;
-            var problemTypes = Mapper.Map<List<DALModel.ProblemType>, List<ExamModel.ProblemType>>(dalProblemTypes);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.ProblemType>, List<IProblemType>>(problemTypes));
-        }
-
-        public virtual Task<IProblemType> GetByIdAsync(Guid id)
-        {
-            var dalProblemType = Repository.SingleAsync<DALModel.ProblemType>(id).Result;
-            IProblemType problemType = Mapper.Map<DALModel.ProblemType, ExamModel.ProblemType>(dalProblemType);
-            return Task.Factory.StartNew(() => problemType);
-        }
-
-        public virtual Task<int> AddAsync(IProblemType entity)
+        public virtual async Task<int> AddAsync(IProblemType entity)
         {
             try
             {
-                var problemType = Mapper.Map<ExamModel.ProblemType>(entity);
-                var dalProblemType = Mapper.Map<ExamModel.ProblemType, DALModel.ProblemType>(problemType);
-                return Repository.AddAsync<DALModel.ProblemType>(dalProblemType);
+                return await Repository.AddAsync<DALModel.ProblemType>(Mapper.Map<DALModel.ProblemType>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
-
         }
 
-        public virtual Task<int> UpdateAsync(IProblemType entity)
+        public virtual async Task<int> UpdateAsync(IProblemType entity)
         {
-            var problemType = Mapper.Map<IProblemType, ExamModel.ProblemType>(entity);
-            var dalProblemType = Mapper.Map<ExamModel.ProblemType, DALModel.ProblemType>(problemType);
             try
             {
-                return Repository.UpdateAsync<DALModel.ProblemType>(dalProblemType);
+                return await Repository.UpdateAsync<DALModel.ProblemType>(Mapper.Map<DALModel.ProblemType>(entity));
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.ToString());
+                return 0;
             }
         }
 
-        public virtual Task<int> DeleteAsync(IProblemType entity)
+        public virtual async Task<int> DeleteAsync(IProblemType entity)
         {
-            var problemType = Mapper.Map<IProblemType, ExamModel.ProblemType>(entity);
-            var dalProblemType = Mapper.Map<ExamModel.ProblemType, DALModel.ProblemType>(problemType);
-            return Repository.DeleteAsync<DALModel.ProblemType>(dalProblemType);
+            return await Repository.DeleteAsync<DALModel.ProblemType>(Mapper.Map<DALModel.ProblemType>(entity));
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.ProblemType>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IProblemType entity)
-        {
-            var problemType = Mapper.Map<ExamModel.ProblemType>(entity);
-            var dalProblemType = Mapper.Map<ExamModel.ProblemType, DALModel.ProblemType>(problemType);
-            return unitOfWork.AddAsync<DALModel.ProblemType>(dalProblemType);
+            return await Repository.DeleteAsync<DALModel.ProblemType>(id);
         }
     }
 }

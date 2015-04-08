@@ -8,19 +8,13 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IUserRepository
     {
-        IUnitOfWork UnitOfWork { get; set; }
+        IUnitOfWork CreateUnitOfWork();
 
-        void CreateUnitOfWork();
-
-        Task<List<IUser>> GetPageAsync(int pageSize = 0, int pageNumber = 0);
-
-        Task<List<IUser>> GetAllAsync();
-        Task<IUser> GetByIdAsync(Guid id);
-        Task<int> AddAsync(IUser entity);
+        Task<List<IUser>> GetAsync(string sortOrder = "email", int pageNumber = 0, int pageSize = 50);
+        Task<IUser> GetAsync(Guid id);
+        Task<int> AddAsync(IUser entity, List<IRole> roles = null);
         Task<int> UpdateAsync(IUser entity);
         Task<int> DeleteAsync(IUser entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<int> AddAsync(IUnitOfWork unitOfWork, IUser entity);
     }
 }
