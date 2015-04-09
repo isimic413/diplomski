@@ -24,21 +24,44 @@ namespace ExamPreparation.Repository
 
         public virtual async Task<List<IAnswerStepPicture>> GetAsync(string sortOrder = "stepId", int pageNumber = 0, int pageSize = 50)
         {
-            pageSize = (pageSize > 50) ? 50 : pageSize;
+            try
+            {
+                List<DALModel.AnswerStepPicture> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-            var page = await Repository.WhereAsync<DALModel.AnswerStepPicture>()
-                .OrderBy(item => item.AnswerStepId)
-                .Skip<DALModel.AnswerStepPicture>((pageNumber - 1) * pageSize)
-                .Take<DALModel.AnswerStepPicture>(pageSize)
-                .ToListAsync<DALModel.AnswerStepPicture>();
 
-            return new List<IAnswerStepPicture>(Mapper.Map<List<ExamModel.AnswerStepPicture>>(page));
+                switch (sortOrder)
+                {
+                    case "stepId":
+                        page = await Repository.WhereAsync<DALModel.AnswerStepPicture>()
+                        .OrderBy(item => item.AnswerStepId)
+                        .Skip<DALModel.AnswerStepPicture>((pageNumber - 1) * pageSize)
+                        .Take<DALModel.AnswerStepPicture>(pageSize)
+                        .ToListAsync<DALModel.AnswerStepPicture>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
+
+                return new List<IAnswerStepPicture>(Mapper.Map<List<ExamModel.AnswerStepPicture>>(page));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<IAnswerStepPicture> GetAsync(Guid id)
         {
-            var dalAnswerStepPicture = await Repository.SingleAsync<DALModel.AnswerStepPicture>(id);
-            return Mapper.Map<ExamModel.AnswerStepPicture>(dalAnswerStepPicture);
+            try
+            {
+                var dalAnswerStepPicture = await Repository.SingleAsync<DALModel.AnswerStepPicture>(id);
+                return Mapper.Map<ExamModel.AnswerStepPicture>(dalAnswerStepPicture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> AddAsync(IAnswerStepPicture entity)
@@ -47,9 +70,9 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.AddAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -59,20 +82,34 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.UpdateAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
         public virtual async Task<int> DeleteAsync(IAnswerStepPicture entity)
         {
-            return await Repository.DeleteAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(entity));
+            try 
+            {
+                return await Repository.DeleteAsync<DALModel.AnswerStepPicture>(Mapper.Map<DALModel.AnswerStepPicture>(entity));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return await Repository.DeleteAsync<DALModel.AnswerStepPicture>(id);
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.AnswerStepPicture>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

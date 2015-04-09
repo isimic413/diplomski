@@ -8,8 +8,6 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IProblemRepository
     {
-        IUnitOfWork CreateUnitOfWork();
-
         Task<List<IProblem>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50);
         Task<IProblem> GetAsync(Guid id);
         Task<int> AddAsync(IProblem entity, IProblemPicture picture = null, 

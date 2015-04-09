@@ -1,115 +1,92 @@
-﻿//using AutoMapper;
-//using System;
-//using System.Collections.Generic;
-//using System.Data.Entity;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-//using ExamPreparation.Model.Common;
-//using ExamPreparation.Repository.Common;
-//using DALModel = ExamPreparation.DAL.Models;
-//using ExamModel = ExamPreparation.Model;
+using ExamPreparation.Model.Common;
+using ExamPreparation.Repository.Common;
+using DALModel = ExamPreparation.DAL.Models;
+using ExamModel = ExamPreparation.Model;
 
-//namespace ExamPreparation.Repository
-//{
-//    public class ProblemRepository: IProblemRepository
-//    {
-//        protected IRepository Repository { get; set; }
+namespace ExamPreparation.Repository
+{
+    public class ProblemRepository : IProblemRepository
+    {
+        protected IRepository Repository { get; set; }
 
-//        public ProblemRepository(IRepository repository)
-//        {
-//            Repository = repository;
-//        }
+        public ProblemRepository(IRepository repository)
+        {
+            Repository = repository;
+        }
 
-//        public IUnitOfWork CreateUnitOfWork()
-//        {
-//             return Repository.CreateUnitOfWork();
-//        }
+        protected IUnitOfWork CreateUnitOfWork()
+        {
+            return Repository.CreateUnitOfWork();
+        }
 
-//        public virtual Task<List<IProblem>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
-//        {
-//            if (pageSize <= 0) return GetAllAsync();
+        public virtual async Task<List<IProblem>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
+        {
+            try
+            {
+                List<DALModel.Problem> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-//            var dalPage = Repository.WhereAsync<DALModel.Problem>()
-//                .OrderBy(item => item.TestingAreaId)
-//                .Skip<DALModel.Problem>((pageNumber - 1) * pageSize)
-//                .Take<DALModel.Problem>(pageSize)
-//                .ToListAsync<DALModel.Problem>()
-//                .Result;
+                switch (sortOrder)
+                { 
+                    case "problemId":
+                        page = await Repository.WhereAsync<DALModel.Problem>()
+                            .OrderBy(item => item.Id)
+                            .Skip<DALModel.Problem>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.Problem>(pageSize)
+                            .ToListAsync<DALModel.Problem>();
+                        break;
+                    case "type":
+                        page = await Repository.WhereAsync<DALModel.Problem>()
+                            .OrderBy(item => item.ProblemTypeId)
+                            .Skip<DALModel.Problem>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.Problem>(pageSize)
+                            .ToListAsync<DALModel.Problem>();
+                        break;
+                    case "testingArea": 
+                         page = await Repository.WhereAsync<DALModel.Problem>()
+                             .OrderBy(item => item.TestingAreaId)
+                             .Skip<DALModel.Problem>((pageNumber - 1) * pageSize)
+                             .Take<DALModel.Problem>(pageSize)
+                             .ToListAsync<DALModel.Problem>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
 
-//            var problems = Mapper.Map<List<DALModel.Problem>, List<ExamModel.Problem>>(dalPage);
-//            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.Problem>, List<IProblem>>(problems));
-//        }
+                return new List<IProblem>(Mapper.Map<List<ExamModel.Problem>>(page));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public virtual Task<List<IProblem>> GetAllAsync()
-//        {
-//            var dalProblems = Repository.WhereAsync<DALModel.Problem>().ToListAsync<DALModel.Problem>().Result;
-//            var problems = Mapper.Map<List<DALModel.Problem>, List<ExamModel.Problem>>(dalProblems);
-//            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.Problem>, List<IProblem>>(problems));
-//        }
+        public virtual async Task<IProblem> GetAsync(Guid id)
+        {
+            try
+            {
+                var dalProblem = await Repository.SingleAsync<DALModel.Problem>(id);
+                return Mapper.Map<ExamModel.Problem>(dalProblem);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public virtual Task<IProblem> GetByIdAsync(Guid id) 
-//        {
-//            var dalProblem = Repository.SingleAsync<DALModel.Problem>(id).Result;
-//            IProblem problem = Mapper.Map<DALModel.Problem, ExamModel.Problem>(dalProblem);
-//            return Task.Factory.StartNew(() => problem);
-//        }
 
-//        public virtual Task<int> AddAsync(IProblem entity)
-//        {
-//            try
-//            {
-
-//                var problem = Mapper.Map<ExamModel.Problem>(entity);
-//                var dalProblem = Mapper.Map<ExamModel.Problem, DALModel.Problem>(problem);
-//                return Repository.AddAsync<DALModel.Problem>(dalProblem);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-            
-//        }
-
-//        public virtual Task<int> UpdateAsync(IProblem entity)
-//        {
-//            var problem = Mapper.Map<IProblem, ExamModel.Problem>(entity);
-//            var dalProblem = Mapper.Map<ExamModel.Problem, DALModel.Problem>(problem);
-//            try
-//            {
-//                return Repository.UpdateAsync<DALModel.Problem>(dalProblem);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
-
-//        public virtual Task<int> DeleteAsync(IProblem entity)
-//        {
-//            var problem = Mapper.Map<IProblem, ExamModel.Problem>(entity);
-//            var dalProblem = Mapper.Map<ExamModel.Problem, DALModel.Problem>(problem);
-//            return Repository.DeleteAsync<DALModel.Problem>(dalProblem);
-//        }
-
-//        public virtual Task<int> DeleteAsync(Guid id)
-//        {
-//            return Repository.DeleteAsync<DALModel.Problem>(id);
-//        }
-
-//        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IProblem entity)
-//        {
-//            var problem = Mapper.Map<ExamModel.Problem>(entity);
-//            var dalProblem = Mapper.Map<ExamModel.Problem, DALModel.Problem>(problem);
-//            return unitOfWork.AddAsync<DALModel.Problem>(dalProblem);
-//        }
-
-//        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerChoice entity)
-//        {
-//            var choice = Mapper.Map<ExamModel.AnswerChoice>(entity);
-//            var dalChoice = Mapper.Map<ExamModel.AnswerChoice, DALModel.AnswerChoice>(choice);
-//            return unitOfWork.AddAsync<DALModel.AnswerChoice>(dalChoice);
-//        }
-//    }
-//}
+        public virtual Task<int> AddAsync(IProblem entity, IProblemPicture picture = null,
+            List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null);
+        public virtual Task<int> UpdateAsync(IProblem entity);
+        public virtual Task<int> DeleteAsync(IProblem entity);
+        public virtual Task<int> DeleteAsync(Guid id);
+    }
+}

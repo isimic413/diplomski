@@ -40,9 +40,9 @@ namespace ExamPreparation.Repository
                 }
                 return 1;
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
             
         }
@@ -59,9 +59,9 @@ namespace ExamPreparation.Repository
                 dbEntityEntry.State = EntityState.Modified;
                 return 1;
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
             
         }
@@ -82,9 +82,9 @@ namespace ExamPreparation.Repository
                 }
                 return 1;
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
             
         }

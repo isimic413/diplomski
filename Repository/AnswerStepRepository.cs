@@ -22,31 +22,51 @@ namespace ExamPreparation.Repository
             Repository = repository;
         }
 
-        public IUnitOfWork CreateUnitOfWork()
+        private IUnitOfWork CreateUnitOfWork()
         {
             return Repository.CreateUnitOfWork();
         }
 
-        public virtual async Task<List<IAnswerStep>> GetAsync(
-            string sortOrderFirst = "problemId", string sortOrderSecond = "stepNumber",
-            int pageNumber = 0, int pageSize = 500)
+        public virtual async Task<List<IAnswerStep>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 500)
         {
-            pageSize = (pageSize > 50) ? 50 : pageSize;
+            try
+            { 
+                List<DALModel.AnswerStep> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-            var page = await Repository.WhereAsync<DALModel.AnswerStep>()
-                .OrderBy(item => item.ProblemId)
-                .ThenBy(item => item.StepNumber)
-                .Skip<DALModel.AnswerStep>((pageNumber - 1) * pageSize)
-                .Take<DALModel.AnswerStep>(pageSize)
-                .ToListAsync<DALModel.AnswerStep>();
+                switch (sortOrder)
+                {
+                    case "problemId":
+                        page = await Repository.WhereAsync<DALModel.AnswerStep>()
+                            .OrderBy(item => item.ProblemId)
+                            .ThenBy(item => item.StepNumber)
+                            .Skip<DALModel.AnswerStep>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.AnswerStep>(pageSize)
+                            .ToListAsync<DALModel.AnswerStep>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
 
-            return new List<IAnswerStep>(Mapper.Map<List<ExamModel.AnswerStep>>(page));
+                return new List<IAnswerStep>(Mapper.Map<List<ExamModel.AnswerStep>>(page));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<IAnswerStep> GetAsync(Guid id)
         {
-            var dalAnswerStep = await Repository.SingleAsync<DALModel.AnswerStep>(id);
-            return Mapper.Map<ExamModel.AnswerStep>(dalAnswerStep);
+            try
+            {
+                var dalAnswerStep = await Repository.SingleAsync<DALModel.AnswerStep>(id);
+                return Mapper.Map<ExamModel.AnswerStep>(dalAnswerStep);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
@@ -71,9 +91,9 @@ namespace ExamPreparation.Repository
                     return 0;
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -99,9 +119,9 @@ namespace ExamPreparation.Repository
                     return 0;
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -129,15 +149,22 @@ namespace ExamPreparation.Repository
                     return await Repository.DeleteAsync<DALModel.AnswerStep>(Mapper.Map<DALModel.AnswerStep>(entity));
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
         public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return await Repository.DeleteAsync<DALModel.AnswerStep>(id);
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.AnswerStep>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

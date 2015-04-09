@@ -22,29 +22,50 @@ namespace ExamPreparation.Repository
             Repository = repository;
         }
 
-        // public??
-        public IUnitOfWork CreateUnitOfWork()
+        private IUnitOfWork CreateUnitOfWork()
         {
             return Repository.CreateUnitOfWork();
         }
 
         public virtual async Task<List<IAnswerChoice>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
         {
-            pageSize = (pageSize > 50) ? 50 : pageSize;
+            try
+            {
+                List<DALModel.AnswerChoice> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-            var page = await Repository.WhereAsync<DALModel.AnswerChoice>()
-                .OrderBy(item => item.ProblemId)
-                .Skip<DALModel.AnswerChoice>((pageNumber - 1) * pageSize)
-                .Take<DALModel.AnswerChoice>(pageSize)
-                .ToListAsync<DALModel.AnswerChoice>();
+                switch (sortOrder)
+                { 
+                    case "problemId":
+                        page = await Repository.WhereAsync<DALModel.AnswerChoice>()
+                            .OrderBy(item => item.ProblemId)
+                            .Skip<DALModel.AnswerChoice>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.AnswerChoice>(pageSize)
+                            .ToListAsync<DALModel.AnswerChoice>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
 
-            return new List<IAnswerChoice>(Mapper.Map<List<ExamModel.AnswerChoice>>(page));
+                return new List<IAnswerChoice>(Mapper.Map<List<ExamModel.AnswerChoice>>(page));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<IAnswerChoice> GetAsync(Guid id)
         {
-            var dalAnswerChoice = await Repository.SingleAsync<DALModel.AnswerChoice>(id);
-            return Mapper.Map<ExamModel.AnswerChoice>(dalAnswerChoice);
+            try
+            {
+                var dalAnswerChoice = await Repository.SingleAsync<DALModel.AnswerChoice>(id);
+                return Mapper.Map<ExamModel.AnswerChoice>(dalAnswerChoice);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
@@ -69,9 +90,9 @@ namespace ExamPreparation.Repository
                     return 0;
                 }
             }
-            catch 
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -97,9 +118,9 @@ namespace ExamPreparation.Repository
                     return 0;
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -126,15 +147,22 @@ namespace ExamPreparation.Repository
                     return await Repository.DeleteAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
         public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return await Repository.DeleteAsync<DALModel.AnswerChoice>(id);
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.AnswerChoice>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

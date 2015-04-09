@@ -24,43 +24,59 @@ namespace ExamPreparation.Repository
 
         public virtual async Task<List<ITestingArea>> GetAsync(string sortOrder = "areaId", int pageNumber = 0, int pageSize = 50)
         {
-            List<DALModel.TestingArea> page;
-            pageSize = (pageSize > 50) ? 50 : pageSize;
-
-            switch (sortOrder)
+            try
             {
-                case "title":
-                    page = await Repository.WhereAsync<DALModel.TestingArea>()
-                        .OrderBy(item => item.Title)
-                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
-                        .Take<DALModel.TestingArea>(pageSize)
-                        .ToListAsync<DALModel.TestingArea>();
-                    break;
+                List<DALModel.TestingArea> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-                case "abrv":
-                    page = await Repository.WhereAsync<DALModel.TestingArea>()
-                        .OrderBy(item => item.Abrv)
-                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
-                        .Take<DALModel.TestingArea>(pageSize)
-                        .ToListAsync<DALModel.TestingArea>();
-                    break;
+                switch (sortOrder)
+                {
+                    case "title":
+                        page = await Repository.WhereAsync<DALModel.TestingArea>()
+                            .OrderBy(item => item.Title)
+                            .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.TestingArea>(pageSize)
+                            .ToListAsync<DALModel.TestingArea>();
+                        break;
 
-                default: // case "areaId"
-                    page = await Repository.WhereAsync<DALModel.TestingArea>()
-                        .OrderBy(item => item.Id)
-                        .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
-                        .Take<DALModel.TestingArea>(pageSize)
-                        .ToListAsync<DALModel.TestingArea>();
-                    break;
+                    case "abrv":
+                        page = await Repository.WhereAsync<DALModel.TestingArea>()
+                            .OrderBy(item => item.Abrv)
+                            .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.TestingArea>(pageSize)
+                            .ToListAsync<DALModel.TestingArea>();
+                        break;
+
+                    case "areaId":
+                        page = await Repository.WhereAsync<DALModel.TestingArea>()
+                            .OrderBy(item => item.Id)
+                            .Skip<DALModel.TestingArea>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.TestingArea>(pageSize)
+                            .ToListAsync<DALModel.TestingArea>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
+
+                return new List<ITestingArea>(Mapper.Map<List<ExamModel.TestingArea>>(page));
             }
-
-            return new List<ITestingArea>(Mapper.Map<List<ExamModel.TestingArea>>(page));
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<ITestingArea> GetAsync(Guid id) 
         {
-            var dalTestingArea = await Repository.SingleAsync<DALModel.TestingArea>(id);
-            return Mapper.Map<ExamModel.TestingArea>(dalTestingArea);
+            try
+            {
+                var dalTestingArea = await Repository.SingleAsync<DALModel.TestingArea>(id);
+                return Mapper.Map<ExamModel.TestingArea>(dalTestingArea);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> AddAsync(ITestingArea entity)
@@ -69,9 +85,9 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.AddAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -81,20 +97,34 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.UpdateAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
         public virtual async Task<int> DeleteAsync(ITestingArea entity)
         {
-            return await Repository.DeleteAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return await Repository.DeleteAsync<DALModel.TestingArea>(id);
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.TestingArea>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

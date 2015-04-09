@@ -22,24 +22,45 @@ namespace ExamPreparation.Repository
             Repository = repository;
         }
 
-        public virtual async Task<List<IProblemPicture>> GetAsync(string sortOrder = "problemId", 
-            int pageNumber = 0, int pageSize = 50)
+        public virtual async Task<List<IProblemPicture>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
         {
-            pageSize = (pageSize > 50) ? 50 : pageSize;
+            try
+            {
+                List<DALModel.ProblemPicture> page;
+                pageSize = (pageSize > 50) ? 50 : pageSize;
 
-            var page = await Repository.WhereAsync<DALModel.ProblemPicture>()
-                .OrderBy(item => item.ProblemId)
-                .Skip<DALModel.ProblemPicture>((pageNumber - 1) * pageSize)
-                .Take<DALModel.ProblemPicture>(pageSize)
-                .ToListAsync<DALModel.ProblemPicture>();
+                switch (sortOrder)
+                {
+                    case "problemId":
+                        page = await Repository.WhereAsync<DALModel.ProblemPicture>()
+                            .OrderBy(item => item.ProblemId)
+                            .Skip<DALModel.ProblemPicture>((pageNumber - 1) * pageSize)
+                            .Take<DALModel.ProblemPicture>(pageSize)
+                            .ToListAsync<DALModel.ProblemPicture>();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sortOrder.");
+                }
 
-            return new List<IProblemPicture>(Mapper.Map<List<ExamModel.ProblemPicture>>(page));
+                return new List<IProblemPicture>(Mapper.Map<List<ExamModel.ProblemPicture>>(page));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<IProblemPicture> GetAsync(Guid id)
         {
-            var dalProblemPicture = await Repository.SingleAsync<DALModel.ProblemPicture>(id);
-            return Mapper.Map<ExamModel.ProblemPicture>(dalProblemPicture);
+            try
+            {
+                var dalProblemPicture = await Repository.SingleAsync<DALModel.ProblemPicture>(id);
+                return Mapper.Map<ExamModel.ProblemPicture>(dalProblemPicture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> AddAsync(IProblemPicture entity)
@@ -48,9 +69,9 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.AddAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
@@ -60,21 +81,34 @@ namespace ExamPreparation.Repository
             {
                 return await Repository.UpdateAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
             }
-            catch
+            catch (Exception e)
             {
-                return 0;
+                throw new Exception(e.ToString());
             }
         }
 
         public virtual async Task<int> DeleteAsync(IProblemPicture entity)
         {
-
-            return await Repository.DeleteAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.ProblemPicture>(Mapper.Map<DALModel.ProblemPicture>(entity));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
 
         public virtual async Task<int> DeleteAsync(Guid id)
         {
-            return await Repository.DeleteAsync<DALModel.ProblemPicture>(id);
+            try
+            {
+                return await Repository.DeleteAsync<DALModel.ProblemPicture>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }
