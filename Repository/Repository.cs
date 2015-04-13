@@ -7,7 +7,6 @@ using System.Data.Entity.Validation;
 using System.Threading.Tasks;
 
 using ExamPreparation.DAL.Models;
-using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 
 namespace ExamPreparation.Repository

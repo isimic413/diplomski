@@ -27,36 +27,18 @@ namespace ExamPreparation.WebApi.Controllers
 
         // GET: api/TestingArea
         [HttpGet]
-        [Route("page")]
-        public async Task<IHttpActionResult> Get(int pageSize, int pageNumber)
+        [Route("")]
+        public async Task<IHttpActionResult> Get(string sortOrder = "areaId", int pageNumber = 1, int pageSize = 50)
         {
             try
             {
-                var testingAreas = await Service.GetPageAsync(pageSize, pageNumber);
-                var testingAreaResult = Mapper.Map<List<TestingArea>>(testingAreas);
-                return Ok(Mapper.Map<List<TestingArea>, List<TestingAreaModel>>(testingAreaResult));
+                var testingAreas = await Service.GetAsync(sortOrder, pageNumber, pageSize);
+                var testingAreaResult = Mapper.Map<List<TestingAreaModel>>(testingAreas);
+                return Ok(testingAreaResult);
             }
             catch (Exception e)
             {
-                return BadRequest();
-            }
-        }
-
-        // GET: api/TestingArea
-        [HttpGet]
-        [Route("")]
-        public async Task<IHttpActionResult> Get()
-        {
-            try
-            {
-                var testingAreas = await Service.GetAllAsync();
-                var testingAreaResult = Mapper.Map<List<TestingArea>>(testingAreas);
-                // return Ok(Mapper.Map<List<TestingArea>, List<TestingAreaModel>>(testingAreaResult));
-                return Ok(testingAreaResult);
-            }
-            catch 
-            {
-                return NotFound();
+                return BadRequest(e.ToString());
             }
         }
 
@@ -65,11 +47,10 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Get(Guid id)
         {
-            var iTestingArea = await Service.GetByIdAsync(id);
+            var iTestingArea = await Service.GetAsync(id);
             if (iTestingArea != null)
             {
-                var testingArea = Mapper.Map<TestingArea>(iTestingArea);
-                //return Ok(Mapper.Map<TestingArea, TestingAreaModel>(testingArea));
+                var testingArea = Mapper.Map<TestingAreaModel>(iTestingArea);
                 return Ok(testingArea);
             }
             else return NotFound();
@@ -83,48 +64,36 @@ namespace ExamPreparation.WebApi.Controllers
             testingArea.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.AddAsync(Mapper.Map<TestingAreaModel, TestingArea>(testingArea));
+                var result = await Service.AddAsync(Mapper.Map<TestingArea>(testingArea));
                 if (result == 1) return Ok(testingArea);
                 else return BadRequest();
-                
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.ToString());
             }
         }
 
-        // Za provjeru UoW-a. Inace nece trebati UoW za TestingArea...
-        [HttpPost]
-        [Route("uow")]
-        public async Task<IHttpActionResult> PostNew(TestingAreaModel testingArea)
-        {
-            testingArea.Id = Guid.NewGuid();
-            try
-            {
-                var result = await Service.AddUoWAsync(Mapper.Map<TestingAreaModel, TestingArea>(testingArea));
-                if (result == 1) return Ok(testingArea);
-                else return BadRequest();
-
-            }
-            catch (Exception e)
-            {
-                return Ok(e.ToString());
-            }
-        }
-
+        
         // PUT: api/TestingArea/5
         [HttpPut]
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Put(Guid id, TestingAreaModel testingArea)
         {
-            if(id == testingArea.Id)
+            try
             {
-                var result = await Service.UpdateAsync(Mapper.Map<TestingAreaModel, TestingArea>(testingArea));
-                if (result == 1) return Ok(testingArea);
-                else return NotFound();
+                if (id == testingArea.Id)
+                {
+                    var result = await Service.UpdateAsync(Mapper.Map<TestingArea>(testingArea));
+                    if (result == 1) return Ok(testingArea);
+                    else return NotFound();
+                }
+                return BadRequest("IDs do not match.");
             }
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
 
         // DELETE: api/TestingArea/
@@ -132,24 +101,23 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Delete(Guid id)
         {
-            var result = await Service.DeleteAsync(id);
-            if (result == 1) return Ok("Deleted");
-            else return NotFound();
+            try
+            {
+                var result = await Service.DeleteAsync(id);
+                if (result == 1) return Ok("Deleted");
+                else return NotFound();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
     }
 
     public class TestingAreaModel
     {
         public Guid Id { get; set; }
-
-        //[Display(Name = "Testing area title")]
         public string Title { get; set; }
-
-        //[Display(Name = "Testing area abbreviation")]
         public string Abrv { get; set; }
-
-
-        //public virtual ICollection<Exam> Exams { get; set; }
-        //public virtual ICollection<TestingAreaProblem> TestingAreaProblems { get; set; }
     }
 }

@@ -1,100 +1,115 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using System.Transactions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-//using ExamPreparation.Model.Common;
-//using ExamPreparation.Repository.Common;
-//using ExamPreparation.Service.Common;
+using ExamPreparation.Model.Common;
+using ExamPreparation.Repository.Common;
+using ExamPreparation.Service.Common;
 
-//namespace ExamPreparation.Service
-//{
-//    public class ProblemService: IProblemService
-//    {
-//        protected IProblemRepository Repository { get; set; }
-//        protected IUnitOfWork UnitOfWork;
+namespace ExamPreparation.Service
+{
+    public class ProblemService : IProblemService
+    {
+        protected IProblemRepository Repository { get; set; }
 
-//        public ProblemService(IProblemRepository repository)
-//        {
-//            Repository = repository;
-//        }
+        public ProblemService(IProblemRepository repository)
+        {
+            Repository = repository;
+        }
 
-//        public Task<List<IProblem>> GetPageAsync(int pageSize, int pageNumber)
-//        {
-//            return Repository.GetPageAsync(pageSize, pageNumber);
-//        }
+        public async Task<List<IProblem>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
+        {
+            try
+            {
+                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<List<IProblem>> GetAllAsync()
-//        {
-//            return Repository.GetAllAsync();
-//        }
+        public async Task<IProblem> GetAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<IProblem> GetByIdAsync(Guid id)
-//        {
-//            return Repository.GetByIdAsync(id);
-//        }
+        public async Task<int> AddAsync(IProblem entity, IProblemPicture picture = null,
+            List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null,
+            List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null)
+        {
+            try
+            {
+                return await Repository.AddAsync(entity, picture, choices, choicePictures, steps, stepPictures);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<int> AddAsync(IProblem entity)
-//        {
-//            return Repository.AddAsync(entity);
-//        }
+        public async Task<int> UpdateAsync(IProblem entity, IProblemPicture picture = null,
+            List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null,
+            List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null)
+        {
+            try
+            {
+                return await Repository.UpdateAsync(entity, picture, choices, choicePictures, steps, stepPictures);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<int> UpdateAsync(IProblem entity)
-//        {
-//            try
-//            {
-//                return Repository.UpdateAsync(entity);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        public async Task<int> DeleteAsync(IProblem entity)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<int> DeleteAsync(IProblem entity)
-//        {
-//            return Repository.DeleteAsync(entity);
-//        }
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-//        public Task<int> DeleteAsync(Guid id)
-//        {
-//            return Repository.DeleteAsync(id);
-//        }
+        public /*async*/ Task<int> GetByExam(Guid examId)
+        {
+            throw new Exception("Not implemented.");
+        }
 
-//        public Task<int> AddAsync(IProblem entity, List<IAnswerChoice> choices)
-//        {
-//            using(TransactionScope scope = new TransactionScope())
-//            {
-//                Repository.CreateUnitOfWork();
-//                UnitOfWork = Repository.UnitOfWork;
-
-//                Repository.AddAsync(UnitOfWork, entity); 
-//                foreach (var choice in choices) 
-//                {
-//                    Repository.AddAsync(UnitOfWork, choice);
-//                }
-//                var result = UnitOfWork.CommitAsync();
-                
-//                if(result.Result == 1)
-//                {
-//                    scope.Complete();
-//                }
-                
-//                scope.Dispose();
-//                return result;
-//            }
-//        }
-
-//        public Task<List<IProblem>> GetByTypeId(Guid typeId)
-//        {
-//            return Task.Factory.StartNew(() => GetAllAsync().Result.Where(problem => problem.ProblemTypeId==typeId).ToList());
-//        }
-
-//        public Task<List<IProblem>> GetByTestingAreaId(Guid testingAreaId)
-//        {
-//            return Task.Factory.StartNew(() => GetAllAsync().Result.Where(problem => problem.TestingAreaId == testingAreaId).ToList());
-//        }
-//    }
-//}
+        public async Task<List<IProblem>> GetByTestingArea(Guid testingAreaId)
+        {
+            try
+            {
+                List<IProblem> problems = await GetAsync(sortOrder:"testingArea");
+                return problems.Where(p => testingAreaId == p.TestingAreaId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+    }
+}

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Transactions;
 
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
@@ -97,7 +95,7 @@ namespace ExamPreparation.Service
         {
             try
             {
-                List<IExamProblem> result = await Repository.GetAsync();
+                List<IExamProblem> result = await Repository.GetAsync(sortOrder: "examId");
                 return result.Where(p => p.ExamId == examId).ToList();
             }
             catch (Exception e)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ExamPreparation.Model.Common;
 
 namespace ExamPreparation.Model

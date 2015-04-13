@@ -23,64 +23,42 @@ namespace ExamPreparation.Service
 
         public Task<List<IUser>> GetPageAsync(int pageSize, int pageNumber)
         {
-            return Repository.GetPageAsync(pageSize, pageNumber);
+            throw new Exception("Not implemented!");
         }
 
         public Task<List<IUser>> GetAllAsync()
         {
-            return Repository.GetAllAsync();
+            throw new Exception("Not implemented!");
         }
 
         public Task<IUser> GetByIdAsync(Guid id)
         {
-            return Repository.GetByIdAsync(id);
+            throw new Exception("Not implemented!");
         }
 
         public Task<int> AddAsync(IUser entity)
         {
-            return Repository.AddAsync(entity);
+            throw new Exception("Not implemented!");
         }
 
         public Task<int> UpdateAsync(IUser entity)
         {
-            try
-            {
-                return Repository.UpdateAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
+            throw new Exception("Not implemented!");
         }
 
         public Task<int> DeleteAsync(IUser entity)
         {
-            return Repository.DeleteAsync(entity);
+            throw new Exception("Not implemented!");
         }
 
         public Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync(id);
+            throw new Exception("Not implemented!");
         }
 
         public Task<int> AddUoWAsync(IUser entity)
         {
-            using(TransactionScope scope = new TransactionScope())
-            {
-                Repository.CreateUnitOfWork();
-                UnitOfWork = Repository.UnitOfWork;
-
-                Repository.AddAsync(UnitOfWork, entity); 
-                var result = UnitOfWork.CommitAsync();
-                
-                if(result.Result == 1)
-                {
-                    scope.Complete();
-                }
-                
-                scope.Dispose();
-                return result;
-            }
+            throw new Exception("Not implemented!");
         }
     }
 }

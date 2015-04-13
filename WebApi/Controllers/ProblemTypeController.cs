@@ -28,35 +28,18 @@ namespace ExamPreparation.WebApi.Controllers
 
         // GET: api/ProblemType
         [HttpGet]
-        [Route("page")]
-        public async Task<IHttpActionResult> Get(int pageSize, int pageNumber)
+        [Route("")]
+        public async Task<IHttpActionResult> Get(string sortOrder = "roleId", int pageNumber = 1, int pageSize = 50)
         {
             try
             {
-                var problemTypes = await Service.GetPageAsync(pageSize, pageNumber);
-                var result = Mapper.Map<List<ProblemType>>(problemTypes);
-                return Ok(Mapper.Map<List<ProblemType>, List<ProblemTypeModel>>(result));
+                var types = await Service.GetAsync(sortOrder, pageNumber, pageSize);
+                var typesResult = Mapper.Map<List<ProblemTypeModel>>(types);
+                return Ok(typesResult);
             }
             catch (Exception e)
             {
-                return BadRequest();
-            }
-        }
-
-        // GET: api/ProblemType
-        [HttpGet]
-        [Route("")]
-        public async Task<IHttpActionResult> Get()
-        {
-            try
-            {
-                var problemTypes = await Service.GetAllAsync();
-                var problemTypeResult = Mapper.Map<List<ProblemType>>(problemTypes);
-                return Ok(problemTypeResult);
-            }
-            catch 
-            {
-                return NotFound();
+                return BadRequest(e.ToString());
             }
         }
 
@@ -65,11 +48,11 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Get(Guid id)
         {
-            var iProblemType = await Service.GetByIdAsync(id);
-            if (iProblemType != null)
+            var type = await Service.GetAsync(id);
+            if (type != null)
             {
-                var problemType = Mapper.Map<ProblemType>(iProblemType);
-                return Ok(problemType);
+                var result = Mapper.Map<ProblemTypeModel>(type);
+                return Ok(result);
             }
             else return NotFound();
         }
@@ -77,53 +60,41 @@ namespace ExamPreparation.WebApi.Controllers
         // POST: api/ProblemType
         [HttpPost]
         [Route("")]
-        public async Task<IHttpActionResult> Post(ProblemTypeModel problemType)
+        public async Task<IHttpActionResult> Post(ProblemTypeModel type)
         {
-            problemType.Id = Guid.NewGuid();
+            type.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.AddAsync(Mapper.Map<ProblemTypeModel, ProblemType>(problemType));
-                if (result == 1) return Ok(problemType);
+                var result = await Service.AddAsync(Mapper.Map<ProblemType>(type));
+                if (result == 1) return Ok(type);
                 else return BadRequest();
-                
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.ToString());
             }
         }
 
-        // UoW?
-        [HttpPost]
-        [Route("uow")]
-        public async Task<IHttpActionResult> PostNew(ProblemTypeModel problemType)
-        {
-            problemType.Id = Guid.NewGuid();
-            try
-            {
-                var result = await Service.AddUoWAsync(Mapper.Map<ProblemTypeModel, ProblemType>(problemType));
-                if (result == 1) return Ok(problemType);
-                else return BadRequest();
-
-            }
-            catch (Exception e)
-            {
-                return Ok(e.ToString());
-            }
-        }
 
         // PUT: api/ProblemType/5
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Put(Guid id, ProblemTypeModel problemType)
+        public async Task<IHttpActionResult> Put(Guid id, ProblemTypeModel type)
         {
-            if (id == problemType.Id)
+            try
             {
-                var result = await Service.UpdateAsync(Mapper.Map<ProblemTypeModel, ProblemType>(problemType));
-                if (result == 1) return Ok(problemType);
-                else return NotFound();
+                if (id == type.Id)
+                {
+                    var result = await Service.UpdateAsync(Mapper.Map<ProblemType>(type));
+                    if (result == 1) return Ok(type);
+                    else return NotFound();
+                }
+                return BadRequest("IDs do not match.");
             }
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
 
         // DELETE: api/ProblemType/
@@ -131,9 +102,16 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Delete(Guid id)
         {
-            var result = await Service.DeleteAsync(id);
-            if (result == 1) return Ok("Deleted");
-            else return NotFound();
+            try
+            {
+                var result = await Service.DeleteAsync(id);
+                if (result == 1) return Ok("Deleted");
+                else return NotFound();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
     }
 
@@ -142,6 +120,5 @@ namespace ExamPreparation.WebApi.Controllers
         public System.Guid Id { get; set; }
         public string Title { get; set; }
         public string Abrv { get; set; }
-        public virtual ICollection<Problem> Problems { get; set; }
     }
 }

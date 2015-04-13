@@ -28,35 +28,18 @@ namespace ExamPreparation.WebApi.Controllers
 
         // GET: api/Role
         [HttpGet]
-        [Route("page")]
-        public async Task<IHttpActionResult> Get(int pageSize, int pageNumber)
+        [Route("")]
+        public async Task<IHttpActionResult> Get(string sortOrder = "roleId", int pageNumber = 1, int pageSize = 50)
         {
             try
             {
-                var roles = await Service.GetPageAsync(pageSize, pageNumber);
-                var roleResult = Mapper.Map<List<Role>>(roles);
-                return Ok(Mapper.Map<List<Role>, List<RoleModel>>(roleResult));
+                var roles = await Service.GetAsync(sortOrder, pageNumber, pageSize);
+                var rolesResult = Mapper.Map<List<RoleModel>>(roles);
+                return Ok(rolesResult);
             }
             catch (Exception e)
             {
-                return BadRequest();
-            }
-        }
-
-        // GET: api/Role
-        [HttpGet]
-        [Route("")]
-        public async Task<IHttpActionResult> Get()
-        {
-            try
-            {
-                var roles = await Service.GetAllAsync();
-                var result = Mapper.Map<List<Role>>(roles);
-                return Ok(result);
-            }
-            catch 
-            {
-                return NotFound();
+                return BadRequest(e.ToString());
             }
         }
 
@@ -65,11 +48,11 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Get(Guid id)
         {
-            var iRole = await Service.GetByIdAsync(id);
+            var iRole = await Service.GetAsync(id);
             if (iRole != null)
             {
-                var role = Mapper.Map<Role>(iRole);
-                return Ok(role);
+                var testingArea = Mapper.Map<RoleModel>(iRole);
+                return Ok(testingArea);
             }
             else return NotFound();
         }
@@ -82,48 +65,36 @@ namespace ExamPreparation.WebApi.Controllers
             role.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.AddAsync(Mapper.Map<RoleModel, Role>(role));
+                var result = await Service.AddAsync(Mapper.Map<Role>(role));
                 if (result == 1) return Ok(role);
                 else return BadRequest();
-                
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.ToString());
             }
         }
 
-        // UoW?
-        [HttpPost]
-        [Route("uow")]
-        public async Task<IHttpActionResult> PostNew(RoleModel role)
-        {
-            role.Id = Guid.NewGuid();
-            try
-            {
-                var result = await Service.AddUoWAsync(Mapper.Map<RoleModel, Role>(role));
-                if (result == 1) return Ok(role);
-                else return BadRequest();
-
-            }
-            catch (Exception e)
-            {
-                return Ok(e.ToString());
-            }
-        }
 
         // PUT: api/Role/5
         [HttpPut]
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Put(Guid id, RoleModel role)
         {
-            if (id == role.Id)
+            try
             {
-                var result = await Service.UpdateAsync(Mapper.Map<RoleModel, Role>(role));
-                if (result == 1) return Ok(role);
-                else return NotFound();
+                if (id == role.Id)
+                {
+                    var result = await Service.UpdateAsync(Mapper.Map<Role>(role));
+                    if (result == 1) return Ok(role);
+                    else return NotFound();
+                }
+                return BadRequest("IDs do not match.");
             }
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
 
         // DELETE: api/Role/
@@ -131,17 +102,22 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Delete(Guid id)
         {
-            var result = await Service.DeleteAsync(id);
-            if (result == 1) return Ok("Deleted");
-            else return NotFound();
+            try
+            {
+                var result = await Service.DeleteAsync(id);
+                if (result == 1) return Ok("Deleted");
+                else return NotFound();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
     }
-
     public class RoleModel
     {
         public System.Guid Id { get; set; }
         public string Title { get; set; }
         public string Abrv { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }

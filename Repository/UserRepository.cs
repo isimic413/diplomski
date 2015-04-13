@@ -23,86 +23,39 @@ namespace ExamPreparation.Repository
             Repository = repository;
         }
 
-        public void CreateUnitOfWork()
+        public IUnitOfWork CreateUnitOfWork()
         {
-            UnitOfWork = Repository.CreateUnitOfWork();
+            return Repository.CreateUnitOfWork();
         }
 
-        public virtual Task<List<IUser>> GetPageAsync(int pageSize = 0, int pageNumber = 0)
+        public virtual Task<List<IUser>> GetAsync(string sortOrder = "email", int pageNumber = 0, int pageSize = 50)
         {
-            if (pageSize <= 0) return GetAllAsync();
-
-            var dalPage = Repository.WhereAsync<DALModel.User>()
-                .OrderBy(item => item.Email)
-                .Skip<DALModel.User>((pageNumber - 1) * pageSize)
-                .Take<DALModel.User>(pageSize)
-                .ToListAsync<DALModel.User>()
-                .Result;
-
-            var users = Mapper.Map<List<DALModel.User>, List<ExamModel.User>>(dalPage);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.User>, List<IUser>>(users));
+            throw new Exception("Not implemented!");
         }
 
-        public virtual Task<List<IUser>> GetAllAsync()
+        public virtual Task<IUser> GetAsync(Guid id)
         {
-            var dalUsers = Repository.WhereAsync<DALModel.User>().ToListAsync<DALModel.User>().Result;
-            var users = Mapper.Map<List<DALModel.User>, List<ExamModel.User>>(dalUsers);
-            return Task.Factory.StartNew(() => Mapper.Map<List<ExamModel.User>, List<IUser>>(users));
+            throw new Exception("Not implemented!");
         }
 
-        public virtual Task<IUser> GetByIdAsync(Guid id)
+        public virtual Task<int> AddAsync(IUser entity, List<IRole> roles = null)
         {
-            var dalUser = Repository.SingleAsync<DALModel.User>(id).Result;
-            IUser user = Mapper.Map<DALModel.User, ExamModel.User>(dalUser);
-            return Task.Factory.StartNew(() => user);
-        }
-
-        public virtual Task<int> AddAsync(IUser entity)
-        {
-            try
-            {
-                var user = Mapper.Map<ExamModel.User>(entity);
-                var dalUser = Mapper.Map<ExamModel.User, DALModel.User>(user);
-                return Repository.AddAsync<DALModel.User>(dalUser);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-
+            throw new Exception("Not implemented!");
         }
 
         public virtual Task<int> UpdateAsync(IUser entity)
         {
-            var user = Mapper.Map<IUser, ExamModel.User>(entity);
-            var dalUser = Mapper.Map<ExamModel.User, DALModel.User>(user);
-            try
-            {
-                return Repository.UpdateAsync<DALModel.User>(dalUser);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
+            throw new Exception("Not implemented!");
         }
 
         public virtual Task<int> DeleteAsync(IUser entity)
         {
-            var user = Mapper.Map<IUser, ExamModel.User>(entity);
-            var dalUser = Mapper.Map<ExamModel.User, DALModel.User>(user);
-            return Repository.DeleteAsync<DALModel.User>(dalUser);
+            throw new Exception("Not implemented!");
         }
 
         public virtual Task<int> DeleteAsync(Guid id)
         {
-            return Repository.DeleteAsync<DALModel.User>(id);
-        }
-
-        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IUser entity)
-        {
-            var user = Mapper.Map<ExamModel.User>(entity);
-            var dalUser = Mapper.Map<ExamModel.User, DALModel.User>(user);
-            return unitOfWork.AddAsync<DALModel.User>(dalUser);
+            throw new Exception("Not implemented!");
         }
     }
 }
