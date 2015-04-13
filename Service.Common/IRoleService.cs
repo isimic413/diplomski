@@ -9,15 +9,11 @@ namespace ExamPreparation.Service.Common
 {
     public interface IRoleService
     {
-        Task<List<IRole>> GetPageAsync(int pageSize, int pageNumber);
-
-        Task<List<IRole>> GetAllAsync();
-        Task<IRole> GetByIdAsync(Guid id);
+        Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50);
+        Task<IRole> GetAsync(Guid id);
         Task<int> AddAsync(IRole entity);
         Task<int> UpdateAsync(IRole entity);
         Task<int> DeleteAsync(IRole entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<int> AddUoWAsync(IRole entity);
     }
 }

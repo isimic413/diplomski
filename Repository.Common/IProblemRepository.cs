@@ -12,7 +12,8 @@ namespace ExamPreparation.Repository.Common
         Task<IProblem> GetAsync(Guid id);
         Task<int> AddAsync(IProblem entity, IProblemPicture picture = null, 
             List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null);
-        Task<int> UpdateAsync(IProblem entity);
+        Task<int> UpdateAsync(IProblem entity, IProblemPicture picture = null,
+            List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null);
         Task<int> DeleteAsync(IProblem entity);
         Task<int> DeleteAsync(Guid id);
     }

@@ -14,48 +14,18 @@ namespace ExamPreparation.Service
     public class ExamProblemService: IExamProblemService
     {
         protected IExamProblemRepository Repository { get; set; }
-        protected IUnitOfWork UnitOfWork;
 
         public ExamProblemService(IExamProblemRepository repository)
         {
             Repository = repository;
         }
 
-        public Task<List<IExamProblem>> GetPageAsync(int pageSize, int pageNumber)
-        {
-            return Repository.GetPageAsync(pageSize, pageNumber);
-        }
 
-        public Task<List<IExamProblem>> GetAllAsync()
-        {
-            return Repository.GetAllAsync();
-        }
-
-        public Task<List<IExamProblem>> GetExamProblemsById(Guid examId)
-        {
-            return Task.Factory.StartNew(() => Repository.GetAllAsync().Result.Where(problem => problem.ExamId == examId).ToList());
-        }
-
-        public Task<IExamProblem> GetExamProblemByExamId(Guid examId, int number)
-        {
-            return Task.Factory.StartNew(() => GetExamProblemsById(examId).Result.Find(problem => problem.ProblemNumber == number));
-        }
-
-        public Task<IExamProblem> GetByIdAsync(Guid id)
-        {
-            return Repository.GetByIdAsync(id);
-        }
-
-        public Task<int> AddAsync(IExamProblem entity)
-        {
-            return Repository.AddAsync(entity);
-        }
-
-        public Task<int> UpdateAsync(IExamProblem entity)
+        public async Task<List<IExamProblem>> GetAsync(string sortOrder = "examProblemId", int pageNumber = 0, int pageSize = 50)
         {
             try
             {
-                return Repository.UpdateAsync(entity);
+                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
@@ -63,33 +33,76 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> DeleteAsync(IExamProblem entity)
+        public async Task<IExamProblem> GetAsync(Guid id)
         {
-            return Repository.DeleteAsync(entity);
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            return Repository.DeleteAsync(id);
-        }
-
-        public Task<int> AddUoWAsync(IExamProblem entity)
-        {
-            using(TransactionScope scope = new TransactionScope())
+            try
             {
-                Repository.CreateUnitOfWork();
-                UnitOfWork = Repository.UnitOfWork;
+                return await Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-                Repository.AddAsync(UnitOfWork, entity); 
-                var result = UnitOfWork.CommitAsync();
-                
-                if(result.Result == 1)
-                {
-                    scope.Complete();
-                }
-                
-                scope.Dispose();
-                return result;
+        public async Task<int> AddAsync(IExamProblem entity)
+        {
+            try
+            {
+                return await Repository.AddAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> UpdateAsync(IExamProblem entity)
+        {
+            try
+            {
+                return await Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(IExamProblem entity)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<List<IExamProblem>> GetByExamAsync(Guid examId)
+        {
+            try
+            {
+                List<IExamProblem> result = await Repository.GetAsync();
+                return result.Where(p => p.ExamId == examId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
             }
         }
     }

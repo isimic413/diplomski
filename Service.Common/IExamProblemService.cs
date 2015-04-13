@@ -9,18 +9,13 @@ namespace ExamPreparation.Service.Common
 {
     public interface IExamProblemService
     {
-        Task<List<IExamProblem>> GetPageAsync(int pageSize, int pageNumber);
-
-        Task<List<IExamProblem>> GetAllAsync();
-        Task<IExamProblem> GetByIdAsync(Guid id);
+        Task<List<IExamProblem>> GetAsync(string sortOrder = "examProblemId", int pageNumber = 0, int pageSize = 50);
+        Task<IExamProblem> GetAsync(Guid id);
         Task<int> AddAsync(IExamProblem entity);
         Task<int> UpdateAsync(IExamProblem entity);
         Task<int> DeleteAsync(IExamProblem entity);
         Task<int> DeleteAsync(Guid id);
 
-        Task<List<IExamProblem>> GetExamProblemsById(Guid examId);
-        Task<IExamProblem> GetExamProblemByExamId(Guid examId, int number);
-
-        Task<int> AddUoWAsync(IExamProblem entity);
+        Task<List<IExamProblem>> GetByExamAsync(Guid examId);
     }
 }

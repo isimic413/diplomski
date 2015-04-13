@@ -9,15 +9,11 @@ namespace ExamPreparation.Service.Common
 {
     public interface IProblemPictureService
     {
-        Task<List<IProblemPicture>> GetPageAsync(int pageSize, int pageNumber);
-
-        Task<List<IProblemPicture>> GetAllAsync();
-        Task<IProblemPicture> GetByIdAsync(Guid id);
+        Task<List<IProblemPicture>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50);
+        Task<IProblemPicture> GetAsync(Guid id);
         Task<int> AddAsync(IProblemPicture entity);
         Task<int> UpdateAsync(IProblemPicture entity);
         Task<int> DeleteAsync(IProblemPicture entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<int> AddUoWAsync(IProblemPicture entity);
     }
 }

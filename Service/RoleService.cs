@@ -14,38 +14,17 @@ namespace ExamPreparation.Service
     public class RoleService: IRoleService
     {
         protected IRoleRepository Repository { get; set; }
-        protected IUnitOfWork UnitOfWork;
 
         public RoleService(IRoleRepository repository)
         {
             Repository = repository;
         }
 
-        public Task<List<IRole>> GetPageAsync(int pageSize, int pageNumber)
-        {
-            return Repository.GetPageAsync(pageSize, pageNumber);
-        }
-
-        public Task<List<IRole>> GetAllAsync()
-        {
-            return Repository.GetAllAsync();
-        }
-
-        public Task<IRole> GetByIdAsync(Guid id)
-        {
-            return Repository.GetByIdAsync(id);
-        }
-
-        public Task<int> AddAsync(IRole entity)
-        {
-            return Repository.AddAsync(entity);
-        }
-
-        public Task<int> UpdateAsync(IRole entity)
+        public async Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50)
         {
             try
             {
-                return Repository.UpdateAsync(entity);
+                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
@@ -53,33 +32,63 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> DeleteAsync(IRole entity)
+        public async Task<IRole> GetAsync(Guid id)
         {
-            return Repository.DeleteAsync(entity);
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            return Repository.DeleteAsync(id);
-        }
-
-        public Task<int> AddUoWAsync(IRole entity)
-        {
-            using(TransactionScope scope = new TransactionScope())
+            try
             {
-                Repository.CreateUnitOfWork();
-                UnitOfWork = Repository.UnitOfWork;
+                return await Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
 
-                Repository.AddAsync(UnitOfWork, entity); 
-                var result = UnitOfWork.CommitAsync();
-                
-                if(result.Result == 1)
-                {
-                    scope.Complete();
-                }
-                
-                scope.Dispose();
-                return result;
+        public async Task<int> AddAsync(IRole entity)
+        {
+            try
+            {
+                return await Repository.AddAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> UpdateAsync(IRole entity)
+        {
+            try
+            {
+                return await Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(IRole entity)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
             }
         }
     }

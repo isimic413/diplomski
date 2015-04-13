@@ -14,38 +14,17 @@ namespace ExamPreparation.Service
     public class AnswerChoiceService: IAnswerChoiceService
     {
         protected IAnswerChoiceRepository Repository { get; set; }
-        protected IUnitOfWork UnitOfWork;
 
         public AnswerChoiceService(IAnswerChoiceRepository repository)
         {
             Repository = repository;
         }
 
-        public Task<List<IAnswerChoice>> GetPageAsync(int pageSize, int pageNumber)
-        {
-            return Repository.GetPageAsync(pageSize, pageNumber);
-        }
-
-        public Task<List<IAnswerChoice>> GetAllAsync()
-        {
-            return Repository.GetAllAsync();
-        }
-
-        public Task<IAnswerChoice> GetByIdAsync(Guid id)
-        {
-            return Repository.GetByIdAsync(id);
-        }
-
-        public Task<int> AddAsync(IAnswerChoice entity)
-        {
-            return Repository.AddAsync(entity);
-        }
-
-        public Task<int> UpdateAsync(IAnswerChoice entity)
+        public async Task<List<IAnswerChoice>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
         {
             try
             {
-                return Repository.UpdateAsync(entity);
+                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
@@ -53,43 +32,89 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> DeleteAsync(IAnswerChoice entity)
+        public async Task<IAnswerChoice> GetAsync(Guid id)
         {
-            return Repository.DeleteAsync(entity);
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            return Repository.DeleteAsync(id);
-        }
-
-        public Task<int> AddUoWAsync(IAnswerChoice entity)
-        {
-            using(TransactionScope scope = new TransactionScope())
+            try
             {
-                Repository.CreateUnitOfWork();
-                UnitOfWork = Repository.UnitOfWork;
-
-                Repository.AddAsync(UnitOfWork, entity); 
-                var result = UnitOfWork.CommitAsync();
-                
-                if(result.Result == 1)
-                {
-                    scope.Complete();
-                }
-                
-                scope.Dispose();
-                return result;
+                return await Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
             }
         }
 
-        public Task<IAnswerChoice> GetCorrectAnswer(Guid problemId)
+        public async Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
         {
-            return Task.Factory.StartNew(() => GetChoicesByProblemId(problemId).Result.Find(c => c.IsCorrect));
+            try
+            {
+                return await Repository.AddAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
-        public Task<List<IAnswerChoice>> GetChoicesByProblemId(Guid problemId)
+
+        public async Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
         {
-            return Task.Factory.StartNew(() => GetAllAsync().Result.Where(choice => choice.ProblemId == problemId).ToList());
+            try
+            {
+                return await Repository.UpdateAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(IAnswerChoice entity)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            } 
+        }
+
+        public async Task<IAnswerChoice> GetCorrectAnswerAsync(Guid problemId)
+        {
+            try
+            {
+                List<IAnswerChoice> choices = await GetChoicesAsync(problemId);
+                return choices.Find(c => c.IsCorrect);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+        public async Task<List<IAnswerChoice>> GetChoicesAsync(Guid problemId)
+        {
+            try
+            {
+                List<IAnswerChoice> choices = await GetAsync(sortOrder:"problemId");
+                return choices.Where(c => problemId == c.ProblemId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            } 
         }
     }
 }

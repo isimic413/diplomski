@@ -14,38 +14,18 @@ namespace ExamPreparation.Service
     public class AnswerStepService: IAnswerStepService
     {
         protected IAnswerStepRepository Repository { get; set; }
-        protected IUnitOfWork UnitOfWork;
 
         public AnswerStepService(IAnswerStepRepository repository)
         {
             Repository = repository;
         }
 
-        public Task<List<IAnswerStep>> GetPageAsync(int pageSize, int pageNumber)
-        {
-            return Repository.GetPageAsync(pageSize, pageNumber);
-        }
 
-        public Task<List<IAnswerStep>> GetAllAsync()
-        {
-            return Repository.GetAllAsync();
-        }
-
-        public Task<IAnswerStep> GetByIdAsync(Guid id)
-        {
-            return Repository.GetByIdAsync(id);
-        }
-
-        public Task<int> AddAsync(IAnswerStep entity)
-        {
-            return Repository.AddAsync(entity);
-        }
-
-        public Task<int> UpdateAsync(IAnswerStep entity)
+        public async Task<List<IAnswerStep>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
         {
             try
             {
-                return Repository.UpdateAsync(entity);
+                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
@@ -53,39 +33,77 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> DeleteAsync(IAnswerStep entity)
+        public async Task<IAnswerStep> GetAsync(Guid id)
         {
-            return Repository.DeleteAsync(entity);
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            return Repository.DeleteAsync(id);
-        }
-
-        public Task<int> AddUoWAsync(IAnswerStep entity)
-        {
-            using(TransactionScope scope = new TransactionScope())
+            try
             {
-                Repository.CreateUnitOfWork();
-                UnitOfWork = Repository.UnitOfWork;
-
-                Repository.AddAsync(UnitOfWork, entity); 
-                var result = UnitOfWork.CommitAsync();
-                
-                if(result.Result == 1)
-                {
-                    scope.Complete();
-                }
-                
-                scope.Dispose();
-                return result;
+                return await Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
             }
         }
 
-        public Task<List<IAnswerStep>> GetStepsByProblemId(Guid problemId)
+        public async Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
-            return Task.Factory.StartNew(() => GetAllAsync().Result.Where(step => step.ProblemId == problemId).ToList());
+            try
+            {
+                return await Repository.AddAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        {
+            try
+            {
+                return await Repository.UpdateAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(IAnswerStep entity)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return await Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<List<IAnswerStep>> GetStepsAsync(Guid problemId)
+        {
+            try
+            {
+                List<IAnswerStep> result = await Repository.GetAsync();
+                return result.Where(s => s.ProblemId == problemId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

@@ -83,10 +83,11 @@ namespace ExamPreparation.Repository
         }
 
 
-        public virtual Task<int> AddAsync(IProblem entity, IProblemPicture picture = null,
+        public virtual async Task<int> AddAsync(IProblem entity, IProblemPicture picture = null,
             List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null);
-        public virtual Task<int> UpdateAsync(IProblem entity);
-        public virtual Task<int> DeleteAsync(IProblem entity);
-        public virtual Task<int> DeleteAsync(Guid id);
+        public virtual async Task<int> UpdateAsync(IProblem entity, IProblemPicture picture = null,
+            List<IAnswerChoice> choices = null, List<IAnswerChoicePicture> choicePictures = null);
+        public virtual async Task<int> DeleteAsync(IProblem entity);
+        public virtual async Task<int> DeleteAsync(Guid id);
     }
 }
