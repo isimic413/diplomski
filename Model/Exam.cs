@@ -8,7 +8,7 @@ namespace ExamPreparation.Model
     {
         public Exam()
         {
-            this.ExamProblems = new List<ExamProblem>();
+            this.ExamQuestions = new List<IExamQuestion>();
         }
 
         public System.Guid Id { get; set; }
@@ -16,7 +16,7 @@ namespace ExamPreparation.Model
         public short Year { get; set; }
         public short Month { get; set; }
         public System.TimeSpan Duration { get; set; }
-        public virtual TestingArea TestingArea { get; set; }
-        public virtual ICollection<ExamProblem> ExamProblems { get; set; }
+        public virtual ITestingArea TestingArea { get; set; }
+        public virtual ICollection<IExamQuestion> ExamQuestions { get; set; }
     }
 }

@@ -8,8 +8,8 @@ namespace ExamPreparation.Model
     {
         public User()
         {
-            this.UserAnswers = new List<UserAnswer>();
-            this.UserRoles = new List<UserRole>();
+            this.UserAnswers = new List<IUserAnswer>();
+            this.UserRoles = new List<IUserRole>();
         }
 
         public System.Guid Id { get; set; }
@@ -18,7 +18,7 @@ namespace ExamPreparation.Model
         public string SaltKey { get; set; }
         public string PasswordRecoveryQuestion { get; set; }
         public string PasswordRecoveryAnswer { get; set; }
-        public virtual ICollection<UserAnswer> UserAnswers { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<IUserAnswer> UserAnswers { get; set; }
+        public virtual ICollection<IUserRole> UserRoles { get; set; }
     }
 }

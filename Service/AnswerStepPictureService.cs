@@ -10,7 +10,7 @@ namespace ExamPreparation.Service
 {
     public class AnswerStepPictureService: IAnswerStepPictureService
     {
-        protected IAnswerStepPictureRepository Repository { get; set; }
+        protected IAnswerStepPictureRepository Repository { get; private set; }
 
         public AnswerStepPictureService(IAnswerStepPictureRepository repository)
         {
@@ -18,11 +18,11 @@ namespace ExamPreparation.Service
         }
 
 
-        public async Task<List<IAnswerStepPicture>> GetAsync(string sortOrder = "stepId", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IAnswerStepPicture>> GetAsync(string sortOrder = "stepId", int pageNumber = 0, int pageSize = 50)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
@@ -30,11 +30,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<IAnswerStepPicture> GetAsync(Guid id)
+        public Task<IAnswerStepPicture> GetAsync(Guid id)
         {
             try
             {
-                return await Repository.GetAsync(id);
+                return Repository.GetAsync(id);
             }
             catch (Exception e)
             {
@@ -42,34 +42,22 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> AddAsync(IAnswerStepPicture entity)
+        public Task<int> AddAsync(IAnswerStepPicture entity)
         {
             try
             {
-                return await Repository.AddAsync(entity);
+                return Repository.AddAsync(entity);
             }
             catch (Exception e)
             {
                 throw new Exception(e.ToString());
             }
         }
-        public async Task<int> UpdateAsync(IAnswerStepPicture entity)
+        public Task<int> UpdateAsync(IAnswerStepPicture entity)
         {
             try
             {
-                return await Repository.UpdateAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(IAnswerStepPicture entity)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(entity);
+                return Repository.UpdateAsync(entity);
             }
             catch (Exception e)
             {
@@ -77,11 +65,23 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> DeleteAsync(Guid id)
+        public Task<int> DeleteAsync(IAnswerStepPicture entity)
         {
             try
             {
-                return await Repository.DeleteAsync(id);
+                return Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {

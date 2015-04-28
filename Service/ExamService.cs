@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Service.Common;
@@ -11,22 +12,22 @@ namespace ExamPreparation.Service
 {
     public class ExamService: IExamService
     {
-        protected IExamRepository Repository { get; set; }
+        protected IExamRepository Repository { get; private set; }
 
         public ExamService(IExamRepository repository)
         {
             Repository = repository;
         }
 
-        public async Task<List<IExam>> GetAsync(string sortOrder = "yearAsc", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IExam>> GetAsync(ExamFilter filter)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(filter);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -38,7 +39,7 @@ namespace ExamPreparation.Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -90,29 +91,27 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<List<IExam>> GetByYear(int year)
+        public Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter)
         {
             try
             {
-                List<IExam> exams = await GetAsync(sortOrder: "yearAsc");
-                return exams.Where(c => year == c.Year).ToList();
+                return Repository.GetByYearAsync(year, filter);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<List<IExam>> GetByTestingArea(Guid testingAreaId)
+        public Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter)
         {
             try
             {
-                List<IExam> exams = await GetAsync(sortOrder: "testingAreaAsc");
-                return exams.Where(c => testingAreaId == c.TestingAreaId).ToList();
+                return Repository.GetByTestingAreaIdAsync(testingAreaId, filter);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
     }

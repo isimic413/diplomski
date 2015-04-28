@@ -15,7 +15,7 @@ namespace ExamPreparation.Repository
 {
     public class UserAnswerRepository: IUserAnswerRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
         public IUnitOfWork UnitOfWork { get; set; }
 
         public UserAnswerRepository(IRepository repository)

@@ -44,10 +44,10 @@
     <Compile Include="IAnswerStep.cs" />
     <Compile Include="IAnswerStepPicture.cs" />
     <Compile Include="IExam.cs" />
-    <Compile Include="IExamProblem.cs" />
-    <Compile Include="IProblem.cs" />
-    <Compile Include="IProblemPicture.cs" />
-    <Compile Include="IProblemType.cs" />
+    <Compile Include="IExamQuestion.cs" />
+    <Compile Include="IQuestion.cs" />
+    <Compile Include="IQuestionPicture.cs" />
+    <Compile Include="IQuestionType.cs" />
     <Compile Include="IRole.cs" />
     <Compile Include="ITestingArea.cs" />
     <Compile Include="IUser.cs" />

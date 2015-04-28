@@ -14,7 +14,7 @@ namespace ExamPreparation.Repository
 {
     public class AnswerStepPictureRepository: IAnswerStepPictureRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
 
         public AnswerStepPictureRepository(IRepository repository)
         {

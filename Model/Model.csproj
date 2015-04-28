@@ -56,11 +56,11 @@
     <Compile Include="AnswerStepPicture.cs" />
     <Compile Include="DIModule.cs" />
     <Compile Include="Exam.cs" />
-    <Compile Include="ExamProblem.cs" />
+    <Compile Include="ExamQuestion.cs" />
     <Compile Include="Mapping\AutoMapperMaps.cs" />
-    <Compile Include="Problem.cs" />
-    <Compile Include="ProblemPicture.cs" />
-    <Compile Include="ProblemType.cs" />
+    <Compile Include="Question.cs" />
+    <Compile Include="QuestionPicture.cs" />
+    <Compile Include="QuestionType.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="TestingArea.cs" />
     <Compile Include="User.cs" />

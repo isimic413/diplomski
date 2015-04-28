@@ -8,14 +8,14 @@ namespace ExamPreparation.Model
     {
         public TestingArea()
         {
-            this.Exams = new List<Exam>();
-            this.Problems = new List<Problem>();
+            this.Exams = new List<IExam>();
+            this.Questions = new List<IQuestion>();
         }
 
         public System.Guid Id { get; set; }
         public string Title { get; set; }
         public string Abrv { get; set; }
-        public virtual ICollection<Exam> Exams { get; set; }
-        public virtual ICollection<Problem> Problems { get; set; }
+        public virtual ICollection<IExam> Exams { get; set; }
+        public virtual ICollection<IQuestion> Questions { get; set; }
     }
 }

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 
 namespace ExamPreparation.Service.Common
 {
     public interface IRoleService
     {
-        Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50);
+        Task<List<IRole>> GetAsync(RoleFilter filter);
         Task<IRole> GetAsync(Guid id);
         Task<int> AddAsync(IRole entity);
         Task<int> UpdateAsync(IRole entity);

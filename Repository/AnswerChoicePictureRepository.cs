@@ -14,7 +14,7 @@ namespace ExamPreparation.Repository
 {
     public class AnswerChoicePictureRepository: IAnswerChoicePictureRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
 
         public AnswerChoicePictureRepository(IRepository repository)
         {
@@ -22,7 +22,7 @@ namespace ExamPreparation.Repository
         }
 
         public virtual async Task<List<IAnswerChoicePicture>> GetAsync(string sortOrder = "choiceId", 
-            int pageNumber = 0, int pageSize = 50)
+            int pageNumber = 1, int pageSize = 50)
         {
             try
             {
@@ -40,28 +40,24 @@ namespace ExamPreparation.Repository
                         break;
                     default:
                         throw new ArgumentException("Invalid sortOrder.");
-                }   
+                }
 
-                // Cannot implicitly convert type List<ExamModel.AnswerChoicePicture> to List<IAnswerChoicePicture>
-                return new List<IAnswerChoicePicture>(Mapper.Map<List<ExamModel.AnswerChoicePicture>>(page));
+                return Mapper.Map<List<IAnswerChoicePicture>>(page); // testirati!
+                // new List<IAnswerChoicePicture>(
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
         public virtual async Task<IAnswerChoicePicture> GetAsync(Guid id)
         {
-            var dalAnswerChoicePicture = await Repository.SingleAsync<DALModel.AnswerChoicePicture>(id);
-            return Mapper.Map<ExamModel.AnswerChoicePicture>(dalAnswerChoicePicture);
-        }
-
-        public virtual async Task<int> AddAsync(IAnswerChoicePicture entity)
-        {
             try
             {
-                return await Repository.AddAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
+                return Mapper.Map<ExamModel.AnswerChoicePicture>(
+                    await Repository.SingleAsync<DALModel.AnswerChoicePicture>(id)
+                    );
             }
             catch (Exception e)
             {
@@ -69,11 +65,11 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> UpdateAsync(IAnswerChoicePicture entity)
+        public virtual Task<int> AddAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                return await Repository.UpdateAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
+                return Repository.AddAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
             }
             catch (Exception e)
             {
@@ -81,11 +77,11 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> DeleteAsync(IAnswerChoicePicture entity)
+        public virtual Task<int> UpdateAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                return await Repository.DeleteAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
+                return Repository.UpdateAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
             }
             catch (Exception e)
             {
@@ -93,9 +89,37 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> DeleteAsync(Guid id)
+        public virtual Task<int> DeleteAsync(IAnswerChoicePicture entity)
         {
-            return await Repository.DeleteAsync<DALModel.AnswerChoicePicture>(id);
+            try
+            {
+                return Repository.DeleteAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(entity));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+        }
+
+        public virtual Task<int> DeleteAsync(Guid id)
+        {
+            return Repository.DeleteAsync<DALModel.AnswerChoicePicture>(id);
+        }
+
+        public virtual async Task<IAnswerChoicePicture> GetByChoiceIdAsync(Guid choiceId)
+        {
+            try
+            {
+                return Mapper.Map<ExamModel.AnswerChoicePicture>(
+                    await Repository.WhereAsync<DALModel.AnswerChoicePicture>()
+                    .Where(item => item.AnswerChoiceId == choiceId)
+                    .SingleAsync()
+                    );
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
         }
     }
 }

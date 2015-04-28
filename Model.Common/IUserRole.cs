@@ -7,5 +7,7 @@ namespace ExamPreparation.Model.Common
         System.Guid Id { get; set; }
         System.Guid UserId { get; set; }
         System.Guid RoleId { get; set; }
+        IRole Role { get; set; }
+        IUser User { get; set; }
     }
 }

@@ -13,8 +13,8 @@ namespace ExamPreparation.Repository
 {
     public class Repository : IRepository 
     {
-        protected IExamPreparationContext DbContext { get; set; }
-        protected IUnitOfWorkFactory UnitOfWorkFactory {get; set; }
+        protected IExamPreparationContext DbContext { get; private set; }
+        protected IUnitOfWorkFactory UnitOfWorkFactory { get; private set; } // ?
 
         public Repository(IExamPreparationContext dbContext, IUnitOfWorkFactory unitOfWorkFactory)
         {
@@ -36,9 +36,9 @@ namespace ExamPreparation.Repository
             return DbContext.Set<T>().AsNoTracking();
         }
 
-        public virtual async Task<T> SingleAsync<T>(Guid id) where T : class
+        public virtual Task<T> SingleAsync<T>(Guid id) where T : class
         {
-            return await DbContext.Set<T>().FindAsync(id);
+            return DbContext.Set<T>().FindAsync(id);
         }
 
         public virtual async Task<int> AddAsync<T>(T entity) where T : class
@@ -59,7 +59,7 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -78,9 +78,8 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
-            
         }
 
         public virtual async Task<int> DeleteAsync<T>(T entity) where T : class
@@ -102,7 +101,7 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -111,7 +110,7 @@ namespace ExamPreparation.Repository
             var entity = await SingleAsync<T>(id);
             if (entity == null)
             {
-                throw new DllNotFoundException();
+                throw new KeyNotFoundException("Entity with specified id not found.");
             }
             return await DeleteAsync<T>(entity);
         }

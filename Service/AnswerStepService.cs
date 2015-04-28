@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Service.Common;
@@ -11,7 +12,7 @@ namespace ExamPreparation.Service
 {
     public class AnswerStepService: IAnswerStepService
     {
-        protected IAnswerStepRepository Repository { get; set; }
+        protected IAnswerStepRepository Repository { get; private set; }
 
         public AnswerStepService(IAnswerStepRepository repository)
         {
@@ -19,11 +20,23 @@ namespace ExamPreparation.Service
         }
 
 
-        public async Task<List<IAnswerStep>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(filter);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<IAnswerStep> GetAsync(Guid id)
+        {
+            try
+            {
+                return Repository.GetAsync(id);
             }
             catch (Exception e)
             {
@@ -31,11 +44,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<IAnswerStep> GetAsync(Guid id)
+        public Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
             try
             {
-                return await Repository.GetAsync(id);
+                return Repository.AddAsync(entity, picture);
             }
             catch (Exception e)
             {
@@ -43,11 +56,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
             try
             {
-                return await Repository.AddAsync(entity, picture);
+                return Repository.UpdateAsync(entity, picture);
             }
             catch (Exception e)
             {
@@ -55,11 +68,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public Task<int> DeleteAsync(IAnswerStep entity)
         {
             try
             {
-                return await Repository.UpdateAsync(entity, picture);
+                return Repository.DeleteAsync(entity);
             }
             catch (Exception e)
             {
@@ -67,11 +80,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> DeleteAsync(IAnswerStep entity)
+        public Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return await Repository.DeleteAsync(entity);
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {
@@ -79,24 +92,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> DeleteAsync(Guid id)
+        public Task<List<IAnswerStep>> GetStepsAsync(Guid questionId)
         {
             try
             {
-                return await Repository.DeleteAsync(id);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<List<IAnswerStep>> GetStepsAsync(Guid problemId)
-        {
-            try
-            {
-                List<IAnswerStep> result = await Repository.GetAsync();
-                return result.Where(s => s.ProblemId == problemId).ToList();
+                return Repository.GetStepsAsync(questionId);
             }
             catch (Exception e)
             {

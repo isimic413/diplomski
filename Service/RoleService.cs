@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Service.Common;
@@ -10,18 +11,42 @@ namespace ExamPreparation.Service
 {
     public class RoleService: IRoleService
     {
-        protected IRoleRepository Repository { get; set; }
+        protected IRoleRepository Repository { get; private set; }
 
         public RoleService(IRoleRepository repository)
         {
             Repository = repository;
         }
 
-        public async Task<List<IRole>> GetAsync(string sortOrder = "roleId", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IRole>> GetAsync(RoleFilter filter)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(filter);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<IRole> GetAsync(Guid id)
+        {
+            try
+            {
+                return Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> AddAsync(IRole entity)
+        {
+            try
+            {
+                return Repository.AddAsync(entity);
             }
             catch (Exception e)
             {
@@ -29,11 +54,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<IRole> GetAsync(Guid id)
+        public Task<int> UpdateAsync(IRole entity)
         {
             try
             {
-                return await Repository.GetAsync(id);
+                return Repository.UpdateAsync(entity);
             }
             catch (Exception e)
             {
@@ -41,11 +66,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> AddAsync(IRole entity)
+        public Task<int> DeleteAsync(IRole entity)
         {
             try
             {
-                return await Repository.AddAsync(entity);
+                return Repository.DeleteAsync(entity);
             }
             catch (Exception e)
             {
@@ -53,35 +78,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> UpdateAsync(IRole entity)
+        public Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return await Repository.UpdateAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(IRole entity)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(id);
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {

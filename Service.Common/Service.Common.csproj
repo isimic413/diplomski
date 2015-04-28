@@ -43,11 +43,11 @@
     <Compile Include="IAnswerChoiceService.cs" />
     <Compile Include="IAnswerStepPictureService.cs" />
     <Compile Include="IAnswerStepService.cs" />
-    <Compile Include="IExamProblemService.cs" />
+    <Compile Include="IExamQuestionService.cs" />
     <Compile Include="IExamService.cs" />
-    <Compile Include="IProblemPictureService.cs" />
-    <Compile Include="IProblemService.cs" />
-    <Compile Include="IProblemTypeService.cs" />
+    <Compile Include="IQuestionPictureService.cs" />
+    <Compile Include="IQuestionService.cs" />
+    <Compile Include="IQuestionTypeService.cs" />
     <Compile Include="IRoleService.cs" />
     <Compile Include="ITestingAreaService.cs" />
     <Compile Include="IUserAnswerService.cs" />
@@ -59,13 +59,13 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{487d85b6-dddc-4661-959e-6adced975611}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model.Common\Model.Common.csproj">
       <Project>{81750286-652c-4d76-86c0-5f41aaa30d24}</Project>
       <Name>Model.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
-      <Project>{5aa754c3-6802-4e96-b8ca-9e76f04c652e}</Project>
-      <Name>Repository.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ExamPreparation.Model.Common
 {
@@ -9,5 +10,7 @@ namespace ExamPreparation.Model.Common
         short Year { get; set; }
         short Month { get; set; }
         System.TimeSpan Duration { get; set; }
+        ITestingArea TestingArea { get; set; }
+        ICollection<IExamQuestion> ExamQuestions { get; set; }
     }
 }

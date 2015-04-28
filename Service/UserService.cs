@@ -13,7 +13,7 @@ namespace ExamPreparation.Service
 {
     public class UserService: IUserService
     {
-        protected IUserRepository Repository { get; set; }
+        protected IUserRepository Repository { get; private set; }
         protected IUnitOfWork UnitOfWork;
 
         public UserService(IUserRepository repository)

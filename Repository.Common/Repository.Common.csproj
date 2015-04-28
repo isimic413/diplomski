@@ -43,11 +43,11 @@
     <Compile Include="IAnswerChoiceRepository.cs" />
     <Compile Include="IAnswerStepPictureRepository.cs" />
     <Compile Include="IAnswerStepRepository.cs" />
-    <Compile Include="IExamProblemRepository.cs" />
+    <Compile Include="IExamQuestionRepository.cs" />
     <Compile Include="IExamRepository.cs" />
-    <Compile Include="IProblemPictureRepository.cs" />
-    <Compile Include="IProblemRepository.cs" />
-    <Compile Include="IProblemTypeRepository.cs" />
+    <Compile Include="IQuestionPictureRepository.cs" />
+    <Compile Include="IQuestionRepository.cs" />
+    <Compile Include="IQuestionTypeRepository.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IRoleRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
@@ -62,6 +62,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{487d85b6-dddc-4661-959e-6adced975611}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{9cf56d48-d983-469b-9154-665e7f739442}</Project>
       <Name>DAL</Name>

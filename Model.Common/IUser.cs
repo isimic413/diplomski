@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ExamPreparation.Model.Common
 {
@@ -10,5 +11,7 @@ namespace ExamPreparation.Model.Common
         string SaltKey { get; set; }
         string PasswordRecoveryQuestion { get; set; }
         string PasswordRecoveryAnswer { get; set; }
+        ICollection<IUserAnswer> UserAnswers { get; set; }
+        ICollection<IUserRole> UserRoles { get; set; }
     }
 }

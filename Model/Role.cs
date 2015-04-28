@@ -8,12 +8,12 @@ namespace ExamPreparation.Model
     {
         public Role()
         {
-            this.UserRoles = new List<UserRole>();
+            this.UserRoles = new List<IUserRole>();
         }
 
         public System.Guid Id { get; set; }
         public string Title { get; set; }
         public string Abrv { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<IUserRole> UserRoles { get; set; }
     }
 }

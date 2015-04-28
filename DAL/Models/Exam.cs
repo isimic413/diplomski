@@ -7,7 +7,7 @@ namespace ExamPreparation.DAL.Models
     {
         public Exam()
         {
-            this.ExamProblems = new List<ExamProblem>();
+            this.ExamQuestions = new List<ExamQuestion>();
         }
 
         public System.Guid Id { get; set; }
@@ -16,6 +16,6 @@ namespace ExamPreparation.DAL.Models
         public short Month { get; set; }
         public System.TimeSpan Duration { get; set; }
         public virtual TestingArea TestingArea { get; set; }
-        public virtual ICollection<ExamProblem> ExamProblems { get; set; }
+        public virtual ICollection<ExamQuestion> ExamQuestions { get; set; }
     }
 }

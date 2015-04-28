@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using DALModel = ExamPreparation.DAL.Models;
@@ -14,7 +16,7 @@ namespace ExamPreparation.Repository
 {
     public class AnswerChoiceRepository: IAnswerChoiceRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
 
         public AnswerChoiceRepository(IRepository repository)
         {
@@ -26,31 +28,46 @@ namespace ExamPreparation.Repository
             return Repository.CreateUnitOfWork();
         }
 
-        public virtual async Task<List<IAnswerChoice>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
+        public virtual async Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter = null)
         {
             try
             {
-                List<DALModel.AnswerChoice> page;
-                pageSize = (pageSize > 50) ? 50 : pageSize;
+                List<IAnswerChoice> page = Mapper.Map<List<IAnswerChoice>>(
+                            await Repository.WhereAsync<DALModel.AnswerChoice>()
+                            .OrderBy(filter.SortOrder)
+                            .Skip<DALModel.AnswerChoice>((filter.PageNumber - 1) * filter.PageSize)
+                            .Take<DALModel.AnswerChoice>(filter.PageSize)
+                            .ToListAsync<DALModel.AnswerChoice>()
+                            );
 
-                switch (sortOrder)
-                { 
-                    case "problemId":
-                        page = await Repository.WhereAsync<DALModel.AnswerChoice>()
-                            .OrderBy(item => item.ProblemId)
-                            .Skip<DALModel.AnswerChoice>((pageNumber - 1) * pageSize)
-                            .Take<DALModel.AnswerChoice>(pageSize)
-                            .ToListAsync<DALModel.AnswerChoice>();
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid sortOrder.");
+
+                foreach (var choice in page)
+                {
+                    if (choice.HasPicture)
+                    {
+                        choice.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
+                            await Repository.WhereAsync<DALModel.AnswerChoicePicture>()
+                            .Where<DALModel.AnswerChoicePicture>(item => item.AnswerChoiceId == choice.Id)
+                            .ToListAsync()
+                            );
+
+                        if (choice.AnswerChoicePictures.Count < 1)
+                        {
+                            throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + choice.Id 
+                                + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
+                        }
+                    }
+                    else
+                    {
+                        choice.AnswerChoicePictures = null;
+                    }
                 }
 
-                return new List<IAnswerChoice>(Mapper.Map<List<ExamModel.AnswerChoice>>(page));
+                return page;
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -58,12 +75,31 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                var dalAnswerChoice = await Repository.SingleAsync<DALModel.AnswerChoice>(id);
-                return Mapper.Map<ExamModel.AnswerChoice>(dalAnswerChoice);
+                var result = Mapper.Map<ExamModel.AnswerChoice>(await Repository.SingleAsync<DALModel.AnswerChoice>(id));
+                if (result.HasPicture)
+                {
+                    result.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
+                            await Repository.WhereAsync<DALModel.AnswerChoicePicture>()
+                            .Where<DALModel.AnswerChoicePicture>(item => item.AnswerChoiceId == result.Id)
+                            .ToListAsync()
+                            );
+
+                    if (result.AnswerChoicePictures.Count < 1)
+                    {
+                        throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + result.Id
+                            + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
+                    }
+                }
+                else
+                {
+                    result.AnswerChoicePictures = null;
+                }
+
+                return result;
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -71,27 +107,37 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                if (picture != null && entity.HasPicture)
+                if (entity.HasPicture)
                 {
-                    IUnitOfWork unitOfWork = CreateUnitOfWork();
-                    
-                    await unitOfWork.AddAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
-                    await unitOfWork.AddAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(picture));
-                    
-                    return await unitOfWork.CommitAsync();
+                    if (picture != null)
+                    {
+                        IUnitOfWork unitOfWork = CreateUnitOfWork();
+
+                        await unitOfWork.AddAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
+                        await unitOfWork.AddAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(picture));
+
+                        return await unitOfWork.CommitAsync();
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("AnswerChoice.HasPicture set to true, but no AnswerChoicePicture sent.");
+                    }
                 }
-                else if (picture == null && !entity.HasPicture)
+                else // !entity.HasPicture
                 {
-                    return await Repository.AddAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
-                }
-                else
-                {
-                    return 0;
+                    if (picture == null)
+                    {
+                        return await Repository.AddAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
+                    }
+                    else
+                    {
+                        throw new ArgumentException("AnswerChoice.HasPicture set to false, but AnswerChoicePicture for this AnswerChoice was sent.");
+                    }
                 }
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -99,27 +145,37 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                if (picture != null && entity.HasPicture)
+                if (entity.HasPicture)
                 {
-                    IUnitOfWork unitOfWork = CreateUnitOfWork();
+                    if (picture != null)
+                    {
+                        IUnitOfWork unitOfWork = CreateUnitOfWork();
 
-                    await unitOfWork.UpdateAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
-                    await unitOfWork.UpdateAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(picture));
+                        await unitOfWork.UpdateAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
+                        await unitOfWork.UpdateAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(picture));
 
-                    return await unitOfWork.CommitAsync();
+                        return await unitOfWork.CommitAsync();
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("AnswerChoice.HasPicture set to true, but no AnswerChoicePicture sent.");
+                    }
                 }
-                else if (picture == null && !entity.HasPicture)
+                else // !entity.HasPicture
                 {
-                    return await Repository.UpdateAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
-                }
-                else
-                {
-                    return 0;
+                    if (picture == null)
+                    {
+                        return await Repository.UpdateAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));
+                    }
+                    else
+                    {
+                        throw new ArgumentException("AnswerChoice.HasPicture set to false, but AnswerChoicePicture for this AnswerChoice was sent.");
+                    }
                 }
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -132,12 +188,12 @@ namespace ExamPreparation.Repository
                     IUnitOfWork unitOfWork = CreateUnitOfWork();
                     var pictures = Repository.WhereAsync<DALModel.AnswerChoicePicture>()
                         .Where(e => e.AnswerChoiceId == entity.Id);
-
-                    await unitOfWork.DeleteAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));                  
+              
                     foreach(var picture in pictures) 
                     {
                         await unitOfWork.DeleteAsync<DALModel.AnswerChoicePicture>(Mapper.Map<DALModel.AnswerChoicePicture>(picture));
                     }
+                    await unitOfWork.DeleteAsync<DALModel.AnswerChoice>(Mapper.Map<DALModel.AnswerChoice>(entity));    
 
                     return await unitOfWork.CommitAsync();
                 }
@@ -148,7 +204,7 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -160,7 +216,64 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
+            }
+        }
+
+        public virtual async Task<List<IAnswerChoice>> GetCorrectAnswersAsync(Guid questionId)
+        {
+            try
+            {
+                return Mapper.Map<List<IAnswerChoice>>(
+                    await Repository.WhereAsync<DALModel.AnswerChoice>()
+                    .Where<DALModel.AnswerChoice>(item => questionId == item.QuestionId && item.IsCorrect)
+                    .ToListAsync<DALModel.AnswerChoice>()
+                    );
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public virtual async Task<List<IAnswerChoice>> GetChoicesAsync(Guid questionId)
+        {
+            try
+            {
+                List<IAnswerChoice> choices = Mapper.Map<List<IAnswerChoice>>(
+                    await Repository.WhereAsync<DALModel.AnswerChoice>()
+                    .Where<DALModel.AnswerChoice>(item => item.QuestionId == questionId)
+                    .ToListAsync<DALModel.AnswerChoice>()
+                    );
+
+                foreach (var choice in choices)
+                {
+                    if (choice.HasPicture)
+                    {
+                        choice.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
+                            await Repository.WhereAsync<DALModel.AnswerChoicePicture>()
+                            .Where<DALModel.AnswerChoicePicture>(item => item.AnswerChoiceId == choice.Id)
+                            .ToListAsync()
+                            );
+
+                        if (choice.AnswerChoicePictures.Count < 1)
+                        {
+                            throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + choice.Id
+                                + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
+                        }
+                        // dodati provjeru prema tipu zadatka (QuestionType)
+                    }
+                    else
+                    {
+                        choice.AnswerChoicePictures = null;
+                    }
+                }
+
+                return choices;
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }

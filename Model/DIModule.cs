@@ -12,10 +12,10 @@ namespace ExamPreparation.Model
             Bind<IAnswerStep>().To<AnswerStep>();
             Bind<IAnswerStepPicture>().To<AnswerStepPicture>();
             Bind<IExam>().To<Exam>();
-            Bind<IExamProblem>().To<ExamProblem>();
-            Bind<IProblem>().To<Problem>();
-            Bind<IProblemPicture>().To<ProblemPicture>();
-            Bind<IProblemType>().To<ProblemType>();
+            Bind<IExamQuestion>().To<ExamQuestion>();
+            Bind<IQuestion>().To<Question>();
+            Bind<IQuestionPicture>().To<QuestionPicture>();
+            Bind<IQuestionType>().To<QuestionType>();
             Bind<IRole>().To<Role>();
             Bind<ITestingArea>().To<TestingArea>();
             Bind<IUser>().To<User>();

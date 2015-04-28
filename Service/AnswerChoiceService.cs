@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Service.Common;
@@ -11,18 +12,42 @@ namespace ExamPreparation.Service
 {
     public class AnswerChoiceService: IAnswerChoiceService
     {
-        protected IAnswerChoiceRepository Repository { get; set; }
+        protected IAnswerChoiceRepository Repository { get; private set; }
 
         public AnswerChoiceService(IAnswerChoiceRepository repository)
         {
             Repository = repository;
         }
 
-        public async Task<List<IAnswerChoice>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(filter);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<IAnswerChoice> GetAsync(Guid id)
+        {
+            try
+            {
+                return Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        {
+            try
+            {
+                return Repository.AddAsync(entity, picture);
             }
             catch (Exception e)
             {
@@ -30,11 +55,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<IAnswerChoice> GetAsync(Guid id)
+        public Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
         {
             try
             {
-                return await Repository.GetAsync(id);
+                return Repository.UpdateAsync(entity, picture);
             }
             catch (Exception e)
             {
@@ -42,11 +67,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public  Task<int> DeleteAsync(IAnswerChoice entity)
         {
             try
             {
-                return await Repository.AddAsync(entity, picture);
+                return Repository.DeleteAsync(entity);
             }
             catch (Exception e)
             {
@@ -54,35 +79,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public async Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return await Repository.UpdateAsync(entity, picture);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(IAnswerChoice entity)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(id);
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {
@@ -90,28 +91,27 @@ namespace ExamPreparation.Service
             } 
         }
 
-        public async Task<IAnswerChoice> GetCorrectAnswerAsync(Guid problemId)
+        public Task<List<IAnswerChoice>> GetCorrectAnswersAsync(Guid questionId)
         {
             try
             {
-                List<IAnswerChoice> choices = await GetChoicesAsync(problemId);
-                return choices.Find(c => c.IsCorrect);
+                return Repository.GetCorrectAnswersAsync(questionId);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
-        public async Task<List<IAnswerChoice>> GetChoicesAsync(Guid problemId)
+
+        public Task<List<IAnswerChoice>> GetChoicesAsync(Guid questionId)
         {
             try
             {
-                List<IAnswerChoice> choices = await GetAsync(sortOrder:"problemId");
-                return choices.Where(c => problemId == c.ProblemId).ToList();
+                return Repository.GetChoicesAsync(questionId);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             } 
         }
     }

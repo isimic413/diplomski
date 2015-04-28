@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using DALModel = ExamPreparation.DAL.Models;
@@ -14,67 +16,28 @@ namespace ExamPreparation.Repository
 {
     public class ExamRepository: IExamRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
 
         public ExamRepository(IRepository repository)
         {
             Repository = repository;
         }
 
-        public virtual async Task<List<IExam>> GetAsync(string sortOrder = "yearAsc", int pageNumber = 0, int pageSize = 50)
+        public virtual async Task<List<IExam>> GetAsync(ExamFilter filter)
         {
             try
             {
-                List<DALModel.Exam> page;
-                pageSize = (pageSize > 50) ? 50 : pageSize;
-
-                switch (sortOrder)
-                {
-                    case "yearAsc":
-                        page = await Repository.WhereAsync<DALModel.Exam>()
-                            .OrderBy(item => item.Year)
-                            .ThenBy(item => item.Month)
-                            .ThenBy(item => item.TestingArea.Title)
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
-                        break;
-                    case "yearDesc":
-                        page = await Repository.WhereAsync<DALModel.Exam>()
-                            .OrderByDescending(item => item.Year)
-                            .ThenBy(item => item.Month)
-                            .ThenBy(item => item.TestingArea.Title)
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
-                        break;
-                    case "testingAreaAcs":
-                        page = await Repository.WhereAsync<DALModel.Exam>()
-                            .OrderBy(item => item.TestingArea.Title)
-                            .ThenBy(item => item.Year)
-                            .ThenBy(item => item.Month)
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
-                        break;
-                    case "testingAreaDesc":
-                        page = await Repository.WhereAsync<DALModel.Exam>()
-                            .OrderByDescending(item => item.TestingArea.Title)
-                            .ThenBy(item => item.Year)
-                            .ThenBy(item => item.Month)
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid sortOrder.");
-                }
-
-                return new List<IExam>(Mapper.Map<List<ExamModel.Exam>>(page));
+                return Mapper.Map<List<IExam>>(
+                    await Repository.WhereAsync<DALModel.Exam>()
+                        .OrderBy(filter.SortOrder)
+                        .Skip((filter.PageNumber - 1) * filter.PageSize)
+                        .Take(filter.PageSize)
+                        .ToListAsync()
+                        );
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -82,12 +45,11 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                var dalExam = await Repository.SingleAsync<DALModel.Exam>(id);
-                return Mapper.Map<ExamModel.Exam>(dalExam);
+                return Mapper.Map<ExamModel.Exam>(await Repository.SingleAsync<DALModel.Exam>(id));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -136,6 +98,46 @@ namespace ExamPreparation.Repository
             catch (Exception e)
             {
                 throw new Exception(e.ToString());
+            }
+        }
+
+        public async Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter)
+        {
+            try
+            {
+                return Mapper.Map<List<IExam>>(
+                    await Repository.WhereAsync<DALModel.Exam>()
+                        .Where(item => item.Year == year)
+                        .OrderBy(filter.SortOrder)
+                        .Skip((filter.PageNumber - 1) * filter.PageSize)
+                        .Take(filter.PageSize)
+                        .ToListAsync()
+                        );
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter)
+        {
+            try
+            {
+                return Mapper.Map<List<IExam>>(
+                    await Repository.WhereAsync<DALModel.Exam>()
+                        .Where(item => item.ExamQuestions
+                            .First<DALModel.ExamQuestion>()
+                            .Question.TestingAreaId == testingAreaId)
+                        .OrderBy(filter.SortOrder)
+                        .Skip((filter.PageNumber - 1) * filter.PageSize)
+                        .Take(filter.PageSize)
+                        .ToListAsync()
+                        );
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }

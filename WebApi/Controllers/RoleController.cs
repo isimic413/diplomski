@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Service;
@@ -29,13 +30,19 @@ namespace ExamPreparation.WebApi.Controllers
         // GET: api/Role
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> Get(string sortOrder = "roleId", int pageNumber = 1, int pageSize = 50)
+        public async Task<IHttpActionResult> Get(string sortOrder = "", string sortDirection = "", int pageNumber = 0, int pageSize = 0)
         {
             try
             {
-                var roles = await Service.GetAsync(sortOrder, pageNumber, pageSize);
-                var rolesResult = Mapper.Map<List<RoleModel>>(roles);
-                return Ok(rolesResult);
+                var result = await Service.GetAsync(new RoleFilter(sortOrder, sortDirection, pageNumber, pageSize));
+                if (result != null)
+                {
+                    return Ok(Mapper.Map<RoleModel>(result));
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
             catch (Exception e)
             {
@@ -48,13 +55,22 @@ namespace ExamPreparation.WebApi.Controllers
         [Route("{id:guid}")]
         public async Task<IHttpActionResult> Get(Guid id)
         {
-            var iRole = await Service.GetAsync(id);
-            if (iRole != null)
+            try
             {
-                var testingArea = Mapper.Map<RoleModel>(iRole);
-                return Ok(testingArea);
+                var result = await Service.GetAsync(id);
+                if (result != null)
+                {
+                    return Ok(Mapper.Map<RoleModel>(result));
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else return NotFound();
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
         }
 
         // POST: api/Role
@@ -67,7 +83,7 @@ namespace ExamPreparation.WebApi.Controllers
             {
                 var result = await Service.AddAsync(Mapper.Map<Role>(role));
                 if (result == 1) return Ok(role);
-                else return BadRequest();
+                else return BadRequest("POST unsuccessful.");
             }
             catch (Exception e)
             {
@@ -113,11 +129,12 @@ namespace ExamPreparation.WebApi.Controllers
                 return BadRequest(e.ToString());
             }
         }
-    }
-    public class RoleModel
-    {
-        public System.Guid Id { get; set; }
-        public string Title { get; set; }
-        public string Abrv { get; set; }
+
+        public class RoleModel
+        {
+            public System.Guid Id { get; set; }
+            public string Title { get; set; }
+            public string Abrv { get; set; }
+        }
     }
 }

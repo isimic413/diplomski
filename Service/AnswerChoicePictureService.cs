@@ -10,82 +10,94 @@ namespace ExamPreparation.Service
 {
     public class AnswerChoicePictureService: IAnswerChoicePictureService
     {
-        protected IAnswerChoicePictureRepository Repository { get; set; }
+        protected IAnswerChoicePictureRepository Repository { get; private set; }
 
         public AnswerChoicePictureService(IAnswerChoicePictureRepository repository)
         {
             Repository = repository;
         }
 
-        public async Task<List<IAnswerChoicePicture>> GetAsync(string sortOrder = "choiceId", int pageNumber = 0, int pageSize = 50)
+        public Task<List<IAnswerChoicePicture>> GetAsync(string sortOrder = "choiceId", int pageNumber = 1, int pageSize = 50)
         {
             try
             {
-                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
+                return Repository.GetAsync(sortOrder, pageNumber, pageSize);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<IAnswerChoicePicture> GetAsync(Guid id)
+        public Task<IAnswerChoicePicture> GetAsync(Guid id)
         {
             try
             {
-                return await Repository.GetAsync(id);
+                return Repository.GetAsync(id);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<int> AddAsync(IAnswerChoicePicture entity)
+        public Task<int> AddAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                return await Repository.AddAsync(entity);
+                return Repository.AddAsync(entity);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<int> UpdateAsync(IAnswerChoicePicture entity)
+        public Task<int> UpdateAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                return await Repository.UpdateAsync(entity);
+                return Repository.UpdateAsync(entity);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<int> DeleteAsync(IAnswerChoicePicture entity)
+        public Task<int> DeleteAsync(IAnswerChoicePicture entity)
         {
             try
             {
-                return await Repository.DeleteAsync(entity);
+                return Repository.DeleteAsync(entity);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public async Task<int> DeleteAsync(Guid id)
+        public Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return await Repository.DeleteAsync(id);
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
+            }
+        }
+
+        public Task<IAnswerChoicePicture> GetByChoiceIdAsync(Guid choiceId)
+        {
+            try
+            {
+                return Repository.GetByChoiceIdAsync(choiceId);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }

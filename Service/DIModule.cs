@@ -12,10 +12,10 @@ namespace ExamPreparation.Service
             Bind<IAnswerStepService>().To<AnswerStepService>();
             Bind<IAnswerStepPictureService>().To<AnswerStepPictureService>();
             Bind<IExamService>().To<ExamService>();
-            Bind<IExamProblemService>().To<ExamProblemService>();
-            Bind<IProblemService>().To<ProblemService>();
-            Bind<IProblemPictureService>().To<ProblemPictureService>();
-            Bind<IProblemTypeService>().To<ProblemTypeService>();
+            Bind<IExamQuestionService>().To<ExamQuestionService>();
+            Bind<IQuestionService>().To<QuestionService>();
+            Bind<IQuestionPictureService>().To<QuestionPictureService>();
+            Bind<IQuestionTypeService>().To<QuestionTypeService>();
             Bind<IRoleService>().To<RoleService>();
             Bind<ITestingAreaService>().To<TestingAreaService>();
             Bind<IUserService>().To<UserService>();

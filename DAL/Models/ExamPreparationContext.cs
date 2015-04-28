@@ -23,10 +23,10 @@ namespace ExamPreparation.DAL.Models
         public DbSet<AnswerStep> AnswerSteps { get; set; }
         public DbSet<AnswerStepPicture> AnswerStepPictures { get; set; }
         public DbSet<Exam> Exams { get; set; }
-        public DbSet<ExamProblem> ExamProblems { get; set; }
-        public DbSet<Problem> Problems { get; set; }
-        public DbSet<ProblemPicture> ProblemPictures { get; set; }
-        public DbSet<ProblemType> ProblemTypes { get; set; }
+        public DbSet<ExamQuestion> ExamQuestions { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionPicture> QuestionPictures { get; set; }
+        public DbSet<QuestionType> QuestionTypes { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<TestingArea> TestingAreas { get; set; }
         public DbSet<User> Users { get; set; }
@@ -40,10 +40,10 @@ namespace ExamPreparation.DAL.Models
             modelBuilder.Configurations.Add(new AnswerStepMap());
             modelBuilder.Configurations.Add(new AnswerStepPictureMap());
             modelBuilder.Configurations.Add(new ExamMap());
-            modelBuilder.Configurations.Add(new ExamProblemMap());
-            modelBuilder.Configurations.Add(new ProblemMap());
-            modelBuilder.Configurations.Add(new ProblemPictureMap());
-            modelBuilder.Configurations.Add(new ProblemTypeMap());
+            modelBuilder.Configurations.Add(new ExamQuestionMap());
+            modelBuilder.Configurations.Add(new QuestionMap());
+            modelBuilder.Configurations.Add(new QuestionPictureMap());
+            modelBuilder.Configurations.Add(new QuestionTypeMap());
             modelBuilder.Configurations.Add(new RoleMap());
             modelBuilder.Configurations.Add(new TestingAreaMap());
             modelBuilder.Configurations.Add(new UserMap());
@@ -60,17 +60,18 @@ namespace ExamPreparation.DAL.Models
         DbSet<AnswerStep> AnswerSteps { get; set; }
         DbSet<AnswerStepPicture> AnswerStepPictures { get; set; }
         DbSet<Exam> Exams { get; set; }
-        DbSet<ExamProblem> ExamProblems { get; set; }
-        DbSet<Problem> Problems { get; set; }
-        DbSet<ProblemPicture> ProblemPictures { get; set; }
-        DbSet<ProblemType> ProblemTypes { get; set; }
+        DbSet<ExamQuestion> ExamQuestions { get; set; }
+        DbSet<Question> Questions { get; set; }
+        DbSet<QuestionPicture> QuestionPictures { get; set; }
+        DbSet<QuestionType> QuestionTypes { get; set; }
         DbSet<Role> Roles { get; set; }
         DbSet<TestingArea> TestingAreas { get; set; }
         DbSet<User> Users { get; set; }
         DbSet<UserAnswer> UserAnswers { get; set; }
         DbSet<UserRole> UserRoles { get; set; }
-    DbSet<TEntity> Set<TEntity>() where TEntity : class;
-    DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
-    Task<int> SaveChangesAsync();
+
+		DbSet<TEntity> Set<TEntity>() where TEntity : class;
+		DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
+		Task<int> SaveChangesAsync();
    }
 }

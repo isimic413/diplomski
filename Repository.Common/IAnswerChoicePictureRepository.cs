@@ -13,5 +13,7 @@ namespace ExamPreparation.Repository.Common
         Task<int> UpdateAsync(IAnswerChoicePicture entity);
         Task<int> DeleteAsync(IAnswerChoicePicture entity);
         Task<int> DeleteAsync(Guid id);
+
+        Task<IAnswerChoicePicture> GetByChoiceIdAsync(Guid choiceId);
     }
 }

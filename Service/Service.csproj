@@ -45,14 +45,14 @@
     <Compile Include="AnswerStepPictureService.cs" />
     <Compile Include="AnswerStepService.cs" />
     <Compile Include="DIModule.cs" />
-    <Compile Include="ExamProblemService.cs" />
+    <Compile Include="ExamQuestionService.cs" />
     <Compile Include="ExamService.cs" />
     <Compile Include="UserAnswerService.cs" />
     <Compile Include="UserRoleService.cs" />
     <Compile Include="UserService.cs" />
-    <Compile Include="ProblemPictureService.cs" />
-    <Compile Include="ProblemService.cs" />
-    <Compile Include="ProblemTypeService.cs" />
+    <Compile Include="QuestionPictureService.cs" />
+    <Compile Include="QuestionService.cs" />
+    <Compile Include="QuestionTypeService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleService.cs" />
     <Compile Include="TestingAreaService.cs" />
@@ -73,6 +73,10 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{487d85b6-dddc-4661-959e-6adced975611}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model.Common\Model.Common.csproj">
       <Project>{81750286-652c-4d76-86c0-5f41aaa30d24}</Project>
       <Name>Model.Common</Name>
@@ -84,10 +88,6 @@
     <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
       <Project>{5aa754c3-6802-4e96-b8ca-9e76f04c652e}</Project>
       <Name>Repository.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repository\Repository.csproj">
-      <Project>{003729ca-b256-448d-a0ef-32cff7b486b5}</Project>
-      <Name>Repository</Name>
     </ProjectReference>
     <ProjectReference Include="..\Service.Common\Service.Common.csproj">
       <Project>{4b3baaae-f5e7-4ce2-8600-07167df5bf69}</Project>

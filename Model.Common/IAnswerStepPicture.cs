@@ -7,5 +7,6 @@ namespace ExamPreparation.Model.Common
         System.Guid Id { get; set; }
         System.Guid AnswerStepId { get; set; }
         byte[] Picture { get; set; }
+        IAnswerStep AnswerStep { get; set; }
     }
 }

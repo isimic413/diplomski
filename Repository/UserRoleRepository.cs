@@ -15,7 +15,7 @@ namespace ExamPreparation.Repository
 {
     public class UserRoleRepository: IUserRoleRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
         public IUnitOfWork UnitOfWork { get; set; }
 
         public UserRoleRepository(IRepository repository)

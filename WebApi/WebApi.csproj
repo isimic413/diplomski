@@ -234,10 +234,10 @@
     <Compile Include="Controllers\AnswerChoiceController.cs" />
     <Compile Include="Controllers\AnswerStepController.cs" />
     <Compile Include="Controllers\ExamController.cs" />
-    <Compile Include="Controllers\ExamProblemController.cs" />
+    <Compile Include="Controllers\ExamQuestionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\ProblemController.cs" />
-    <Compile Include="Controllers\ProblemTypeController.cs" />
+    <Compile Include="Controllers\QuestionController.cs" />
+    <Compile Include="Controllers\QuestionTypeController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\TestingAreaController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -319,6 +319,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{487d85b6-dddc-4661-959e-6adced975611}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model.Common\Model.Common.csproj">
       <Project>{81750286-652c-4d76-86c0-5f41aaa30d24}</Project>
       <Name>Model.Common</Name>
@@ -330,10 +334,6 @@
     <ProjectReference Include="..\Service.Common\Service.Common.csproj">
       <Project>{4b3baaae-f5e7-4ce2-8600-07167df5bf69}</Project>
       <Name>Service.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Service\Service.csproj">
-      <Project>{16bc4764-d76d-45e4-9ca7-05b2b6195bed}</Project>
-      <Name>Service</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

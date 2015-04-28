@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ExamPreparation.Model.Common
 {
@@ -7,5 +8,7 @@ namespace ExamPreparation.Model.Common
         System.Guid Id { get; set; }
         string Title { get; set; }
         string Abrv { get; set; }
+        ICollection<IExam> Exams { get; set; }
+        ICollection<IQuestion> Questions { get; set; }
     }
 }

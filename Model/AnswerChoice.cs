@@ -8,15 +8,15 @@ namespace ExamPreparation.Model
     {
         public AnswerChoice()
         {
-            this.AnswerChoicePictures = new List<AnswerChoicePicture>();
+            this.AnswerChoicePictures = new List<IAnswerChoicePicture>();
         }
 
         public System.Guid Id { get; set; }
-        public System.Guid ProblemId { get; set; }
+        public System.Guid QuestionId { get; set; }
         public bool IsCorrect { get; set; }
         public string Text { get; set; }
         public bool HasPicture { get; set; }
-        public virtual Problem Problem { get; set; }
-        public virtual ICollection<AnswerChoicePicture> AnswerChoicePictures { get; set; }
+        public virtual IQuestion Question { get; set; }
+        public virtual ICollection<IAnswerChoicePicture> AnswerChoicePictures { get; set; }
     }
 }

@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
+using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
 using DALModel = ExamPreparation.DAL.Models;
@@ -14,7 +16,7 @@ namespace ExamPreparation.Repository
 {
     public class AnswerStepRepository: IAnswerStepRepository
     {
-        protected IRepository Repository { get; set; }
+        protected IRepository Repository { get; private set; }
 
         public AnswerStepRepository(IRepository repository)
         {
@@ -26,32 +28,21 @@ namespace ExamPreparation.Repository
             return Repository.CreateUnitOfWork();
         }
 
-        public virtual async Task<List<IAnswerStep>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 500)
+        public virtual async Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter = null)
         {
             try
             { 
-                List<DALModel.AnswerStep> page;
-                pageSize = (pageSize > 50) ? 50 : pageSize;
-
-                switch (sortOrder)
-                {
-                    case "problemId":
-                        page = await Repository.WhereAsync<DALModel.AnswerStep>()
-                            .OrderBy(item => item.ProblemId)
-                            .ThenBy(item => item.StepNumber)
-                            .Skip<DALModel.AnswerStep>((pageNumber - 1) * pageSize)
-                            .Take<DALModel.AnswerStep>(pageSize)
-                            .ToListAsync<DALModel.AnswerStep>();
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid sortOrder.");
-                }
-
-                return new List<IAnswerStep>(Mapper.Map<List<ExamModel.AnswerStep>>(page));
+                return Mapper.Map<List<IAnswerStep>>(
+                    await Repository.WhereAsync<DALModel.AnswerStep>()
+                    .OrderBy(filter.SortOrder)
+                    .Skip<DALModel.AnswerStep>((filter.PageNumber - 1) * filter.PageSize)
+                    .Take<DALModel.AnswerStep>(filter.PageSize)
+                    .ToListAsync<DALModel.AnswerStep>()
+                    );
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -59,12 +50,11 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                var dalAnswerStep = await Repository.SingleAsync<DALModel.AnswerStep>(id);
-                return Mapper.Map<ExamModel.AnswerStep>(dalAnswerStep);
+                return Mapper.Map<IAnswerStep>(await Repository.SingleAsync<DALModel.AnswerStep>(id));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -154,15 +144,32 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> DeleteAsync(Guid id)
+        public virtual Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return await Repository.DeleteAsync<DALModel.AnswerStep>(id);
+                return Repository.DeleteAsync<DALModel.AnswerStep>(id);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
+            }
+        }
+
+        public async Task<List<IAnswerStep>> GetStepsAsync(Guid questionId)
+        {
+            try
+            {
+                return Mapper.Map<List<IAnswerStep>>(
+                    await Repository.WhereAsync<DALModel.AnswerStep>()
+                    .Where<DALModel.AnswerStep>(item => item.QuestionId == questionId)
+                    .OrderBy(item => item.StepNumber)
+                    .ToListAsync<DALModel.AnswerStep>()
+                    );
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }
