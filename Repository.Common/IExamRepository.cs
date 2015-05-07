@@ -11,12 +11,14 @@ namespace ExamPreparation.Repository.Common
     {
         Task<List<IExam>> GetAsync(ExamFilter filter);
         Task<IExam> GetAsync(Guid id);
-        Task<int> AddAsync(IExam entity);
-        Task<int> UpdateAsync(IExam entity);
-        Task<int> DeleteAsync(IExam entity);
-        Task<int> DeleteAsync(Guid id);
-
         Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter);
         Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter);
+
+        Task<int> InsertAsync(IExam entity);
+
+        Task<int> UpdateAsync(IExam entity);
+
+        Task<int> DeleteAsync(IExam entity);
+        Task<int> DeleteAsync(Guid id);
     }
 }

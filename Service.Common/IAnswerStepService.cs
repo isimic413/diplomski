@@ -12,11 +12,14 @@ namespace ExamPreparation.Service.Common
     {
         Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter);
         Task<IAnswerStep> GetAsync(Guid id);
-        Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null);
+        Task<List<IAnswerStep>> GetStepsAsync(Guid questionId);
+
+        Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null);
+
         Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null);
+        Task<int> UpdatePictureAsync(IAnswerStepPicture picture);
+
         Task<int> DeleteAsync(IAnswerStep entity);
         Task<int> DeleteAsync(Guid id);
-
-        Task<List<IAnswerStep>> GetStepsAsync(Guid questionId);
     }
 }

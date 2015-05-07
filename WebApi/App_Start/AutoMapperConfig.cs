@@ -14,12 +14,14 @@ namespace ExamPreparation.WebApi.App_Start
             // AnswerChoiceContorller
             AutoMapper.Mapper.CreateMap<AnswerChoiceController.AnswerChoiceModel, AnswerChoice>().ReverseMap();
             AutoMapper.Mapper.CreateMap<AnswerChoiceController.AnswerChoiceModel, IAnswerChoice>().ReverseMap();
-            //AutoMapper.Mapper.CreateMap<AnswerChoiceController.AnswerChoicePictureModel, AnswerChoicePicture>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<AnswerChoiceController.AnswerChoicePictureModel, AnswerChoicePicture>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<AnswerChoiceController.AnswerChoicePictureModel, IAnswerChoicePicture>().ReverseMap();
 
             // AnswerStepController
             AutoMapper.Mapper.CreateMap<AnswerStepController.AnswerStepModel, AnswerStep>().ReverseMap();
             AutoMapper.Mapper.CreateMap<AnswerStepController.AnswerStepModel, IAnswerStep>().ReverseMap();
-            //AutoMapper.Mapper.CreateMap<AnswerStepController.AnswerStepPictureModel, AnswerStepPicture>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<AnswerStepController.AnswerStepPictureModel, AnswerStepPicture>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<AnswerStepController.AnswerStepPictureModel, IAnswerStepPicture>().ReverseMap();
 
             // ExamController
             AutoMapper.Mapper.CreateMap<ExamController.ExamModel, Exam>().ReverseMap();
@@ -34,6 +36,8 @@ namespace ExamPreparation.WebApi.App_Start
             // QuestionController
             AutoMapper.Mapper.CreateMap<QuestionController.QuestionModel, Question>().ReverseMap();
             AutoMapper.Mapper.CreateMap<QuestionController.QuestionModel, IQuestion>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<QuestionController.QuestionPictureModel, QuestionPicture>().ReverseMap();
+            AutoMapper.Mapper.CreateMap<QuestionController.QuestionPictureModel, IQuestionPicture>().ReverseMap();
 
             // QuestionTypeController
             AutoMapper.Mapper.CreateMap<QuestionTypeController.QuestionTypeModel, QuestionType>().ReverseMap();

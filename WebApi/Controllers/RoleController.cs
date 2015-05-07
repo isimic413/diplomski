@@ -1,31 +1,37 @@
 ﻿using AutoMapper;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
 using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
-using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
-using ExamPreparation.WebApi.Models;
 
 namespace ExamPreparation.WebApi.Controllers
 {
     [RoutePrefix("api/Role")]
     public class RoleController : ApiController
     {
+        #region Properties
+
         private IRoleService Service { get; set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public RoleController(IRoleService service)
         {
             Service = service;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region GET
 
         // GET: api/Role
         [HttpGet]
@@ -73,6 +79,10 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion GET
+
+        #region POST
+
         // POST: api/Role
         [HttpPost]
         [Route("")]
@@ -81,9 +91,15 @@ namespace ExamPreparation.WebApi.Controllers
             role.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.AddAsync(Mapper.Map<Role>(role));
-                if (result == 1) return Ok(role);
-                else return BadRequest("POST unsuccessful.");
+                var result = await Service.InsertAsync(Mapper.Map<IRole>(role));
+                if (result == 1)
+                {
+                    return Ok(role);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                }
             }
             catch (Exception e)
             {
@@ -91,6 +107,9 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion POST
+
+        #region PUT
 
         // PUT: api/Role/5
         [HttpPut]
@@ -102,8 +121,14 @@ namespace ExamPreparation.WebApi.Controllers
                 if (id == role.Id)
                 {
                     var result = await Service.UpdateAsync(Mapper.Map<Role>(role));
-                    if (result == 1) return Ok(role);
-                    else return NotFound();
+                    if (result == 1)
+                    {
+                        return Ok(role);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
                 }
                 return BadRequest("IDs do not match.");
             }
@@ -112,6 +137,10 @@ namespace ExamPreparation.WebApi.Controllers
                 return BadRequest(e.ToString());
             }
         }
+
+        #endregion PUT
+
+        #region DELETE
 
         // DELETE: api/Role/
         [HttpDelete]
@@ -130,11 +159,19 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion DELETE
+
+        #endregion Methods
+
+        #region Model
+
         public class RoleModel
         {
             public System.Guid Id { get; set; }
             public string Title { get; set; }
             public string Abrv { get; set; }
         }
+
+        #endregion Model
     }
 }

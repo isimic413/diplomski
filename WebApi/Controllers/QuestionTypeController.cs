@@ -1,31 +1,38 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
 using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
-using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
-using ExamPreparation.WebApi.Models;
 
 namespace ExamPreparation.WebApi.Controllers
 {
     [RoutePrefix("api/ProblemType")]
     public class QuestionTypeController : ApiController
     {
+        #region Properties
+
         private IQuestionTypeService Service { get; set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public QuestionTypeController(IQuestionTypeService service)
         {
             Service = service;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region GET
 
         // GET: api/ProblemType
         [HttpGet]
@@ -70,6 +77,10 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion GET
+
+        #region POST
+
         // POST: api/ProblemType
         [HttpPost]
         [Route("")]
@@ -78,9 +89,15 @@ namespace ExamPreparation.WebApi.Controllers
             type.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.AddAsync(Mapper.Map<QuestionType>(type));
-                if (result == 1) return Ok(type);
-                else return BadRequest("POST unsuccessful for " + type.ToString());
+                var result = await Service.InsertAsync(Mapper.Map<IQuestionType>(type));
+                if (result == 1)
+                {
+                    return Ok(type);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                }
             }
             catch (Exception e)
             {
@@ -88,6 +105,9 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion POST
+
+        #region PUT
 
         // PUT: api/ProblemType/5
         [HttpPut]
@@ -99,8 +119,14 @@ namespace ExamPreparation.WebApi.Controllers
                 if (id == type.Id)
                 {
                     var result = await Service.UpdateAsync(Mapper.Map<QuestionType>(type));
-                    if (result == 1) return Ok(type);
-                    else return NotFound();
+                    if (result == 1)
+                    {
+                        return Ok(type);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
                 }
                 return BadRequest("IDs do not match.");
             }
@@ -110,6 +136,10 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion PUT
+
+        #region DELETE
+
         // DELETE: api/ProblemType/
         [HttpDelete]
         [Route("{id:guid}")]
@@ -117,9 +147,18 @@ namespace ExamPreparation.WebApi.Controllers
         {
             try
             {
-                var result = await Service.DeleteAsync(id);
-                if (result == 1) return Ok("Deleted");
-                else return NotFound();
+                if (await Service.DeleteAsync(id) == 1)
+                {
+                    return Ok("Deleted.");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -127,11 +166,19 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
+        #endregion DELETE
+
+        #endregion Methods
+
+        #region Model
+
         public class QuestionTypeModel
         {
             public System.Guid Id { get; set; }
             public string Title { get; set; }
             public string Abrv { get; set; }
         }
+
+        #endregion Model
     }
 }

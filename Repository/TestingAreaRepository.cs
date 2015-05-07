@@ -7,32 +7,43 @@ using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
 using ExamPreparation.Common.Filters;
+using ExamPreparation.DAL.Models;
 using ExamPreparation.Repository.Common;
 using ExamPreparation.Model.Common;
-using DALModel = ExamPreparation.DAL.Models;
-using ExamModel = ExamPreparation.Model;
 
 namespace ExamPreparation.Repository
 {
     public class TestingAreaRepository : ITestingAreaRepository
     {
+        #region Properties
+
         protected IRepository Repository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public TestingAreaRepository(IRepository repository)
         {
             Repository = repository;
         }
 
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
+
         public virtual async Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter)
         {
             try
             {
                 return Mapper.Map<List<ITestingArea>>(
-                    await Repository.WhereAsync<DALModel.TestingArea>()
+                    await Repository.WhereAsync<TestingArea>()
                             .OrderBy(filter.SortOrder)
-                            .Skip<DALModel.TestingArea>((filter.PageNumber - 1) * filter.PageSize)
-                            .Take<DALModel.TestingArea>(filter.PageSize)
-                            .ToListAsync<DALModel.TestingArea>()
+                            .Skip<TestingArea>((filter.PageNumber - 1) * filter.PageSize)
+                            .Take<TestingArea>(filter.PageSize)
+                            .ToListAsync<TestingArea>()
                     );
             }
             catch (Exception e)
@@ -45,7 +56,7 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                return Mapper.Map<ExamModel.TestingArea>(await Repository.SingleAsync<DALModel.TestingArea>(id));
+                return Mapper.Map<ITestingArea>(await Repository.SingleAsync<TestingArea>(id));
             }
             catch (Exception e)
             {
@@ -53,52 +64,99 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual Task<int> AddAsync(ITestingArea entity)
+        #endregion Get
+
+        #region Insert
+
+        public virtual Task<int> InsertAsync(ITestingArea entity)
         {
             try
             {
-                return Repository.AddAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
+                return Repository.AddAsync<TestingArea>(Mapper.Map<TestingArea>(entity));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Insert
+
+        #region Update
 
         public virtual Task<int> UpdateAsync(ITestingArea entity)
         {
             try
             {
-                return Repository.UpdateAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
+                return Repository.UpdateAsync<TestingArea>(Mapper.Map<TestingArea>(entity));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public virtual Task<int> DeleteAsync(ITestingArea entity)
+        #endregion Update
+
+        #region Delete
+
+        public async Task<int> DeleteAsync(ITestingArea entity)
         {
             try
             {
-                return Repository.DeleteAsync<DALModel.TestingArea>(Mapper.Map<DALModel.TestingArea>(entity));
+                if (entity.Abrv.ToLower() == "undef")
+                {
+                    throw new ArgumentException("TestingArea \"Undefined\" cannot be deleted.");
+                }
+                else
+                {
+                    IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
+
+                    var questions = await Repository.WhereAsync<Question>()
+                        .Where<Question>(item => item.QuestionTypeId == entity.Id)
+                        .ToListAsync();
+
+                    var taUndef = await Repository.WhereAsync<TestingArea>()
+                        .Where<TestingArea>(item => item.Abrv.ToLower() == "undef")
+                        .SingleAsync();
+
+                    foreach (var question in questions)
+                    {
+                        question.QuestionTypeId = taUndef.Id;
+                        await unitOfWork.UpdateAsync<Question>(question);
+                    }
+
+                    await unitOfWork.DeleteAsync<TestingArea>(entity.Id);
+
+                    return await unitOfWork.CommitAsync();
+                }
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
-        public virtual Task<int> DeleteAsync(Guid id)
+        public async Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return Repository.DeleteAsync<DALModel.TestingArea>(id);
+                return await DeleteAsync(Mapper.Map<ITestingArea>(
+                    await Repository.SingleAsync<TestingArea>(id))
+                    );
+            }
+            catch (ArgumentException e)
+            {
+                throw e;
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

@@ -11,7 +11,7 @@ namespace ExamPreparation.Repository.Common
     {
         Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter);
         Task<IQuestionType> GetAsync(Guid id);
-        Task<int> AddAsync(IQuestionType entity);
+        Task<int> InsertAsync(IQuestionType entity);
         Task<int> UpdateAsync(IQuestionType entity);
         Task<int> DeleteAsync(IQuestionType entity);
         Task<int> DeleteAsync(Guid id);

@@ -12,12 +12,24 @@ namespace ExamPreparation.Service
 {
     public class ExamService: IExamService
     {
+        #region Properties
+
         protected IExamRepository Repository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public ExamService(IExamRepository repository)
         {
             Repository = repository;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
 
         public Task<List<IExam>> GetAsync(ExamFilter filter)
         {
@@ -40,54 +52,6 @@ namespace ExamPreparation.Service
             catch (Exception e)
             {
                 throw e;
-            }
-        }
-
-        public async Task<int> AddAsync(IExam entity)
-        {
-            try
-            {
-                return await Repository.AddAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> UpdateAsync(IExam entity)
-        {
-            try
-            {
-                return await Repository.UpdateAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(IExam entity)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public async Task<int> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return await Repository.DeleteAsync(id);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
             }
         }
 
@@ -114,5 +78,68 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
+
+        #endregion Get
+
+        #region Insert
+
+        public Task<int> InsertAsync(IExam entity)
+        {
+            try
+            {
+                return Repository.InsertAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Insert
+
+        #region Update
+
+        public Task<int> UpdateAsync(IExam entity)
+        {
+            try
+            {
+                return Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Update
+
+        #region Delete
+
+        public Task<int> DeleteAsync(IExam entity)
+        {
+            try
+            {
+                return Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion Delete
+
+        #endregion Methods
     }
 }

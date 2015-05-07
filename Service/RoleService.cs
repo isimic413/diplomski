@@ -11,12 +11,24 @@ namespace ExamPreparation.Service
 {
     public class RoleService: IRoleService
     {
+        #region Properties
+
         protected IRoleRepository Repository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public RoleService(IRoleRepository repository)
         {
             Repository = repository;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
 
         public Task<List<IRole>> GetAsync(RoleFilter filter)
         {
@@ -42,17 +54,25 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> AddAsync(IRole entity)
+        #endregion Get
+
+        #region Insert
+
+        public Task<int> InsertAsync(IRole entity)
         {
             try
             {
-                return Repository.AddAsync(entity);
+                return Repository.InsertAsync(entity);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Insert
+
+        #region Update
 
         public Task<int> UpdateAsync(IRole entity)
         {
@@ -62,9 +82,13 @@ namespace ExamPreparation.Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Update
+
+        #region Delete
 
         public Task<int> DeleteAsync(IRole entity)
         {
@@ -89,5 +113,9 @@ namespace ExamPreparation.Service
                 throw new Exception(e.ToString());
             }
         }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

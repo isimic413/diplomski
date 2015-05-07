@@ -1,33 +1,40 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
-using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
-using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
-using ExamPreparation.WebApi.Models;
 
-// dovrsiti mapping iz AnswerChoice u AnswerChoiceModel
+
 namespace ExamPreparation.WebApi.Controllers
 {
     [RoutePrefix("api/AnswerChoice")]
     public class AnswerChoiceController : ApiController
     {
+        #region Properties
+
         private IAnswerChoiceService Service { get; set; }
         private IAnswerChoicePictureService PictureService { get; set; }
 
-        public AnswerChoiceController(IAnswerChoiceService service)
+        #endregion Properties
+
+        #region Constructors
+
+        public AnswerChoiceController(IAnswerChoiceService service, IAnswerChoicePictureService pictureService)
         {
             Service = service;
+            PictureService = pictureService;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region GET
 
         // GET: api/AnswerChoice
         [HttpGet]
@@ -110,59 +117,178 @@ namespace ExamPreparation.WebApi.Controllers
             {
                 return BadRequest(e.ToString());
             }
-        }    
+        }
+
+        #endregion GET
+
+        #region POST
+
+        // POST: api/AnswerChoice
+        [HttpPost]
+        [Route("")]
+        public async Task<IHttpActionResult> Post(AnswerChoiceModel choice, AnswerChoicePictureModel picture = null)
+        {
+            choice.Id = Guid.NewGuid();
+            try
+            {
+                var mappedChoice = Mapper.Map<IAnswerChoice>(choice);
+
+                if (picture != null)
+                {
+                    picture.Id = Guid.NewGuid();
+                    picture.AnswerChoiceId = choice.Id;
+                    mappedChoice.HasPicture = true;
+                }
+                else
+                {
+                    mappedChoice.HasPicture = false;
+                }
+                
+                var result = await Service.InsertAsync(mappedChoice, Mapper.Map<IAnswerChoicePicture>(picture));
+
+                if (result == 1)
+                {
+                    choice.PictureUrl = (picture != null) ? "AnswerChoice/" + picture.Id.ToString() : "";
+                        //HttpContext.Current.Request.Url.AbsoluteUri + "/Picture/" + picture.Id.ToString() : "";
+
+                    return Ok(choice);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion POST
+
+        #region PUT
+
+        // PUT: api/AnswerChoice/5
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Put(Guid id, AnswerChoiceModel choice, AnswerChoicePictureModel picture = null)
+        {
+            try
+            {
+                if (id != choice.Id)
+                {
+                    return BadRequest("IDs do not match.");
+                }
+
+                var mappedChoice = Mapper.Map<IAnswerChoice>(choice);
+
+                if (choice.PictureUrl == null || choice.PictureUrl == "")
+                {
+                    if (picture != null)
+                    {
+                        picture.AnswerChoiceId = id;
+                        picture.Id = Guid.NewGuid();
+                        mappedChoice.HasPicture = true;
+                    }
+                    else
+                    {
+                        mappedChoice.HasPicture = false;
+                    }
+                }
+                else
+                {
+                    mappedChoice.HasPicture = true;
+                }
+
+                var result = await Service.UpdateAsync(mappedChoice, Mapper.Map<IAnswerChoicePicture>(picture));
+
+                if (result == 1)
+                {
+                    if (choice.PictureUrl == null || choice.PictureUrl == "")
+                    {
+                        choice.PictureUrl = (picture != null) ? "AnswerChoice/" + picture.Id.ToString() : "";
+                        //HttpContext.Current.Request.Url.AbsoluteUri + "/Picture/" + picture.Id.ToString() : "";
+                    }
+
+                    return Ok(choice);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        // PUT: api/AnswerChoice/Picture/5
+        [HttpPut]
+        [Route("Picture/{id:guid}")]
+        public async Task<IHttpActionResult> Put(Guid id, AnswerChoicePictureModel picture)
+        {
+            try
+            {
+                if (id != picture.Id)
+                {
+                    return BadRequest("IDs do not match.");
+                }
+
+                var result = await Service.UpdatePictureAsync(Mapper.Map<IAnswerChoicePicture>(picture));
+
+                if (result == 1)
+                {
+                    return Ok("Updated.");
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion PUT
+
+        #region DELETE
+
+        // DELETE: api/AnswerChoice/
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Delete(Guid id)
+        {
+            try
+            {
+                if (await Service.DeleteAsync(id) == 1)
+                {
+                    return Ok("Deleted.");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
 
 
+        }
 
-        //// POST: api/AnswerChoice
-        //[HttpPost]
-        //[Route("")]
-        //public async Task<IHttpActionResult> Post(AnswerChoiceModel choice, AnswerChoicePictureModel picture = null)
-        //{
-        //    choice.Id = Guid.NewGuid();
-        //    try
-        //    {
-        //        if (picture != null)
-        //        {
-        //            picture.Id = Guid.NewGuid();
-        //            picture.AnswerChoiceId = choice.Id;
-        //        }
+        #endregion DELETE
 
-        //        var result = await Service.AddAsync(Mapper.Map<AnswerChoice>(choice), Mapper.Map<AnswerChoicePicture>(picture));
-        //        if (result == 1) return Ok(choice);
-        //        else return BadRequest();
+        #endregion Methods
 
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.ToString());
-        //    }
-        //}
-
-        //// PUT: api/AnswerChoice/5
-        //[HttpPut]
-        //[Route("{id:guid}")]
-        //public async Task<IHttpActionResult> Put(Guid id, AnswerChoiceModel choice, AnswerChoicePicture picture = null)
-        //{
-        //    if (id == choice.Id)
-        //    {
-        //        var result = await Service.UpdateAsync(Mapper.Map<AnswerChoice>(choice), picture);
-        //        if (result == 1) return Ok(choice);
-        //        else return NotFound();
-        //    }
-        //    return BadRequest();
-        //}
-
-        //// DELETE: api/AnswerChoice/
-        //[HttpDelete]
-        //[Route("{id:guid}")]
-        //public async Task<IHttpActionResult> Delete(Guid id)
-        //{
-        //    var result = await Service.DeleteAsync(id);
-        //    if (result == 1) return Ok("Deleted");
-        //    else return NotFound();
-        //}
-
+        #region Model
 
         public class AnswerChoiceModel
         {
@@ -174,11 +300,13 @@ namespace ExamPreparation.WebApi.Controllers
             public string PictureUrl { get; set; }
         }
 
-        //public class AnswerChoicePictureModel
-        //{
-        //    public System.Guid Id { get; set; }
-        //    public System.Guid AnswerChoiceId { get; set; }
-        //    public byte[] Picture { get; set; }
-        //}
+        public class AnswerChoicePictureModel
+        {
+            public System.Guid Id { get; set; }
+            public System.Guid AnswerChoiceId { get; set; }
+            public byte[] Picture { get; set; }
+        }
+
+        #endregion Model
     }
 }

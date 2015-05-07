@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using ExamPreparation.Common.Filters;
@@ -12,13 +11,26 @@ namespace ExamPreparation.Service
 {
     public class AnswerStepService: IAnswerStepService
     {
-        protected IAnswerStepRepository Repository { get; private set; }
+        #region Properties
 
-        public AnswerStepService(IAnswerStepRepository repository)
+        protected IAnswerStepRepository Repository { get; private set; }
+        protected IAnswerStepPictureRepository PictureRepository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
+
+        public AnswerStepService(IAnswerStepRepository repository, IAnswerStepPictureRepository pictureRepository)
         {
             Repository = repository;
+            PictureRepository = pictureRepository;
         }
 
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
 
         public Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter)
         {
@@ -40,55 +52,7 @@ namespace ExamPreparation.Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> AddAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
-        {
-            try
-            {
-                return Repository.AddAsync(entity, picture);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
-        {
-            try
-            {
-                return Repository.UpdateAsync(entity, picture);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> DeleteAsync(IAnswerStep entity)
-        {
-            try
-            {
-                return Repository.DeleteAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return Repository.DeleteAsync(id);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -100,8 +64,84 @@ namespace ExamPreparation.Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Get
+
+        #region Insert
+
+        public Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        {
+            try
+            {
+                return Repository.InsertAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Insert
+
+        #region Update
+
+        public Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        {
+            try
+            {
+                return Repository.UpdateAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> UpdatePictureAsync(IAnswerStepPicture picture)
+        {
+            try
+            {
+                return PictureRepository.UpdateAsync(picture);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Update
+
+        #region Delete
+
+        public Task<int> DeleteAsync(IAnswerStep entity)
+        {
+            try
+            {
+                return Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

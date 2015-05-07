@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
 using System.Threading.Tasks;
 
 using ExamPreparation.DAL.Models;
@@ -11,10 +10,16 @@ using ExamPreparation.Repository.Common;
 
 namespace ExamPreparation.Repository
 {
-    public class Repository : IRepository 
+    public class Repository : IRepository
     {
+        #region Properties
+
         protected IExamPreparationContext DbContext { get; private set; }
-        protected IUnitOfWorkFactory UnitOfWorkFactory { get; private set; } // ?
+        protected IUnitOfWorkFactory UnitOfWorkFactory { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public Repository(IExamPreparationContext dbContext, IUnitOfWorkFactory unitOfWorkFactory)
         {
@@ -25,6 +30,10 @@ namespace ExamPreparation.Repository
             DbContext = dbContext;
             UnitOfWorkFactory = unitOfWorkFactory;
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         public IUnitOfWork CreateUnitOfWork() 
         {
@@ -41,7 +50,7 @@ namespace ExamPreparation.Repository
             return DbContext.Set<T>().FindAsync(id);
         }
 
-        public virtual async Task<int> AddAsync<T>(T entity) where T : class
+        public virtual async Task<int> InsertAsync<T>(T entity) where T : class
         {
             DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
             if(dbEntityEntry.State != EntityState.Detached)
@@ -114,5 +123,33 @@ namespace ExamPreparation.Repository
             }
             return await DeleteAsync<T>(entity);
         }
+
+        #endregion Methods
+
+        #region TempMethod
+
+        public virtual async Task<int> AddAsync<T>(T entity) where T : class
+        {
+            DbEntityEntry dbEntityEntry = DbContext.Entry(entity);
+            if (dbEntityEntry.State != EntityState.Detached)
+            {
+                dbEntityEntry.State = EntityState.Added;
+            }
+            else
+            {
+                DbContext.Set<T>().Add(entity);
+            }
+
+            try
+            {
+                return await DbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion TempMethod
     }
 }

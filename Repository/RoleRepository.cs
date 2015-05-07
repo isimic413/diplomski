@@ -7,32 +7,43 @@ using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
 using ExamPreparation.Common.Filters;
+using ExamPreparation.DAL.Models;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Repository.Common;
-using DALModel = ExamPreparation.DAL.Models;
-using ExamModel = ExamPreparation.Model;
 
 namespace ExamPreparation.Repository
 {
     public class RoleRepository: IRoleRepository
     {
+        #region Properties
+
         protected IRepository Repository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public RoleRepository(IRepository repository)
         {
             Repository = repository;
         }
 
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
+
         public virtual async Task<List<IRole>> GetAsync(RoleFilter filter)
         {
             try
             {
                 return Mapper.Map<List<IRole>>(
-                    await Repository.WhereAsync<DALModel.Role>()
+                    await Repository.WhereAsync<Role>()
                             .OrderBy(filter.SortOrder)
-                            .Skip<DALModel.Role>((filter.PageNumber - 1) * filter.PageSize)
-                            .Take<DALModel.Role>(filter.PageSize)
-                            .ToListAsync<DALModel.Role>()
+                            .Skip<Role>((filter.PageNumber - 1) * filter.PageSize)
+                            .Take<Role>(filter.PageSize)
+                            .ToListAsync<Role>()
                     );
             }
             catch (Exception e)
@@ -45,7 +56,7 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                return Mapper.Map<ExamModel.Role>(await Repository.SingleAsync<DALModel.Role>(id));
+                return Mapper.Map<IRole>(await Repository.SingleAsync<Role>(id));
             }
             catch (Exception e)
             {
@@ -53,35 +64,47 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual Task<int> AddAsync(IRole entity)
+        #endregion Get
+
+        #region Insert
+
+        public virtual Task<int> InsertAsync(IRole entity)
         {
             try
             {
-                return Repository.AddAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
+                return Repository.InsertAsync<Role>(Mapper.Map<Role>(entity));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Insert
+
+        #region Update
 
         public virtual Task<int> UpdateAsync(IRole entity)
         {
             try
             {
-                return Repository.UpdateAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
+                return Repository.UpdateAsync<Role>(Mapper.Map<Role>(entity));
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Update
+
+        #region Delete
 
         public virtual Task<int> DeleteAsync(IRole entity)
         {
             try
             {
-                return Repository.DeleteAsync<DALModel.Role>(Mapper.Map<DALModel.Role>(entity));
+                return Repository.DeleteAsync<Role>(Mapper.Map<Role>(entity));
             }
             catch (Exception e)
             {
@@ -93,12 +116,16 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                return Repository.DeleteAsync<DALModel.Role>(id);
+                return Repository.DeleteAsync<Role>(id);
             }
             catch (Exception e)
             {
                 throw new Exception(e.ToString());
             }
         }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

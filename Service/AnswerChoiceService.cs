@@ -12,12 +12,26 @@ namespace ExamPreparation.Service
 {
     public class AnswerChoiceService: IAnswerChoiceService
     {
-        protected IAnswerChoiceRepository Repository { get; private set; }
+        #region Properties
 
-        public AnswerChoiceService(IAnswerChoiceRepository repository)
+        protected IAnswerChoiceRepository Repository { get; private set; }
+        protected IAnswerChoicePictureRepository PictureRepository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
+
+        public AnswerChoiceService(IAnswerChoiceRepository repository, IAnswerChoicePictureRepository pictureRepository)
         {
             Repository = repository;
+            PictureRepository = pictureRepository;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
 
         public Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter)
         {
@@ -43,54 +57,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> AddAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
-        {
-            try
-            {
-                return Repository.AddAsync(entity, picture);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
-        {
-            try
-            {
-                return Repository.UpdateAsync(entity, picture);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public  Task<int> DeleteAsync(IAnswerChoice entity)
-        {
-            try
-            {
-                return Repository.DeleteAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
-        }
-
-        public Task<int> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return Repository.DeleteAsync(id);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            } 
-        }
-
         public Task<List<IAnswerChoice>> GetCorrectAnswersAsync(Guid questionId)
         {
             try
@@ -112,7 +78,91 @@ namespace ExamPreparation.Service
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        #endregion Get
+
+        #region Insert
+
+        public Task<int> InsertAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        {
+            try
+            {
+                return Repository.InsertAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Insert
+
+        #region Update
+
+        public Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        {
+            try
+            {
+                return Repository.UpdateAsync(entity, picture);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> UpdatePictureAsync(IAnswerChoicePicture entity)
+        {
+            try
+            {
+                return PictureRepository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Update
+
+        #region Delete
+
+        public Task<int> DeleteAsync(IAnswerChoice entity)
+        {
+            try
+            {
+                return Repository.DeleteAsync(entity);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                throw e;
             } 
         }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

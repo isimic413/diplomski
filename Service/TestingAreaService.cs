@@ -11,12 +11,24 @@ namespace ExamPreparation.Service
 {
     public class TestingAreaService : ITestingAreaService
     {
+        #region Properties
+
         protected ITestingAreaRepository Repository { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public TestingAreaService(ITestingAreaRepository repository)
         {
             Repository = repository;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region Get
 
         public Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter)
         {
@@ -42,17 +54,25 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> AddAsync(ITestingArea entity)
+        #endregion Get
+
+        #region Insert
+
+        public Task<int> InsertAsync(ITestingArea entity)
         {
             try
             {
-                return Repository.AddAsync(entity);
+                return Repository.InsertAsync(entity);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Insert
+
+        #region Update
 
         public Task<int> UpdateAsync(ITestingArea entity)
         {
@@ -62,9 +82,13 @@ namespace ExamPreparation.Service
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Update
+
+        #region Delete
 
         public Task<int> DeleteAsync(ITestingArea entity)
         {
@@ -72,9 +96,13 @@ namespace ExamPreparation.Service
             {
                 return Repository.DeleteAsync(entity);
             }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
 
@@ -84,10 +112,18 @@ namespace ExamPreparation.Service
             {
                 return Repository.DeleteAsync(id);
             }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                throw e;
             }
         }
+
+        #endregion Delete
+
+        #endregion Methods
     }
 }

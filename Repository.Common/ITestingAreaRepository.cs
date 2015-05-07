@@ -11,8 +11,11 @@ namespace ExamPreparation.Repository.Common
     {
         Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter);
         Task<ITestingArea> GetAsync(Guid id);
-        Task<int> AddAsync(ITestingArea entity);
+
+        Task<int> InsertAsync(ITestingArea entity);
+
         Task<int> UpdateAsync(ITestingArea entity);
+
         Task<int> DeleteAsync(ITestingArea entity);
         Task<int> DeleteAsync(Guid id);
     }

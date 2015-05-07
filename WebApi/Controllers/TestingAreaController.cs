@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
-using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
-using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
 
 namespace ExamPreparation.WebApi.Controllers
@@ -19,12 +14,24 @@ namespace ExamPreparation.WebApi.Controllers
     [RoutePrefix("api/TestingArea")]
     public class TestingAreaController : ApiController
     {
+        #region Properties
+
         private ITestingAreaService Service { get; set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public TestingAreaController(ITestingAreaService service)
         {
             Service = service;
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region GET
 
         // GET: api/TestingArea
         [HttpGet]
@@ -69,62 +76,100 @@ namespace ExamPreparation.WebApi.Controllers
             }
         }
 
-        //// POST: api/TestingArea
-        //[HttpPost]
-        //[Route("")]
-        //public async Task<IHttpActionResult> Post(TestingAreaModel testingArea)
-        //{
-        //    testingArea.Id = Guid.NewGuid();
-        //    try
-        //    {
-        //        var result = await Service.AddAsync(Mapper.Map<TestingArea>(testingArea));
-        //        if (result == 1) return Ok(testingArea);
-        //        else return BadRequest("POST unsuccessful for " + testingArea.ToString());
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.ToString());
-        //    }
-        //}
+        #endregion GET
 
-        
-        //// PUT: api/TestingArea/5
-        //[HttpPut]
-        //[Route("{id:guid}")]
-        //public async Task<IHttpActionResult> Put(Guid id, TestingAreaModel testingArea)
-        //{
-        //    try
-        //    {
-        //        if (id == testingArea.Id)
-        //        {
-        //            var result = await Service.UpdateAsync(Mapper.Map<TestingArea>(testingArea));
-        //            if (result == 1) return Ok(testingArea);
-        //            else return NotFound();
-        //        }
-        //        return BadRequest("IDs do not match.");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.ToString());
-        //    }
-        //}
+        #region POST
 
-        //// DELETE: api/TestingArea/
-        //[HttpDelete]
-        //[Route("{id:guid}")]
-        //public async Task<IHttpActionResult> Delete(Guid id)
-        //{
-        //    try
-        //    {
-        //        var result = await Service.DeleteAsync(id);
-        //        if (result == 1) return Ok("Deleted");
-        //        else return NotFound();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.ToString());
-        //    }
-        //}
+        // POST: api/TestingArea
+        [HttpPost]
+        [Route("")]
+        public async Task<IHttpActionResult> Post(TestingAreaModel testingArea)
+        {
+            testingArea.Id = Guid.NewGuid();
+            try
+            {
+                var result = await Service.InsertAsync(Mapper.Map<ITestingArea>(testingArea));
+                if (result == 1)
+                {
+                    return Ok(testingArea);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion POST
+
+        #region PUT
+
+        // PUT: api/TestingArea/5
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Put(Guid id, TestingAreaModel testingArea)
+        {
+            try
+            {
+                if (id == testingArea.Id)
+                {
+                    var result = await Service.UpdateAsync(Mapper.Map<ITestingArea>(testingArea));
+                    if (result == 1)
+                    {
+                        return Ok(testingArea);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                return BadRequest("IDs do not match.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion PUT
+
+        #region DELETE
+
+        // DELETE: api/TestingArea/
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Delete(Guid id)
+        {
+            try
+            {
+                if (await Service.DeleteAsync(id) == 1)
+                {
+                    return Ok("Deleted.");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion DELETE
+
+        #endregion Methods
+
+        #region Model
 
         public class TestingAreaModel
         {
@@ -132,5 +177,7 @@ namespace ExamPreparation.WebApi.Controllers
             public string Title { get; set; }
             public string Abrv { get; set; }
         }
+
+        #endregion Model
     }
 }

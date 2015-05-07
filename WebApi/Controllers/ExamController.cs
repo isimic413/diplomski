@@ -1,32 +1,37 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
-using ExamPreparation.Model;
 using ExamPreparation.Model.Common;
-using ExamPreparation.Service;
 using ExamPreparation.Service.Common;
-using ExamPreparation.WebApi.Models;
 
 namespace ExamPreparation.WebApi.Controllers
 {
     [RoutePrefix("api/Exam")]
     public class ExamController : ApiController
     {
+        #region Properties
+
         private IExamService Service { get; set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public ExamController(IExamService service)
         {
             Service = service;
         }
 
+        #endregion Constructors
+
+        #region Methods
+
+        #region GET
 
         // GET: api/Exam
         [HttpGet]
@@ -120,51 +125,97 @@ namespace ExamPreparation.WebApi.Controllers
                 return BadRequest(e.ToString());
             }
         }
+        #endregion GET
 
+        #region POST
 
-        //    // POST: api/Exam
-        //    [HttpPost]
-        //    [Route("")]
-        //    public async Task<IHttpActionResult> Post(ExamModel exam)
-        //    {
-        //        exam.Id = Guid.NewGuid();
-        //        try
-        //        {
-        //            var result = await Service.AddAsync(Mapper.Map<ExamModel, Exam>(exam));
-        //            if (result == 1) return Ok(exam);
-        //            else return BadRequest();
+        // POST: api/Exam
+        [HttpPost]
+        [Route("")]
+        public async Task<IHttpActionResult> Post(ExamModel exam)
+        {
+            exam.Id = Guid.NewGuid();
+            try
+            {
+                var result = await Service.InsertAsync(Mapper.Map<IExam>(exam));
+                if (result == 1)
+                {
+                    return Ok(exam);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
+            }
+        }
 
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            return BadRequest();
-        //        }
-        //    }
+        #endregion POST
 
-        //    // PUT: api/Exam/5
-        //    [HttpPut]
-        //    [Route("{id:guid}")]
-        //    public async Task<IHttpActionResult> Put(Guid id, ExamModel exam)
-        //    {
-        //        if (id == exam.Id)
-        //        {
-        //            var result = await Service.UpdateAsync(Mapper.Map<ExamModel, Exam>(exam));
-        //            if (result == 1) return Ok(exam);
-        //            else return NotFound();
-        //        }
-        //        return BadRequest();
-        //    }
+        #region PUT
 
-        //    // DELETE: api/Exam/
-        //    [HttpDelete]
-        //    [Route("{id:guid}")]
-        //    public async Task<IHttpActionResult> Delete(Guid id)
-        //    {
-        //        var result = await Service.DeleteAsync(id);
-        //        if (result == 1) return Ok("Deleted");
-        //        else return NotFound();
-        //    }
+        // PUT: api/Exam/5
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Put(Guid id, ExamModel exam)
+        {
+            try
+            {
+                if (id != exam.Id)
+                {
+                    return BadRequest("IDs do not match.");
+                }
 
+                var result = await Service.UpdateAsync(Mapper.Map<IExam>(exam));
+                if (result == 1)
+                {
+                    return Ok(exam);
+                }
+                else
+                {
+                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion PUT
+
+        #region DELETE
+
+        // DELETE: api/Exam/
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IHttpActionResult> Delete(Guid id)
+        {
+            try
+            {
+                if (await Service.DeleteAsync(id) == 1)
+                {
+                    return Ok("Deleted.");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.ToString());
+            }
+        }
+
+        #endregion DELETE
+
+        #endregion Methods
+
+        #region Model
 
         public class ExamModel
         {
@@ -174,5 +225,7 @@ namespace ExamPreparation.WebApi.Controllers
             public short Month { get; set; }
             public System.TimeSpan Duration { get; set; }
         }
+
+        #endregion Model
     }
 }

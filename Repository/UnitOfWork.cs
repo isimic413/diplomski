@@ -11,7 +11,13 @@ namespace ExamPreparation.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
+        #region Properties
+
         protected IExamPreparationContext DbContext { get; private set; }
+
+        #endregion Properties
+
+        #region Constructors
 
         public UnitOfWork(IExamPreparationContext dbContext)
         {
@@ -21,6 +27,10 @@ namespace ExamPreparation.Repository
             }
             DbContext = dbContext;
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         public virtual Task<int> AddAsync<T>(T entity) where T : class
         {
@@ -112,5 +122,7 @@ namespace ExamPreparation.Repository
         {
             DbContext.Dispose();
         }
+
+        #endregion Methods
     }
 }

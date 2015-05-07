@@ -12,8 +12,11 @@ namespace ExamPreparation.Service.Common
     {
         Task<List<IRole>> GetAsync(RoleFilter filter);
         Task<IRole> GetAsync(Guid id);
-        Task<int> AddAsync(IRole entity);
+
+        Task<int> InsertAsync(IRole entity);
+
         Task<int> UpdateAsync(IRole entity);
+
         Task<int> DeleteAsync(IRole entity);
         Task<int> DeleteAsync(Guid id);
     }
