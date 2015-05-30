@@ -9,7 +9,7 @@ namespace ExamPreparation.Service.Common
 {
     public interface IAnswerChoiceService
     {
-        Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter);
+        Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter = null);
         Task<IAnswerChoice> GetAsync(Guid id);
         Task<List<IAnswerChoice>> GetCorrectAnswersAsync(Guid questionId);
         Task<List<IAnswerChoice>> GetChoicesAsync(Guid questionId);
@@ -17,7 +17,6 @@ namespace ExamPreparation.Service.Common
         Task<int> InsertAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null);
 
         Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null);
-        Task<int> UpdatePictureAsync(IAnswerChoicePicture entity);
 
         Task<int> DeleteAsync(IAnswerChoice entity);
         Task<int> DeleteAsync(Guid id);

@@ -30,9 +30,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter)
+        public Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter = null)
         {
             try
             {
@@ -68,15 +66,21 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
-        public Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public async Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
             try
             {
-                return Repository.InsertAsync(entity, picture);
+                if (picture != null)
+                {
+                    var unitOfWork = await Repository.CreateUnitOfWork();
+                    await Repository.AddAsync(unitOfWork, entity);
+                    await PictureRepository.AddAsync(unitOfWork, picture);
+                    return await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    return await Repository.InsertAsync(entity);
+                }
             }
             catch (Exception e)
             {
@@ -84,37 +88,27 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
-        public Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public async Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
         {
             try
             {
-                return Repository.UpdateAsync(entity, picture);
+                if (picture != null)
+                {
+                    var unitOfWork = await Repository.CreateUnitOfWork();
+                    await Repository.UpdateAsync(unitOfWork, entity);
+                    await PictureRepository.UpdateAsync(unitOfWork, picture);
+                    return await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    return await Repository.UpdateAsync(entity);
+                }
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        public Task<int> UpdatePictureAsync(IAnswerStepPicture picture)
-        {
-            try
-            {
-                return PictureRepository.UpdateAsync(picture);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(IAnswerStep entity)
         {
@@ -139,8 +133,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

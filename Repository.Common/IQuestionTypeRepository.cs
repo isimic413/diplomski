@@ -9,7 +9,7 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IQuestionTypeRepository
     {
-        Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter);
+        Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter = null);
         Task<IQuestionType> GetAsync(Guid id);
         Task<int> InsertAsync(IQuestionType entity);
         Task<int> UpdateAsync(IQuestionType entity);

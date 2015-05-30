@@ -31,9 +31,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter)
+        public Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter = null)
         {
             try
             {
@@ -81,15 +79,21 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
-        public Task<int> InsertAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public async Task<int> InsertAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
         {
             try
             {
-                return Repository.InsertAsync(entity, picture);
+                if (picture != null)
+                {
+                    var unitOfWork = await Repository.CreateUnitOfWork();
+                    await Repository.AddAsync(unitOfWork, entity);
+                    await PictureRepository.AddAsync(unitOfWork, picture);
+                    return await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    return await Repository.InsertAsync(entity);
+                }
             }
             catch (Exception e)
             {
@@ -97,37 +101,27 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
-        public Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public async Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
         {
             try
             {
-                return Repository.UpdateAsync(entity, picture);
+                if (picture != null)
+                {
+                    var unitOfWork = await Repository.CreateUnitOfWork();
+                    await Repository.UpdateAsync(unitOfWork, entity);
+                    await PictureRepository.UpdateAsync(unitOfWork, picture);
+                    return await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    return await Repository.UpdateAsync(entity);
+                }
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        public Task<int> UpdatePictureAsync(IAnswerChoicePicture entity)
-        {
-            try
-            {
-                return PictureRepository.UpdateAsync(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(IAnswerChoice entity)
         {
@@ -160,8 +154,6 @@ namespace ExamPreparation.Service
                 throw e;
             } 
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

@@ -29,9 +29,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IExam>> GetAsync(ExamFilter filter)
+        public Task<List<IExam>> GetAsync(ExamFilter filter = null)
         {
             try
             {
@@ -55,7 +53,7 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter)
+        public Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter = null)
         {
             try
             {
@@ -67,7 +65,7 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter)
+        public Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter = null)
         {
             try
             {
@@ -78,10 +76,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Get
-
-        #region Insert
 
         public Task<int> InsertAsync(IExam entity)
         {
@@ -95,10 +89,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
         public Task<int> UpdateAsync(IExam entity)
         {
             try
@@ -110,10 +100,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(IExam entity)
         {
@@ -138,7 +124,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-        #endregion Delete
 
         #endregion Methods
     }

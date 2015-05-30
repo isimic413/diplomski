@@ -28,9 +28,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter)
+        public Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter = null)
         {
             try
             {
@@ -54,10 +52,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
         public Task<int> InsertAsync(ITestingArea entity)
         {
             try
@@ -70,10 +64,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
         public Task<int> UpdateAsync(ITestingArea entity)
         {
             try
@@ -85,10 +75,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(ITestingArea entity)
         {
@@ -121,8 +107,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

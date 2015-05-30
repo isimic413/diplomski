@@ -3,13 +3,13 @@ using System.Text;
 
 namespace ExamPreparation.Common.Filters
 {
-    public class ExamQuestionFilter : IFilter
+    public class ExamQuestionFilter 
     {
         public string SortOrder { get; private set; }
         public int PageNumber { get; private set; }
         public int PageSize { get; private set; }
 
-        private readonly int DefaultPageSize = 20;
+        public int DefaultPageSize = 20;
         private readonly string DefaultSortOrder = "ExamId";
 
         public ExamQuestionFilter(string sortOrder, int pageNumber, int pageSize)

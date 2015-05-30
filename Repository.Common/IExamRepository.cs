@@ -9,10 +9,10 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IExamRepository
     {
-        Task<List<IExam>> GetAsync(ExamFilter filter);
+        Task<List<IExam>> GetAsync(ExamFilter filter = null);
         Task<IExam> GetAsync(Guid id);
-        Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter);
-        Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter);
+        Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter = null);
+        Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter = null);
 
         Task<int> InsertAsync(IExam entity);
 

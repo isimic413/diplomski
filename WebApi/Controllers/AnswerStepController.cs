@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
 using ExamPreparation.Service.Common;
-
 
 namespace ExamPreparation.WebApi.Controllers
 {
@@ -18,25 +19,27 @@ namespace ExamPreparation.WebApi.Controllers
         #region Properties
 
         private IAnswerStepService Service { get; set; }
+        private IAnswerStepPictureService PictureService { get; set; }
 
         #endregion Properties
 
         #region Constructors
 
-        public AnswerStepController(IAnswerStepService service)
+        public AnswerStepController(IAnswerStepService service, IAnswerStepPictureService pictureService)
         {
             Service = service;
+            PictureService = pictureService;
         }
 
         #endregion Constructors
 
         #region Methods
 
-        #region GET
         // GET: api/AnswerStep
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> Get(string sortOrder = "", string sortDirection = "", int pageSize = 0, int pageNumber = 0)
+        public async Task<HttpResponseMessage> Get(string sortOrder = "", string sortDirection = "", 
+            int pageSize = 0, int pageNumber = 0)
         {
             try
             {
@@ -44,233 +47,214 @@ namespace ExamPreparation.WebApi.Controllers
                 var result = await Service.GetAsync(filter);
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<AnswerStepModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<AnswerStepModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         // GET: api/AnswerStep
         [HttpGet]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
             try
             {
                 var result = await Service.GetAsync(id);
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<AnswerStepModel>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<AnswerStepModel>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         [HttpGet]
-        [Route("question/{id:guid}")]
-        public async Task<IHttpActionResult> GetSteps(Guid id)
+        [Route("Question/{id:guid}")]
+        public async Task<HttpResponseMessage> GetSteps(Guid id)
         {
             try
             {
                 var result = await Service.GetStepsAsync(id);
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<AnswerStepModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<AnswerStepModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion GET
-
-        #region POST
 
         // POST: api/AnswerStep
         [HttpPost]
         [Route("")]
-        public async Task<IHttpActionResult> Post(AnswerStepModel step, AnswerStepPictureModel picture = null)
+        public async Task<HttpResponseMessage> Post(AnswerStepModel entity, AnswerStepPictureModel entityPicture = null)
         {
-            step.Id = Guid.NewGuid();
+            entity.Id = Guid.NewGuid();
             try
             {
-                if (step.StepNumber < 1)
+                if (entity.StepNumber < 1)
                 {
-                    return BadRequest("StepNumber cannot be less than 1.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "StepNumber cannot be less than 1.");
                 }
 
-                var mappedStep = Mapper.Map<IAnswerStep>(step);
-
-                if (picture != null)
+                if (entityPicture != null)
                 {
-                    picture.Id = Guid.NewGuid();
-                    picture.AnswerStepId = step.Id;
-                    mappedStep.HasPicture = true;
-                }
-                else
-                {
-                    mappedStep.HasPicture = false;
+                    entityPicture.Id = Guid.NewGuid();
+                    entityPicture.AnswerStepId = entity.Id;
                 }
 
-                var result = await Service.InsertAsync(mappedStep, Mapper.Map<IAnswerStepPicture>(picture));
+                var result = await Service.InsertAsync(Mapper.Map<IAnswerStep>(entity), 
+                    Mapper.Map<IAnswerStepPicture>(entityPicture));
 
                 if (result == 1)
                 {
-                    step.PictureUrl = (picture != null) ? "AnswerStep/" + picture.Id.ToString() : "";
+                    entity.PictureUrl = (entityPicture != null) ? "AnswerStep/" + entityPicture.Id.ToString() : "";
                     //HttpContext.Current.Request.Url.AbsoluteUri + "/Picture/" + picture.Id.ToString() : "";
 
-                    return Ok(step);
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "POST unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion POST
-
-        #region PUT
 
         // PUT: api/AnswerStep/5
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Put(Guid id, AnswerStepModel step, AnswerStepPictureModel picture = null)
+        public async Task<HttpResponseMessage> Put(Guid id, AnswerStepModel entity, 
+            AnswerStepPictureModel entityPicture = null)
         {
             try
             {
-                if (id != step.Id)
+                if (id != entity.Id)
                 {
-                    return BadRequest("IDs do not match.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "IDs do not match.");
                 }
 
-                var mappedStep = Mapper.Map<IAnswerStep>(step);
-
-                if (step.PictureUrl == null || step.PictureUrl == "")
+                if (entityPicture != null)
                 {
-                    if (picture != null)
+                    entityPicture.AnswerStepId = id;
+
+                    if (entity.PictureUrl == null || entity.PictureUrl == "")
                     {
-                        picture.AnswerStepId = id;
-                        picture.Id = Guid.NewGuid();
-                        mappedStep.HasPicture = true;
+                        entityPicture.Id = Guid.NewGuid();
                     }
                     else
                     {
-                        mappedStep.HasPicture = false;
+                        entityPicture.Id = new Guid(entity.PictureUrl.Split('/').Last());
                     }
                 }
-                else
-                {
-                    mappedStep.HasPicture = true;
-                }
 
-                var result = await Service.UpdateAsync(mappedStep, Mapper.Map<IAnswerStepPicture>(picture));
+                var result = await Service.UpdateAsync(Mapper.Map<IAnswerStep>(entity), 
+                    Mapper.Map<IAnswerStepPicture>(entityPicture));
 
                 if (result == 1)
                 {
-                    if (step.PictureUrl == null || step.PictureUrl == "")
+                    if (entity.PictureUrl == null || entity.PictureUrl == "")
                     {
-                        step.PictureUrl = (picture != null) ? "AnswerStep/" + picture.Id.ToString() : "";
+                        entity.PictureUrl = (entityPicture != null) ? "AnswerStep/" + entityPicture.Id.ToString() : "";
                         //HttpContext.Current.Request.Url.AbsoluteUri + "/Picture/" + picture.Id.ToString() : "";
                     }
 
-                    return Ok(step);
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "PUT unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         // PUT: api/AnswerStep/Picture/5
         [HttpPut]
         [Route("Picture/{id:guid}")]
-        public async Task<IHttpActionResult> Put(Guid id, AnswerStepPictureModel picture)
+        public async Task<HttpResponseMessage> Put(Guid id, AnswerStepPictureModel entityPicture)
         {
             try
             {
-                if (id != picture.Id)
+                if (id != entityPicture.Id)
                 {
-                    return BadRequest("IDs do not match.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "IDs do not match.");
                 }
 
-                var result = await Service.UpdatePictureAsync(Mapper.Map<IAnswerStepPicture>(picture));
+                var result = await PictureService.UpdateAsync(Mapper.Map<IAnswerStepPicture>(entityPicture));
 
                 if (result == 1)
                 {
-                    return Ok("Updated.");
+                    return Request.CreateResponse(HttpStatusCode.OK, "Updated.");
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "PUT unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion PUT
-
-        #region DELETE
 
         // DELETE: api/AnswerStep/
         [HttpDelete]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
             try
             {
                 if (await Service.DeleteAsync(id) == 1)
                 {
-                    return Ok("Step deleted.");
+                    return Request.CreateResponse(HttpStatusCode.OK, "Deleted.");
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
-        #endregion DELETE
-
         #endregion Methods
 
-        #region Model
+        #region Models
 
         public class AnswerStepModel
         {
@@ -289,6 +273,6 @@ namespace ExamPreparation.WebApi.Controllers
             public byte[] Picture { get; set; }
         }
 
-        #endregion Model
+        #endregion Models
     }
 }

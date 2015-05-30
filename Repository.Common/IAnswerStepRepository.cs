@@ -9,19 +9,23 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IAnswerStepRepository
     {
-        Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter);
+        Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter = null);
         Task<IAnswerStep> GetAsync(Guid id);
         Task<List<IAnswerStep>> GetStepsAsync(Guid questionId);
 
-        Task AddAsync(IUnitOfWork unitOfWork, IAnswerStep entity, IAnswerStepPicture picture = null);
-        Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null);
+        Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerStep entity);
+        Task<int> AddAsync(IUnitOfWork unitOfWork, List<IAnswerStep> entities,
+            List<IAnswerStepPicture> pictures = null);
+        Task<int> InsertAsync(IAnswerStep entity);
 
-        Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null);
-        Task UnitOfWorkUpdateAsync(IUnitOfWork unitOfWork,
-            IAnswerStep entity, IAnswerStepPicture picture = null);
+        Task<int> UpdateAsync(IUnitOfWork unitOfWork, IAnswerStep entity);
+        Task<int> UpdateAsync(IAnswerStep entity);
 
-        Task UnitOfWorkDeleteAsync(IUnitOfWork unitOfWork, IAnswerStep entity);
+        Task<int> DeleteAsync(IUnitOfWork unitOfWork, Guid questionId);
+        Task<int> DeleteAsync(IUnitOfWork unitOfWork, IAnswerStep entity);
         Task<int> DeleteAsync(IAnswerStep entity);
         Task<int> DeleteAsync(Guid id);
+
+        Task<IUnitOfWork> CreateUnitOfWork();
     }
 }

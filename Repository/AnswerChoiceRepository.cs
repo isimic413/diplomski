@@ -32,44 +32,29 @@ namespace ExamPreparation.Repository
 
         #region Methods
 
-        #region Get
-
         public virtual async Task<List<IAnswerChoice>> GetAsync(AnswerChoiceFilter filter = null)
         {
             try
             {
-                List<IAnswerChoice> page = Mapper.Map<List<IAnswerChoice>>(
-                            await Repository.WhereAsync<AnswerChoice>()
-                            .OrderBy(filter.SortOrder)
-                            .Skip<AnswerChoice>((filter.PageNumber - 1) * filter.PageSize)
-                            .Take<AnswerChoice>(filter.PageSize)
-                            .ToListAsync<AnswerChoice>()
-                            );
-
-
-                foreach (var choice in page)
+                if (filter != null)
                 {
-                    if (choice.HasPicture)
-                    {
-                        choice.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
-                            await Repository.WhereAsync<AnswerChoicePicture>()
-                            .Where<AnswerChoicePicture>(item => item.AnswerChoiceId == choice.Id)
-                            .ToListAsync()
-                            );
-
-                        if (choice.AnswerChoicePictures.Count < 1)
-                        {
-                            throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + choice.Id 
-                                + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
-                        }
-                    }
-                    else
-                    {
-                        choice.AnswerChoicePictures = null;
-                    }
+                    return Mapper.Map<List<IAnswerChoice>>(
+                                await Repository.WhereAsync<AnswerChoice>()
+                                .OrderBy(filter.SortOrder)
+                                .Skip<AnswerChoice>((filter.PageNumber - 1) * filter.PageSize)
+                                .Take<AnswerChoice>(filter.PageSize)
+                                .Include(ac => ac.AnswerChoicePictures)
+                                .ToListAsync<AnswerChoice>()
+                                );
                 }
-
-                return page;
+                else // return all
+                {
+                    return Mapper.Map<List<IAnswerChoice>>(
+                        await Repository.WhereAsync<AnswerChoice>()
+                        .Include(ac => ac.AnswerChoicePictures)
+                        .ToListAsync()
+                        );
+                }
             }
             catch (Exception e)
             {
@@ -77,31 +62,16 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<IAnswerChoice> GetAsync(Guid id)
+        public virtual async Task<IAnswerChoice> GetAsync(Guid id) // Include...
         {
             try
             {
-                var result = Mapper.Map<IAnswerChoice>(await Repository.SingleAsync<AnswerChoice>(id));
-                if (result.HasPicture)
-                {
-                    result.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
-                            await Repository.WhereAsync<AnswerChoicePicture>()
-                            .Where<AnswerChoicePicture>(item => item.AnswerChoiceId == result.Id)
-                            .ToListAsync()
-                            );
-
-                    if (result.AnswerChoicePictures.Count < 1)
-                    {
-                        throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + result.Id
-                            + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
-                    }
-                }
-                else
-                {
-                    result.AnswerChoicePictures = null;
-                }
-
-                return result;
+                return Mapper.Map<IAnswerChoice>(
+                    await Repository.WhereAsync<AnswerChoice>()
+                    .Where(item => item.Id == id)
+                    .Include(item => item.AnswerChoicePictures)
+                    .SingleAsync()                    
+                    );
             }
             catch (Exception e)
             {
@@ -116,6 +86,7 @@ namespace ExamPreparation.Repository
                 return Mapper.Map<List<IAnswerChoice>>(
                     await Repository.WhereAsync<AnswerChoice>()
                     .Where<AnswerChoice>(item => questionId == item.QuestionId && item.IsCorrect)
+                    .Include(item => item.AnswerChoicePictures)
                     .ToListAsync<AnswerChoice>()
                     );
             }
@@ -129,36 +100,12 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                List<IAnswerChoice> choices = Mapper.Map<List<IAnswerChoice>>(
+                return Mapper.Map<List<IAnswerChoice>>(
                     await Repository.WhereAsync<AnswerChoice>()
                     .Where<AnswerChoice>(item => item.QuestionId == questionId)
+                    .Include(item => item.AnswerChoicePictures)
                     .ToListAsync<AnswerChoice>()
                     );
-
-                foreach (var choice in choices)
-                {
-                    if (choice.HasPicture)
-                    {
-                        choice.AnswerChoicePictures = Mapper.Map<List<IAnswerChoicePicture>>(
-                            await Repository.WhereAsync<AnswerChoicePicture>()
-                            .Where<AnswerChoicePicture>(item => item.AnswerChoiceId == choice.Id)
-                            .ToListAsync()
-                            );
-
-                        if (choice.AnswerChoicePictures.Count < 1)
-                        {
-                            throw new ArgumentNullException("AnswerChoice.HasPicture (id=" + choice.Id
-                                + ") set to true, but no AnswerChoicePicture found for that AnswerChoice.");
-                        }
-                        // dodati provjeru prema tipu zadatka (QuestionType)
-                    }
-                    else
-                    {
-                        choice.AnswerChoicePictures = null;
-                    }
-                }
-
-                return choices;
             }
             catch (Exception e)
             {
@@ -166,41 +113,12 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
-        public virtual async Task<int> InsertAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public virtual Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerChoice entity)
         {
             try
             {
-                if (entity.HasPicture)
-                {
-                    if (picture != null)
-                    {
-                        IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
-
-                        await unitOfWork.AddAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));
-                        await unitOfWork.AddAsync<AnswerChoicePicture>(Mapper.Map<AnswerChoicePicture>(picture));
-
-                        return await unitOfWork.CommitAsync();
-                    }
-                    else
-                    {
-                        throw new ArgumentNullException("AnswerChoice.HasPicture set to true, but no AnswerChoicePicture sent.");
-                    }
-                }
-                else // !entity.HasPicture
-                {
-                    if (picture == null)
-                    {
-                        return await Repository.InsertAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));
-                    }
-                    else
-                    {
-                        throw new ArgumentException("AnswerChoice.HasPicture set to false, but AnswerChoicePicture for this AnswerChoice was sent.");
-                    }
-                }
+                return unitOfWork.AddAsync<AnswerChoice>(
+                    Mapper.Map<AnswerChoice>(entity));
             }
             catch (Exception e)
             {
@@ -208,55 +126,36 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Insert
-        
-        #region Update
-
-        public virtual async Task<int> UpdateAsync(IAnswerChoice entity, IAnswerChoicePicture picture = null)
+        public virtual async Task<int> AddAsync(IUnitOfWork unitOfWork, List<IAnswerChoice> entities,
+            List<IAnswerChoicePicture> pictures = null)
         {
             try
             {
-                IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
+                var hasCorrectAnswers = false;
+                var result = 0;
 
-                var updatePicture = (await Repository.SingleAsync<AnswerChoice>(entity.Id)).HasPicture;
-
-                if (updatePicture) // entity in DB has picture
+                foreach (var entity in entities)
                 {
-                    var dalPicture = await Repository.WhereAsync<AnswerChoicePicture>()
-                            .Where<AnswerChoicePicture>(item => item.AnswerChoiceId == entity.Id)
-                            .SingleAsync<AnswerChoicePicture>();
-
-                    if (entity.HasPicture)
+                    result += await this.AddAsync(unitOfWork, entity);
+                    if (entity.IsCorrect)
                     {
-                        if (picture != null)
-                        {
-                            dalPicture.Picture = picture.Picture;
-                            await unitOfWork.UpdateAsync<AnswerChoicePicture>(dalPicture);
-                        }
-                    }
-                    else // !entity.HasPicture
-                    {
-                        await unitOfWork.DeleteAsync<AnswerChoicePicture>(dalPicture.Id);
+                        hasCorrectAnswers = true;
                     }
                 }
-                else // entity in DB does not have picture
+                if (!hasCorrectAnswers) // no correct answers provided
                 {
-                    if (entity.HasPicture)
-                    {
-                        if (picture != null)
-                        {
-                            await unitOfWork.AddAsync<AnswerChoicePicture>(
-                                Mapper.Map<AnswerChoicePicture>(picture));
-                        }
-                        else
-                        {
-                            throw new ArgumentNullException("AnswerChoicePicture");
-                        }
-                    }
+                    throw new ArgumentException("At least one answer must be correct.");                    
                 }
 
-                await unitOfWork.UpdateAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));
-                return await unitOfWork.CommitAsync();
+                if (pictures != null)
+                {
+                    foreach (var picture in pictures)
+                    {
+                        result += await unitOfWork.AddAsync<AnswerChoicePicture>(
+                            Mapper.Map<AnswerChoicePicture>(picture));
+                    }
+                }
+                return result;
             }
             catch (Exception e)
             {
@@ -264,35 +163,75 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Update
+        public virtual Task<int> InsertAsync(IAnswerChoice entity)
+        {
+            try
+            {
+                return Repository.InsertAsync<AnswerChoice>(
+                    Mapper.Map<AnswerChoice>(entity));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
-        #region Delete
+        public virtual Task<int> UpdateAsync(IUnitOfWork unitOfWork, IAnswerChoice entity)
+        {
+            try
+            {
+                return unitOfWork.UpdateAsync<AnswerChoice>(
+                    Mapper.Map<AnswerChoice>(entity));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public virtual async Task<int> UpdateAsync(IAnswerChoice entity)
+        {
+            try
+            {
+                return await Repository.UpdateAsync<AnswerChoice>(
+                    Mapper.Map<AnswerChoice>(entity));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         public async Task<int> DeleteAsync(IAnswerChoice entity)
         {
             try
             {
-                var choices = await Repository.WhereAsync<AnswerChoice>()
-                    .Where<AnswerChoice>(item => item.QuestionId == entity.QuestionId)
-                    .ToListAsync();
-
-                if (choices.Count == 1)
+                if (entity.IsCorrect)
                 {
-                    throw new InvalidOperationException("Cannot delete the only correct answer for question.");
+                    if ((await Repository.WhereAsync<AnswerChoice>()
+                        .Where(item => item.QuestionId == entity.QuestionId)
+                        .Where(item => item.IsCorrect)
+                        .ToListAsync())
+                        .Count == 1
+                        )
+                    {
+                        throw new InvalidOperationException("Cannot delete the only correct answer for a question.");
+                    }
                 }
 
+                var pictures = await Repository.WhereAsync<AnswerChoicePicture>()
+                    .Where(item => item.AnswerChoiceId == entity.Id)
+                    .ToListAsync();
 
-                if (entity.HasPicture)
+                if (pictures.Count > 0)
                 {
                     IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
-                    var pictures = Repository.WhereAsync<AnswerChoicePicture>()
-                        .Where(e => e.AnswerChoiceId == entity.Id);
-              
-                    foreach(var picture in pictures) 
+
+                    foreach (var picture in pictures)
                     {
-                        await unitOfWork.DeleteAsync<AnswerChoicePicture>(Mapper.Map<AnswerChoicePicture>(picture));
+                        await unitOfWork.DeleteAsync<AnswerChoicePicture>(picture);
                     }
-                    await unitOfWork.DeleteAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));    
+                    await unitOfWork.DeleteAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));
 
                     return await unitOfWork.CommitAsync();
                 }
@@ -300,6 +239,33 @@ namespace ExamPreparation.Repository
                 {
                     return await Repository.DeleteAsync<AnswerChoice>(Mapper.Map<AnswerChoice>(entity));
                 }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<int> DeleteAsync(IUnitOfWork unitOfWork, Guid questionId)
+        {
+            try
+            {
+                var result = 0;
+
+                var choices = await Repository.WhereAsync<AnswerChoice>()
+                    .Where<AnswerChoice>(item => item.QuestionId == questionId)
+                    .Include(item => item.AnswerChoicePictures)
+                    .ToListAsync<AnswerChoice>();
+
+                foreach (var choice in choices)
+                {
+                    foreach (var picture in choice.AnswerChoicePictures)
+                    {
+                        result += await unitOfWork.DeleteAsync<AnswerChoicePicture>(picture);
+                    }
+                    result += await unitOfWork.DeleteAsync<AnswerChoice>(choice);
+                }
+                return result;
             }
             catch (Exception e)
             {
@@ -325,7 +291,17 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Delete
+        public Task<IUnitOfWork> CreateUnitOfWork()
+        {
+            try
+            {
+                return Task.FromResult(Repository.CreateUnitOfWork());
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         #endregion Methods
     }

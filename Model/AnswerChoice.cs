@@ -15,7 +15,6 @@ namespace ExamPreparation.Model
         public System.Guid QuestionId { get; set; }
         public bool IsCorrect { get; set; }
         public string Text { get; set; }
-        public bool HasPicture { get; set; }
         public virtual IQuestion Question { get; set; }
         public virtual ICollection<IAnswerChoicePicture> AnswerChoicePictures { get; set; }
     }

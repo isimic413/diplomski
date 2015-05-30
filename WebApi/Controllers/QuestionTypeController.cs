@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
 using ExamPreparation.Model;
@@ -32,141 +33,129 @@ namespace ExamPreparation.WebApi.Controllers
 
         #region Methods
 
-        #region GET
-
         // GET: api/ProblemType
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> Get(string sortOrder = "", string sortDirection = "", int pageNumber = 0, int pageSize = 0)
+        public async Task<HttpResponseMessage> Get(string sortOrder = "", string sortDirection = "", 
+            int pageNumber = 0, int pageSize = 0)
         {
             try
             {               
                 var result = await Service.GetAsync(new QuestionTypeFilter(sortOrder, sortDirection, pageNumber, pageSize));
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<QuestionTypeModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<QuestionTypeModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         // GET: api/ProblemType/5
         [HttpGet]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
             try
             {
                 var result = await Service.GetAsync(id);
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<QuestionTypeModel>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<QuestionTypeModel>(result));
                 }
-                else return NotFound();
+                else return Request.CreateResponse(HttpStatusCode.NotFound);
             }
             catch (Exception e)
             {
-                throw new Exception(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion GET
-
-        #region POST
 
         // POST: api/ProblemType
         [HttpPost]
         [Route("")]
-        public async Task<IHttpActionResult> Post(QuestionTypeModel type)
+        public async Task<HttpResponseMessage> Post(QuestionTypeModel entity)
         {
-            type.Id = Guid.NewGuid();
+            entity.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.InsertAsync(Mapper.Map<IQuestionType>(type));
+                var result = await Service.InsertAsync(Mapper.Map<IQuestionType>(entity));
                 if (result == 1)
                 {
-                    return Ok(type);
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, 
+                        "POST unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion POST
-
-        #region PUT
 
         // PUT: api/ProblemType/5
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Put(Guid id, QuestionTypeModel type)
+        public async Task<HttpResponseMessage> Put(Guid id, QuestionTypeModel entity)
         {
             try
             {
-                if (id == type.Id)
+                if (id == entity.Id)
                 {
-                    var result = await Service.UpdateAsync(Mapper.Map<QuestionType>(type));
+                    var result = await Service.UpdateAsync(Mapper.Map<QuestionType>(entity));
                     if (result == 1)
                     {
-                        return Ok(type);
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
                     }
                     else
                     {
-                        return NotFound();
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                return BadRequest("IDs do not match.");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "IDs do not match.");
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion PUT
-
-        #region DELETE
 
         // DELETE: api/ProblemType/
         [HttpDelete]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
             try
             {
                 if (await Service.DeleteAsync(id) == 1)
                 {
-                    return Ok("Deleted.");
+                    return Request.CreateResponse(HttpStatusCode.OK, "Deleted.");
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (ArgumentException e)
             {
-                return BadRequest(e.Message);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.Message);
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion DELETE
 
         #endregion Methods
 

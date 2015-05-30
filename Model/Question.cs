@@ -20,8 +20,6 @@ namespace ExamPreparation.Model
         public System.Guid QuestionTypeId { get; set; }
         public string Text { get; set; }
         public byte Points { get; set; }
-        public bool HasPicture { get; set; }
-        public bool HasSteps { get; set; }
         public virtual ICollection<IAnswerChoice> AnswerChoices { get; set; }
         public virtual ICollection<IAnswerStep> AnswerSteps { get; set; }
         public virtual ICollection<IExamQuestion> ExamQuestions { get; set; }

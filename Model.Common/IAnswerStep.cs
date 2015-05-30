@@ -10,7 +10,6 @@ namespace ExamPreparation.Model.Common
         short StepNumber { get; set; }
         byte Points { get; set; }
         string Text { get; set; }
-        bool HasPicture { get; set; }
         IQuestion Question { get; set; }
         ICollection<IAnswerStepPicture> AnswerStepPictures { get; set; }
     }

@@ -28,9 +28,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter)
+        public Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter = null)
         {
             try
             {
@@ -54,10 +52,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
         public Task<int> InsertAsync(IQuestionType entity)
         {
             try
@@ -70,10 +64,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
         public Task<int> UpdateAsync(IQuestionType entity)
         {
             try
@@ -85,10 +75,6 @@ namespace ExamPreparation.Service
                 throw new Exception(e.ToString());
             }
         }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(IQuestionType entity)
         {
@@ -121,8 +107,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

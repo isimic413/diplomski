@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 
 using ExamPreparation.Common.Filters;
 using ExamPreparation.Model.Common;
@@ -31,80 +32,86 @@ namespace ExamPreparation.WebApi.Controllers
 
         #region Methods
 
-        #region GET
-
         // GET: api/Exam
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> Get(string sortOrder = "", string sortDirection = "", int pageNumber = 0, int pageSize = 0)
+        public async Task<HttpResponseMessage> Get(string sortOrder = "", string sortDirection = "", 
+            int pageNumber = 0, int pageSize = 0)
         {
             try
             {
                 var result = await Service.GetAsync(new ExamFilter(sortOrder, sortDirection, pageNumber, pageSize));
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<ExamModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<ExamModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         // GET: api/Exam/5
         [HttpGet]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
             try
             {
                 var result = await Service.GetAsync(id);
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<ExamModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<ExamModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
 
         [HttpGet]
         [Route("Year/{year}")]
-        public async Task<IHttpActionResult> GetByYearAsync(int year, string sortDirection = "", int pageNumber = 0, int pageSize = 0)
+        public async Task<HttpResponseMessage> GetByYearAsync(int year, string sortDirection = "", 
+            int pageNumber = 0, int pageSize = 0)
         {
             try
             {
-                var result = await Service.GetByYearAsync(year, new ExamFilter("Year", sortDirection, pageNumber, pageSize));
+                var result = await Service.GetByYearAsync(
+                    year, new ExamFilter("Year", sortDirection, pageNumber, pageSize));
+
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<ExamModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<ExamModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 
         [HttpGet]
         [Route("TestingArea/{id:guid}")]
-        public async Task<IHttpActionResult> GetByTestingAreaIdAsync(Guid id, string sortDirection = "", int pageNumber = 0, int pageSize = 0)
+        public async Task<HttpResponseMessage> GetByTestingAreaIdAsync(Guid id, string sortDirection = "", 
+            int pageNumber = 0, int pageSize = 0)
         {
             try
             {
@@ -113,105 +120,96 @@ namespace ExamPreparation.WebApi.Controllers
 
                 if (result != null)
                 {
-                    return Ok(Mapper.Map<List<ExamModel>>(result));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        Mapper.Map<List<ExamModel>>(result));
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-        #endregion GET
-
-        #region POST
 
         // POST: api/Exam
         [HttpPost]
         [Route("")]
-        public async Task<IHttpActionResult> Post(ExamModel exam)
+        public async Task<HttpResponseMessage> Post(ExamModel entity)
         {
-            exam.Id = Guid.NewGuid();
+            entity.Id = Guid.NewGuid();
             try
             {
-                var result = await Service.InsertAsync(Mapper.Map<IExam>(exam));
+                var result = await Service.InsertAsync(Mapper.Map<IExam>(entity));
                 if (result == 1)
                 {
-                    return Ok(exam);
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("POST unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError,
+                        "POST unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion POST
-
-        #region PUT
 
         // PUT: api/Exam/5
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Put(Guid id, ExamModel exam)
+        public async Task<HttpResponseMessage> Put(Guid id, ExamModel entity)
         {
             try
             {
-                if (id != exam.Id)
+                if (id != entity.Id)
                 {
-                    return BadRequest("IDs do not match.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "IDs do not match.");
                 }
 
-                var result = await Service.UpdateAsync(Mapper.Map<IExam>(exam));
+                var result = await Service.UpdateAsync(Mapper.Map<IExam>(entity));
                 if (result == 1)
                 {
-                    return Ok(exam);
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
                 }
                 else
                 {
-                    return new ExceptionResult(new Exception("PUT unsuccessful."), this);
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError,
+                        "PUT unsuccessful.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion PUT
-
-        #region DELETE
 
         // DELETE: api/Exam/
         [HttpDelete]
         [Route("{id:guid}")]
-        public async Task<IHttpActionResult> Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
             try
             {
                 if (await Service.DeleteAsync(id) == 1)
                 {
-                    return Ok("Deleted.");
+                    return Request.CreateResponse(HttpStatusCode.OK, "Deleted.");
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
-
-        #endregion DELETE
 
         #endregion Methods
 

@@ -28,9 +28,7 @@ namespace ExamPreparation.Service
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IExamQuestion>> GetAsync(ExamQuestionFilter filter)
+        public Task<List<IExamQuestion>> GetAsync(ExamQuestionFilter filter = null)
         {
             try
             {
@@ -54,11 +52,11 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<List<IQuestion>> GetExamQuestionsAsync(Guid examId)
+        public Task<List<IExamQuestion>> GetExamQuestionsAsync(Guid examId, ExamQuestionFilter filter = null)
         {
             try
             {
-                return Repository.GetExamQuestionsAsync(examId);
+                return Repository.GetExamQuestionsAsync(examId, filter);
             }
             catch (Exception e)
             {
@@ -78,10 +76,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
         public Task<int> InsertAsync(IExamQuestion entity)
         {
             try
@@ -94,10 +88,6 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
         public Task<int> UpdateAsync(IExamQuestion entity)
         {
             try
@@ -109,10 +99,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Update
-
-        #region Delete
 
         public Task<int> DeleteAsync(IExamQuestion entity)
         {
@@ -137,8 +123,6 @@ namespace ExamPreparation.Service
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

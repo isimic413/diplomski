@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using ExamPreparation.Common.Filters;
@@ -10,7 +9,7 @@ namespace ExamPreparation.Service.Common
 {
     public interface ITestingAreaService
     {
-        Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter);
+        Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter = null);
         Task<ITestingArea> GetAsync(Guid id);
 
         Task<int> InsertAsync(ITestingArea entity);

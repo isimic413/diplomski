@@ -15,8 +15,9 @@ namespace ExamPreparation.Service
         #region Properties
 
         protected IQuestionRepository Repository { get; private set; }
-        protected IAnswerStepRepository StepRepository { get; private set; }
         protected IQuestionPictureRepository PictureRepository { get; private set; }
+        protected IAnswerStepRepository StepRepository { get; private set; }
+        protected IAnswerChoiceRepository ChoiceRepository { get; private set; }
 
         #endregion Properties
 
@@ -25,20 +26,20 @@ namespace ExamPreparation.Service
         public QuestionService(
             IQuestionRepository repository, 
             IAnswerStepRepository stepRepository,
-            IQuestionPictureRepository pictureRepository)
+            IQuestionPictureRepository pictureRepository,
+            IAnswerChoiceRepository choiceRepository)
         {
             Repository = repository;
             StepRepository = stepRepository;
             PictureRepository = pictureRepository;
+            ChoiceRepository = choiceRepository;
         }
 
         #endregion Constructors
 
         #region Methods
 
-        #region Get
-
-        public Task<List<IQuestion>> GetAsync(QuestionFilter filter)
+        public Task<List<IQuestion>> GetAsync(QuestionFilter filter = null)
         {
             try
             {
@@ -62,7 +63,7 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<List<IQuestion>> GetByTestingAreaIdAsync(Guid testingAreaId, QuestionFilter filter)
+        public Task<List<IQuestion>> GetByTestingAreaIdAsync(Guid testingAreaId, QuestionFilter filter = null)
         {
             try
             {
@@ -74,7 +75,7 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<List<IQuestion>> GetByTypeIdAsync(Guid typeId, QuestionFilter filter)
+        public Task<List<IQuestion>> GetByTypeIdAsync(Guid typeId, QuestionFilter filter = null)
         {
             try
             {
@@ -86,124 +87,34 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
         public async Task<int> InsertAsync(IQuestion entity, List<IAnswerChoice> choices,
             IQuestionPicture picture = null, List<IAnswerChoicePicture> choicePictures = null,
             List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null)
         {
             try
             {
-                if (choices.Count < choicePictures.Count)
+                if (entity.Points < 1)
                 {
-                    throw new ArgumentException("List<IAnswerChoicePicture>");
-                }
-                if(steps.Count < stepPictures.Count)
-                {
-                    throw new ArgumentException("List<IAnswerStepPicture>");
-                }
-
-                var HasCorrectAnswers = (choices.FindAll(item => item.IsCorrect).Count > 1);
-                if (!HasCorrectAnswers)
-                {
-                    throw new ArgumentException("There must be at least one correct answer in List<IAnswerChoice>.");
-                }
-
-                var result = await Repository.InsertAsync(entity, choices, picture, choicePictures);
-
-                if(entity.HasSteps)
-                {
-                    IUnitOfWork unitOfWork = await Repository.CreateUnitOfWork();
-
-                    var sortedSteps = steps.AsQueryable().OrderBy(item => item.StepNumber).ToArray();
-
-                    for (int i = 0; i < sortedSteps.Length; i++)
-                    {
-                        if (sortedSteps[i].HasPicture)
-                        {
-                            var stepPicture = stepPictures.FindAll(item => item.AnswerStepId == sortedSteps[i].Id);
-                            if (stepPicture.Count != 1)
-                            {
-                                throw new ArgumentException("List<IAnswerStepPicture>");
-                            }
-
-                            await StepRepository.AddAsync(unitOfWork, sortedSteps[i], stepPicture.First());
-                        }
-                    }
-
-                    return await unitOfWork.CommitAsync();
-                }
-
-                return result;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        #endregion Insert
-
-        #region Update
-
-        public async Task<int> UpdateAsync(IQuestion entity, IQuestionPicture picture = null,
-            List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null)
-        {
-            try
-            {
-                if (steps != null && stepPictures != null)
-                {
-                    if (steps.Count < stepPictures.Count)
-                    {
-                        throw new ArgumentException("List<IAnswerStepPicture>");
-                    }
+                    throw new ArgumentException("Points < 1");
                 }
                 if (steps == null && stepPictures != null)
                 {
-                    throw new ArgumentException("List<IAnswerStepPicture>");
-                }
-                if(entity.HasSteps && steps == null)
-                {
-                    throw new ArgumentNullException("List<IAnswerStep>");
+                    throw new ArgumentNullException("Null List<IAnswerStep>, not null List<IAnswerStepPicture>");
                 }
 
-                IUnitOfWork unitOfWork = await Repository.CreateUnitOfWork();
-                await Repository.UnitOfWorkUpdateAsync(unitOfWork, entity, picture);
+                var unitOfWork = await Repository.CreateUnitOfWork();
 
-                var updateSteps = (await Repository.GetAsync(entity.Id)).HasSteps;
+                await Repository.AddAsync(unitOfWork, entity);
+                await ChoiceRepository.AddAsync(unitOfWork, choices, choicePictures);
 
-                if (updateSteps) // entity in DB has steps
+                if (picture != null)
                 {
-                    if (!entity.HasSteps) // steps should be deleted
-                    {
-                        var dbSteps = await StepRepository.GetStepsAsync(entity.Id);
-                        foreach (var step in dbSteps)
-                        {
-                            await StepRepository.UnitOfWorkDeleteAsync(unitOfWork, step);
-                        }
-                    }
-                    else // update steps if needed
-                    {
-                        if (steps != null)
-                        {
-                            foreach (var step in steps)
-                            {
-                                await StepRepository.UnitOfWorkUpdateAsync(unitOfWork, step);
-                            }
-                        }
-                    }
+                    await PictureRepository.AddAsync(unitOfWork, picture);
                 }
-                else // entity in DB does not have steps
+
+                if (steps != null)
                 {
-                    if (entity.HasSteps) // steps should be added in DB
-                    {
-                        foreach (var step in steps)
-                        {
-                            await StepRepository.AddAsync(unitOfWork, step);
-                        }
-                    }
+                    await StepRepository.AddAsync(unitOfWork, steps, stepPictures);
                 }
 
                 return await unitOfWork.CommitAsync();
@@ -214,11 +125,15 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> UpdatePictureAsync(IQuestionPicture picture)
+        public Task<int> UpdateAsync(IQuestion entity)
         {
             try
             {
-                return PictureRepository.UpdateAsync(picture);
+                if (entity.Points < 1)
+                {
+                    throw new ArgumentException("Points < 1");
+                }
+                return Repository.UpdateAsync(entity);
             }
             catch (Exception e)
             {
@@ -226,15 +141,16 @@ namespace ExamPreparation.Service
             }
         }
 
-        #endregion Update
-
-        #region Delete
-
-        public Task<int> DeleteAsync(IQuestion entity)
+        public async Task<int> DeleteAsync(IQuestion entity)
         {
             try
             {
-                return Repository.DeleteAsync(entity);
+                var unitOfWork = await Repository.CreateUnitOfWork();
+                await ChoiceRepository.DeleteAsync(unitOfWork, entity.Id);
+                await StepRepository.DeleteAsync(unitOfWork, entity.Id);
+                await Repository.DeleteAsync(unitOfWork, entity);
+
+                return await unitOfWork.CommitAsync();
             }
             catch (Exception e)
             {
@@ -242,19 +158,17 @@ namespace ExamPreparation.Service
             }
         }
 
-        public Task<int> DeleteAsync(Guid id)
+        public async Task<int> DeleteAsync(Guid id)
         {
             try
             {
-                return Repository.DeleteAsync(id);
+                return await this.DeleteAsync(await this.GetAsync(id));
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

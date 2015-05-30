@@ -14,7 +14,6 @@ namespace ExamPreparation.DAL.Models
         public System.Guid QuestionId { get; set; }
         public bool IsCorrect { get; set; }
         public string Text { get; set; }
-        public bool HasPicture { get; set; }
         public virtual Question Question { get; set; }
         public virtual ICollection<AnswerChoicePicture> AnswerChoicePictures { get; set; }
     }

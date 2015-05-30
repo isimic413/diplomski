@@ -7,6 +7,8 @@ namespace ExamPreparation.Model.Common
         System.Guid Id { get; set; }
         System.Guid AnswerChoiceId { get; set; }
         byte[] Picture { get; set; }
+        System.DateTime DateCreated { get; set; }
+        System.DateTime DateUpdated { get; set; }
         IAnswerChoice AnswerChoice { get; set; }
     }
 }

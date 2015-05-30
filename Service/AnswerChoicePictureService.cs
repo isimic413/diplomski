@@ -27,6 +27,18 @@ namespace ExamPreparation.Service
 
         #region Methods
 
+        public Task<List<IAnswerChoicePicture>> GetAsync()
+        {
+            try
+            {
+                return Repository.GetAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public Task<IAnswerChoicePicture> GetAsync(Guid id)
         {
             try
@@ -39,11 +51,47 @@ namespace ExamPreparation.Service
             }
         }
 
+        public Task<int> InsertAsync(IAnswerChoicePicture entity)
+        {
+            try
+            {
+                return Repository.InsertAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public Task<int> UpdateAsync(IAnswerChoicePicture entity)
         {
             try
             {
                 return Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(IAnswerChoicePicture entity)
+        {
+            try
+            {
+                return Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
             }
             catch (Exception e)
             {

@@ -2,13 +2,13 @@
 
 namespace ExamPreparation.Common.Filters
 {
-    public class AnswerChoiceFilter : IFilter
+    public class AnswerChoiceFilter 
     {
         public string SortOrder { get; private set; }
         public int PageNumber { get; private set; }
         public int PageSize { get; private set; }
 
-        private readonly int DefaultPageSize = 20;
+        public int DefaultPageSize = 20;
         private readonly string DefaultSortOrder = "QuestionId";
 
 

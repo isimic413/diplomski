@@ -32,19 +32,29 @@ namespace ExamPreparation.Repository
 
         #region Methods
 
-        #region Get
-
         public virtual async Task<List<IAnswerStep>> GetAsync(AnswerStepFilter filter = null)
         {
             try
-            { 
-                return Mapper.Map<List<IAnswerStep>>(
-                    await Repository.WhereAsync<AnswerStep>()
-                    .OrderBy(filter.SortOrder)
-                    .Skip<AnswerStep>((filter.PageNumber - 1) * filter.PageSize)
-                    .Take<AnswerStep>(filter.PageSize)
-                    .ToListAsync<AnswerStep>()
-                    );
+            {
+                if (filter != null)
+                {
+                    return Mapper.Map<List<IAnswerStep>>(
+                        await Repository.WhereAsync<AnswerStep>()
+                        .OrderBy(filter.SortOrder)
+                        .Skip<AnswerStep>((filter.PageNumber - 1) * filter.PageSize)
+                        .Take<AnswerStep>(filter.PageSize)
+                        .Include(item => item.AnswerStepPictures)
+                        .ToListAsync<AnswerStep>()
+                        );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<IAnswerStep>>(
+                        await Repository.WhereAsync<AnswerStep>()
+                        .Include(item => item.AnswerStepPictures)
+                        .ToListAsync()
+                        );
+                }
             }
             catch (Exception e)
             {
@@ -56,7 +66,12 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                return Mapper.Map<IAnswerStep>(await Repository.SingleAsync<AnswerStep>(id));
+                return Mapper.Map<IAnswerStep>(
+                    await Repository.WhereAsync<AnswerStep>()
+                    .Where(item => item.Id == id)
+                    .Include(item => item.AnswerStepPictures)
+                    .SingleAsync()
+                    );
             }
             catch (Exception e)
             {
@@ -72,6 +87,7 @@ namespace ExamPreparation.Repository
                     await Repository.WhereAsync<AnswerStep>()
                     .Where<AnswerStep>(item => item.QuestionId == questionId)
                     .OrderBy(item => item.StepNumber)
+                    .Include(item => item.AnswerStepPictures)
                     .ToListAsync<AnswerStep>()
                     );
             }
@@ -81,80 +97,28 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
-        public async Task AddAsync(IUnitOfWork unitOfWork, IAnswerStep entity, IAnswerStepPicture picture = null)
+        public async Task<int> AddAsync(IUnitOfWork unitOfWork, IAnswerStep entity)
         {
             try
             {
-                if (entity.StepNumber < 1)
+                var numberOfSteps = (short)(await GetStepsAsync(entity.QuestionId)).Count;
+                if (entity.StepNumber < 1 || entity.StepNumber > numberOfSteps)
                 {
-                    throw new ArgumentException("StepNumber cannot be less than 1.");
+                    throw new ArgumentException("Invalid StepNumber.");
                 }
-                if (entity.HasPicture && picture == null)
-                {
-                    throw new ArgumentNullException("AnswerStep.HasPicture set to true, but no AnswerStepPicture sent.");
-                }
-                if (!entity.HasPicture && picture != null)
-                {
-                    throw new ArgumentException("AnswerStep.HasPicture set to false, but AnswerStepPicture was sent.");
-                }
-                
-                if (entity.StepNumber == 1)
-                {
-                    var question = await Repository.SingleAsync<Question>(entity.QuestionId);
-                    if (!question.HasSteps)
-                    {
-                        question.HasSteps = true;
-                        await unitOfWork.UpdateAsync<Question>(question);
-                        await unitOfWork.AddAsync<AnswerStep>(Mapper.Map<AnswerStep>(entity));
 
-                        if (entity.HasPicture)
-                        {
-                            await unitOfWork.AddAsync<AnswerStepPicture>(Mapper.Map<AnswerStepPicture>(picture));
-                        }
+                var stepEntity = Mapper.Map<AnswerStep>(entity);
 
-                        return;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Question (id=" + question.Id + ") already has AnswerStep number 1.");
-                    }
-                }
-                else // entity.StepNumber > 1
-                {
-                    var question = await Repository.SingleAsync<Question>(entity.QuestionId);
-                    if (question.HasSteps)
-                    {
-                        var lastStepNumber = Repository.WhereAsync<AnswerStep>()
-                            .Where<AnswerStep>(item => item.QuestionId == question.Id)
-                            .OrderBy<AnswerStep>("StepNumber")
-                            .Last<AnswerStep>()
-                            .StepNumber;
+                var stepNumber = stepEntity.StepNumber;
+                stepEntity.StepNumber = numberOfSteps;
+                stepEntity.StepNumber++;
 
-                        if (entity.StepNumber == lastStepNumber + 1)
-                        {
-                            await unitOfWork.AddAsync<AnswerStep>(Mapper.Map<AnswerStep>(entity));
+                // insert as last step
+                await unitOfWork.AddAsync<AnswerStep>(stepEntity);
 
-                            if (entity.HasPicture)
-                            {
-                                await unitOfWork.AddAsync<AnswerStepPicture>(Mapper.Map<AnswerStepPicture>(picture));
-                            }
-
-                            return;
-                        }
-                        else
-                        {
-                            throw new ArgumentException("AnswerStep.StepNumber should be " + (lastStepNumber + 1) + ".");
-                        }
-                    }
-                    else // !question.HasSteps
-                    {
-                        throw new ArgumentException("AnswerStep number 1 for Question (id=" + question.Id + ") must be set first.");
-                    }
-                }
+                // update step numbers
+                stepEntity.StepNumber = stepNumber;
+                return await UpdateAsync(unitOfWork, stepEntity);
             }
             catch (Exception e)
             {
@@ -162,13 +126,12 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> InsertAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public virtual async Task<int> InsertAsync(IAnswerStep entity)
         {
             try
             {
                 IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
-                await AddAsync(unitOfWork, entity, picture);
-
+                await AddAsync(unitOfWork, entity);
                 return await unitOfWork.CommitAsync();
             }
             catch (Exception e)
@@ -177,51 +140,29 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
-        private async Task UpdateStepAsync(IUnitOfWork unitOfWork, IAnswerStep entity, 
-            AnswerStep step, IAnswerStepPicture picture = null)
+        public virtual async Task<int> AddAsync(IUnitOfWork unitOfWork, List<IAnswerStep> entities,
+            List<IAnswerStepPicture> pictures = null)
         {
             try
             {
-                if(step.HasPicture) // entity in DB has picture
-                {
-                    var dalPicture = await Repository.WhereAsync<AnswerStepPicture>()
-                            .Where<AnswerStepPicture>(item => item.AnswerStepId == entity.Id)
-                            .SingleAsync<AnswerStepPicture>();
+                var result = 0;
+                entities = entities.OrderBy(item => item.StepNumber).ToList();
 
-                    if (entity.HasPicture)
-                    {
-                        if (picture != null)
-                        {
-                            dalPicture.Picture = picture.Picture;
-                            await unitOfWork.UpdateAsync<AnswerStepPicture>(dalPicture);
-                        }
-                    }
-                    else // !entity.HasPicture
-                    {
-                        await unitOfWork.DeleteAsync<AnswerStepPicture>(dalPicture.Id);
-                    }
-                }
-                else // entity in DB does not have picture
+                for (int i = 0; i < entities.Count; i++)
                 {
-                    if (entity.HasPicture)
+                    result += await this.AddAsync(unitOfWork, entities.ElementAt(i));
+                }
+
+                if (pictures != null)
+                {
+                    foreach (var picture in pictures)
                     {
-                        if (picture != null)
-                        {
-                            await unitOfWork.AddAsync<AnswerStepPicture>(
-                                Mapper.Map<AnswerStepPicture>(picture));
-                        }
-                        else
-                        {
-                            throw new ArgumentNullException("AnswerStepPicture");
-                        }
+                        result += await unitOfWork.AddAsync<AnswerStepPicture>(
+                            Mapper.Map<AnswerStepPicture>(picture));
                     }
                 }
 
-                await unitOfWork.UpdateAsync<AnswerStep>(Mapper.Map<AnswerStep>(entity));
+                return result;
             }
             catch (Exception e)
             {
@@ -229,35 +170,35 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public async Task UnitOfWorkUpdateAsync(IUnitOfWork unitOfWork, 
-            IAnswerStep entity, IAnswerStepPicture picture = null)
+        private async Task<int> UpdateAsync(IUnitOfWork unitOfWork, AnswerStep entity)
         {
             try
             {
-                var dalStep = await Repository.SingleAsync<AnswerStep>(entity.Id);
+                var steps = await Repository.WhereAsync<AnswerStep>()
+                    .Where(item => item.QuestionId == entity.QuestionId)
+                    .OrderBy(item => item.StepNumber)
+                    .ToListAsync();
 
-                if (dalStep.StepNumber == entity.StepNumber)
+                var numberOfSteps = steps.Count;
+                var oldStepNumber = (await Repository.SingleAsync<AnswerStep>(entity.Id)).StepNumber;
+                var newStepNumber = entity.StepNumber;
+
+                if (oldStepNumber == newStepNumber)
                 {
-                    await UpdateStepAsync(unitOfWork, entity, dalStep, picture);
+                    return await unitOfWork.UpdateAsync<AnswerStep>(entity);
                 }
                 else
                 {
-                    var steps = await GetStepsAsync(entity.QuestionId);
-
-                    var oldStepNumber = dalStep.StepNumber;
-                    var newStepNumber = entity.StepNumber;
-                    var tempStepNumber = (short)(steps.Count + 1);
-
-                    dalStep.StepNumber = tempStepNumber;
-                    await unitOfWork.UpdateAsync<AnswerStep>(dalStep);
+                    var tempStepNumber = (short)(numberOfSteps + 1);
+                    entity.StepNumber = tempStepNumber;
+                    await unitOfWork.UpdateAsync<AnswerStep>(entity);
 
                     if (newStepNumber < oldStepNumber) // update 5 to 2
                     {
-                        for (int i = newStepNumber - 1; i < oldStepNumber; i++)
+                        for (int i = newStepNumber - 1; i < oldStepNumber - 1; i++)
                         {
                             steps[i].StepNumber++;
-                            await unitOfWork.UpdateAsync<AnswerStep>(
-                                Mapper.Map<AnswerStep>(steps[i]));
+                            await unitOfWork.UpdateAsync<AnswerStep>(steps[i]);
                         }
                     }
                     else // update 2 to 5
@@ -265,12 +206,11 @@ namespace ExamPreparation.Repository
                         for (int i = oldStepNumber; i < newStepNumber; i++)
                         {
                             steps[i].StepNumber--;
-                            await unitOfWork.UpdateAsync<AnswerStep>(
-                                Mapper.Map<AnswerStep>(steps[i]));
+                            await unitOfWork.UpdateAsync<AnswerStep>(steps[i]);
                         }
                     }
-                    dalStep.StepNumber = newStepNumber;
-                    await UpdateStepAsync(unitOfWork, entity, dalStep, picture);
+                    entity.StepNumber = newStepNumber;
+                    return await unitOfWork.UpdateAsync<AnswerStep>(entity);
                 }
             }
             catch (Exception e)
@@ -279,12 +219,24 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> UpdateAsync(IAnswerStep entity, IAnswerStepPicture picture = null)
+        public Task<int> UpdateAsync(IUnitOfWork unitOfWork, IAnswerStep entity)
+        {
+            try
+            {
+                return UpdateAsync(unitOfWork, Mapper.Map<AnswerStep>(entity));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<int> UpdateAsync(IAnswerStep entity)
         {
             try
             {
                 IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
-                await UnitOfWorkUpdateAsync(unitOfWork, entity, picture);
+                await UpdateAsync(unitOfWork, entity);
                 return await unitOfWork.CommitAsync();
             }
             catch (Exception e)
@@ -293,54 +245,25 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Update
-
-        #region Delete
-
-        public async Task UnitOfWorkDeleteAsync(IUnitOfWork unitOfWork, IAnswerStep entity)
+        public async Task<int> DeleteAsync(IUnitOfWork unitOfWork, IAnswerStep entity)
         {
             try
             {
-                // if entity has pictures, delete them first
-                if (entity.HasPicture)
+                var stepEntity = Mapper.Map<AnswerStep>(entity);
+
+                var numberOfSteps = (await Repository.WhereAsync<AnswerStep>()
+                    .Where(item => item.QuestionId == entity.QuestionId)
+                    .ToListAsync())
+                    .Count;
+
+                if (entity.StepNumber < numberOfSteps)
                 {
-                    var pictures = Repository.WhereAsync<AnswerStepPicture>()
-                        .Where(e => e.AnswerStepId == entity.Id);
-
-                    foreach (var picture in pictures)
-                    {
-                        await unitOfWork.DeleteAsync<AnswerStepPicture>(Mapper.Map<AnswerStepPicture>(picture));
-                    }
+                    // move to last place
+                    stepEntity.StepNumber = (short)numberOfSteps;
+                    await UpdateAsync(unitOfWork, stepEntity);
                 }
-
-                var question = await Repository.SingleAsync<Question>(entity.QuestionId);
-                var steps = await Repository.WhereAsync<AnswerStep>()
-                    .Where<AnswerStep>(item => item.QuestionId == entity.QuestionId)
-                    .ToListAsync<AnswerStep>();
-
-                // if there was only one step to show, update Question.HasSteps
-                if (steps.Count == 1)
-                {
-                    question.HasSteps = false;
-                    await unitOfWork.UpdateAsync<Question>(question);
-                }
-                else // if steps.Count > 1
-                {
-                    if (entity.StepNumber < steps.Count) // it was not the last step
-                    {
-                        // update StepNumber where necessary
-                        foreach (var step in steps)
-                        {
-                            if (step.StepNumber > entity.StepNumber)
-                            {
-                                step.StepNumber--;
-                                await unitOfWork.UpdateAsync<AnswerStep>(step);
-                            }
-                        }
-                    }
-                }
-
-                await unitOfWork.DeleteAsync<AnswerStep>(Mapper.Map<AnswerStep>(entity));
+                
+                return await unitOfWork.DeleteAsync<AnswerStep>(stepEntity);
             }
             catch (Exception e)
             {
@@ -348,14 +271,52 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public virtual async Task<int> DeleteAsync(IAnswerStep entity)
+        public async Task<int> DeleteAsync(IUnitOfWork unitOfWork, Guid questionId)
         {
-
             try
             {
-                IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
+                var result = 0;
 
-                await UnitOfWorkDeleteAsync(unitOfWork, entity);
+                var steps = await Repository.WhereAsync<AnswerStep>()
+                    .Where<AnswerStep>(item => item.QuestionId == questionId)
+                    .Include(item => item.AnswerStepPictures)
+                    .ToListAsync<AnswerStep>();
+
+                foreach (var step in steps)
+                {
+                    foreach (var picture in step.AnswerStepPictures)
+                    {
+                        result += await unitOfWork.DeleteAsync<AnswerStepPicture>(picture);
+                    }
+                    result += await unitOfWork.DeleteAsync<AnswerStep>(step);
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<int> DeleteAsync(IAnswerStep entity)
+        {
+            try
+            {
+                var unitOfWork = Repository.CreateUnitOfWork();
+
+                var pictures = await Repository.WhereAsync<AnswerStepPicture>()
+                    .Where(item => item.AnswerStepId == entity.Id)
+                    .ToListAsync();
+
+                if (pictures.Count > 0)
+                {
+                    foreach (var picture in pictures)
+                    {
+                        await unitOfWork.DeleteAsync<AnswerStepPicture>(picture);
+                    }
+                }
+                await this.DeleteAsync(unitOfWork, entity);
+
                 return await unitOfWork.CommitAsync();
             }
             catch (Exception e)
@@ -369,8 +330,7 @@ namespace ExamPreparation.Repository
             try
             {
                 return await DeleteAsync(Mapper.Map<IAnswerStep>(
-                    await Repository.SingleAsync<AnswerStep>(id))
-                    );
+                    await Repository.SingleAsync<AnswerStep>(id)));
             }
             catch (Exception e)
             {
@@ -378,7 +338,17 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Delete
+        public Task<IUnitOfWork> CreateUnitOfWork()
+        {
+            try
+            {
+                return Task.FromResult(Repository.CreateUnitOfWork());
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         #endregion Methods
     }

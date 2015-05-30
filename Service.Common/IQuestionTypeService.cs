@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using ExamPreparation.Common.Filters;
@@ -10,7 +9,7 @@ namespace ExamPreparation.Service.Common
 {
     public interface IQuestionTypeService
     {
-        Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter);
+        Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter = null);
         Task<IQuestionType> GetAsync(Guid id);
 
         Task<int> InsertAsync(IQuestionType entity);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -35,7 +37,7 @@ namespace ExamPreparation.WebApi.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> Get(string url)
+        public async Task<HttpResponseMessage> Get(string url)
         {
             try
             {
@@ -43,24 +45,27 @@ namespace ExamPreparation.WebApi.Controllers
 
                 if (url.Contains("AnswerChoice"))
                 {
-                    return Ok(await AnswerChoicePictureService.GetAsync(id));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        await AnswerChoicePictureService.GetAsync(id));
                 }
                 else if (url.Contains("AnswerStep"))
                 {
-                    return Ok(await AnswerStepPictureService.GetAsync(id));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        await AnswerStepPictureService.GetAsync(id));
                 }
                 else if (url.Contains("Question"))
                 {
-                    return Ok(await QuestionPictureService.GetAsync(id));
+                    return Request.CreateResponse(HttpStatusCode.OK,
+                        await QuestionPictureService.GetAsync(id));
                 }
                 else
                 {
-                    return BadRequest("Invalid Url.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid Url.");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.ToString());
+                return Request.CreateResponse(HttpStatusCode.BadRequest, e.ToString());
             }
         }
 

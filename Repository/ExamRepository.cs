@@ -32,19 +32,27 @@ namespace ExamPreparation.Repository
 
         #region Methods
 
-        #region Get
-
-        public virtual async Task<List<IExam>> GetAsync(ExamFilter filter)
+        public virtual async Task<List<IExam>> GetAsync(ExamFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<IExam>>(
-                    await Repository.WhereAsync<Exam>()
-                        .OrderBy(filter.SortOrder)
-                        .Skip((filter.PageNumber - 1) * filter.PageSize)
-                        .Take(filter.PageSize)
+                if (filter != null)
+                {
+                    return Mapper.Map<List<IExam>>(
+                        await Repository.WhereAsync<Exam>()
+                            .OrderBy(filter.SortOrder)
+                            .Skip((filter.PageNumber - 1) * filter.PageSize)
+                            .Take(filter.PageSize)
+                            .ToListAsync()
+                            );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<IExam>>(
+                        await Repository.WhereAsync<Exam>()
                         .ToListAsync()
                         );
+                }
             }
             catch (Exception e)
             {
@@ -64,19 +72,30 @@ namespace ExamPreparation.Repository
             }
         }
 
-
-        public async Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter)
+        public async Task<List<IExam>> GetByYearAsync(int year, ExamFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<IExam>>(
-                    await Repository.WhereAsync<Exam>()
-                        .Where(item => item.Year == year)
-                        .OrderBy(filter.SortOrder)
-                        .Skip((filter.PageNumber - 1) * filter.PageSize)
-                        .Take(filter.PageSize)
-                        .ToListAsync()
-                        );
+                if (filter != null)
+                {
+                    return Mapper.Map<List<IExam>>(
+                        await Repository.WhereAsync<Exam>()
+                            .Where(item => item.Year == year)
+                            .OrderBy(filter.SortOrder)
+                            .Skip((filter.PageNumber - 1) * filter.PageSize)
+                            .Take(filter.PageSize)
+                            .ToListAsync()
+                            );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<IExam>>(
+                        await Repository.WhereAsync<Exam>()
+                            .Where(item => item.Year == year)
+                            .OrderBy(item => item.Year)
+                            .ToListAsync()
+                            ); 
+                }
             }
             catch (Exception e)
             {
@@ -84,30 +103,17 @@ namespace ExamPreparation.Repository
             }
         }
 
-        public async Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter)
+        public Task<List<IExam>> GetByTestingAreaIdAsync(Guid testingAreaId, ExamFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<IExam>>(
-                    await Repository.WhereAsync<Exam>()
-                        .Where(item => item.ExamQuestions
-                            .First<ExamQuestion>()
-                            .Question.TestingAreaId == testingAreaId)
-                        .OrderBy(filter.SortOrder)
-                        .Skip((filter.PageNumber - 1) * filter.PageSize)
-                        .Take(filter.PageSize)
-                        .ToListAsync()
-                        );
+                throw new NotImplementedException();
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        #endregion Get
-
-        #region Insert
 
         public virtual Task<int> InsertAsync(IExam entity)
         {
@@ -121,10 +127,6 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Insert
-
-        #region Update
-
         public virtual Task<int> UpdateAsync(IExam entity)
         {
             try
@@ -137,31 +139,37 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Update
-
-        #region Delete
-
-        public async Task<int> DeleteAsync(IExam entity)
+        private async Task<int> DeleteAsync(Exam entity)
         {
             try
             {
-                IUnitOfWork unitOfWork = Repository.CreateUnitOfWork();
+                var unitOfWork = Repository.CreateUnitOfWork();
 
                 var examQuestions = await Repository.WhereAsync<ExamQuestion>()
-                    .Where<ExamQuestion>(item => item.ExamId == entity.Id)
-                    .ToListAsync<ExamQuestion>();
+                    .Where(item => item.ExamId == entity.Id)
+                    .ToListAsync();
 
                 if (examQuestions.Count > 0)
                 {
-                    foreach (var item in examQuestions)
+                    foreach (var examQuestion in examQuestions)
                     {
-                        await unitOfWork.DeleteAsync<ExamQuestion>(item);
+                        await unitOfWork.DeleteAsync<ExamQuestion>(examQuestion);
                     }
                 }
-
-                await unitOfWork.DeleteAsync<Exam>(entity.Id);
+                await unitOfWork.DeleteAsync<Exam>(entity);
 
                 return await unitOfWork.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public Task<int> DeleteAsync(IExam entity)
+        {
+            try
+            {
+                return this.DeleteAsync(Mapper.Map<Exam>(entity));
             }
             catch (Exception e)
             {
@@ -173,18 +181,14 @@ namespace ExamPreparation.Repository
         {
             try
             {
-
-                return await DeleteAsync(Mapper.Map<IExam>(
-                    await Repository.SingleAsync<Exam>(id))
-                    );
+                return await this.DeleteAsync(
+                    await Repository.SingleAsync<Exam>(id));
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

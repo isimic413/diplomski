@@ -34,17 +34,27 @@ namespace ExamPreparation.Repository
 
         #region Get
 
-        public virtual async Task<List<IExamQuestion>> GetAsync(ExamQuestionFilter filter)
+        public virtual async Task<List<IExamQuestion>> GetAsync(ExamQuestionFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<IExamQuestion>>(
-                    await Repository.WhereAsync<ExamQuestion>()
-                        .OrderBy(filter.SortOrder)
-                        .Skip((filter.PageNumber - 1) * filter.PageSize)
-                        .Take(filter.PageSize)
+                if (filter != null)
+                {
+                    return Mapper.Map<List<IExamQuestion>>(
+                        await Repository.WhereAsync<ExamQuestion>()
+                            .OrderBy(filter.SortOrder)
+                            .Skip((filter.PageNumber - 1) * filter.PageSize)
+                            .Take(filter.PageSize)
+                            .ToListAsync()
+                            );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<IExamQuestion>>(
+                        await Repository.WhereAsync<ExamQuestion>()
                         .ToListAsync()
                         );
+                }
             }
             catch (Exception e)
             {
@@ -63,26 +73,34 @@ namespace ExamPreparation.Repository
                 throw e;
             }
         }
-        public async Task<List<IQuestion>> GetExamQuestionsAsync(Guid examId)
+
+        public async Task<List<IExamQuestion>> GetExamQuestionsAsync(Guid examId, ExamQuestionFilter filter = null)
         {
             try
             {
-                // get all ExamQuestions with ExamId == examId
-                var questions = await Repository.WhereAsync<ExamQuestion>()
-                    .Where(item => item.ExamId == examId)
-                    .OrderBy(item => item.QuestionNumber)
-                    .ToListAsync();
-
-                // get the list of Questions that were on that exam
-                List<IQuestion> result = new List<IQuestion>();
-                foreach (var question in questions)
+                if (filter != null)
                 {
-                    result.Add(Mapper.Map<IQuestion>(
-                        await Repository.SingleAsync<Question>(question.QuestionId)
-                        ));
+                    return Mapper.Map<List<IExamQuestion>>(
+                        await Repository.WhereAsync<ExamQuestion>()
+                        .Where(item => item.ExamId == examId)
+                        .OrderBy(item => item.QuestionNumber)
+                        .Skip((filter.PageNumber - 1) * filter.PageSize)
+                        .Take(filter.PageSize)
+                        .Include(item => item.Question)
+                        .ToListAsync()
+                        );
                 }
+                else // return all
+                {
 
-                return result;
+                    return Mapper.Map<List<IExamQuestion>>(
+                        await Repository.WhereAsync<ExamQuestion>()
+                        .Where(item => item.ExamId == examId)
+                        .OrderBy(item => item.QuestionNumber)
+                        .Include(item => item.Question)
+                        .ToListAsync()
+                        );
+                }
             }
             catch (Exception e)
             {
@@ -96,10 +114,11 @@ namespace ExamPreparation.Repository
                 // get entity with QuestionId of the Question we are looking for
                 var question = await Repository.WhereAsync<ExamQuestion>()
                     .Where(item => item.ExamId == examId && item.QuestionNumber == questionNumber)
+                    .Include(item => item.Question)
                     .SingleAsync();
 
                 // return that Question
-                return Mapper.Map<IQuestion>(await Repository.SingleAsync<Question>(question.QuestionId));
+                return Mapper.Map<IQuestion>(question.Question);
 
             }
             catch (Exception e)
@@ -120,17 +139,7 @@ namespace ExamPreparation.Repository
             }
             catch (Exception e)
             {
-                if (e.ToString().Contains("DbUpdateException"))
-                {
-                    throw new Exception("Question (id=" + entity.QuestionId 
-                        + ") is already on Exam (id=" + entity.ExamId + ") or\n\r"
-                        +"Exam (id=" + entity.ExamId +") already has Question number "
-                        + entity.QuestionNumber + ".");
-                }
-                else
-                {
-                    throw e;
-                }
+                throw e;
             }
         }
 

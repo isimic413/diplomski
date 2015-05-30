@@ -11,7 +11,7 @@ namespace ExamPreparation.Service.Common
     {
         Task<List<IExamQuestion>> GetAsync(ExamQuestionFilter filter);
         Task<IExamQuestion> GetAsync(Guid id);
-        Task<List<IQuestion>> GetExamQuestionsAsync(Guid examId);
+        Task<List<IExamQuestion>> GetExamQuestionsAsync(Guid examId, ExamQuestionFilter filter = null);
         Task<IQuestion> GetQuestionAsync(Guid examId, int questionNumber);
 
         Task<int> InsertAsync(IExamQuestion entity);

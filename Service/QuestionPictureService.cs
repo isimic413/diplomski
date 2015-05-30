@@ -1,92 +1,104 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-//using ExamPreparation.Model.Common;
-//using ExamPreparation.Repository.Common;
-//using ExamPreparation.Service.Common;
+using ExamPreparation.Model.Common;
+using ExamPreparation.Repository.Common;
+using ExamPreparation.Service.Common;
 
-//namespace ExamPreparation.Service
-//{
-//    public class QuestionPictureService: IQuestionPictureService
-//    {
-//        protected IQuestionPictureRepository Repository { get; private set; }
+namespace ExamPreparation.Service
+{
+    public class QuestionPictureService : IQuestionPictureService
+    {
+        #region Properties
 
-//        public QuestionPictureService(IQuestionPictureRepository repository)
-//        {
-//            Repository = repository;
-//        }
+        protected IQuestionPictureRepository Repository { get; private set; }
 
-//        public async Task<List<IQuestionPicture>> GetAsync(string sortOrder = "problemId", int pageNumber = 0, int pageSize = 50)
-//        {
-//            try
-//            {
-//                return await Repository.GetAsync(sortOrder, pageNumber, pageSize);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        #endregion Properties
 
-//        public async Task<IQuestionPicture> GetAsync(Guid id)
-//        {
-//            try
-//            {
-//                return await Repository.GetAsync(id);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        #region Constructors
 
-//        public async Task<int> AddAsync(IQuestionPicture entity)
-//        {
-//            try
-//            {
-//                return await Repository.AddAsync(entity);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        public QuestionPictureService(IQuestionPictureRepository repository)
+        {
+            Repository = repository;
+        }
 
-//        public async Task<int> UpdateAsync(IQuestionPicture entity)
-//        {
-//            try
-//            {
-//                return await Repository.UpdateAsync(entity);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        #endregion Constructors
 
-//        public async Task<int> DeleteAsync(IQuestionPicture entity)
-//        {
-//            try
-//            {
-//                return await Repository.DeleteAsync(entity);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
+        #region Methods
 
-//        public async Task<int> DeleteAsync(Guid id)
-//        {
-//            try
-//            {
-//                return await Repository.DeleteAsync(id);
-//            }
-//            catch (Exception e)
-//            {
-//                throw new Exception(e.ToString());
-//            }
-//        }
-//    }
-//}
+        public Task<List<IQuestionPicture>> GetAsync()
+        {
+            try
+            {
+                return Repository.GetAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<IQuestionPicture> GetAsync(Guid id)
+        {
+            try
+            {
+                return Repository.GetAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> InsertAsync(IQuestionPicture entity)
+        {
+            try
+            {
+                return Repository.InsertAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> UpdateAsync(IQuestionPicture entity)
+        {
+            try
+            {
+                return Repository.UpdateAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(IQuestionPicture entity)
+        {
+            try
+            {
+                return Repository.DeleteAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public Task<int> DeleteAsync(Guid id)
+        {
+            try
+            {
+                return Repository.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion Methods
+    }
+}

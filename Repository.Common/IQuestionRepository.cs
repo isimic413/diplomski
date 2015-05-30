@@ -9,24 +9,18 @@ namespace ExamPreparation.Repository.Common
 {
     public interface IQuestionRepository
     {
-        Task<List<IQuestion>> GetAsync(QuestionFilter filter);
+        Task<List<IQuestion>> GetAsync(QuestionFilter filter = null);
+        Task<IQuestion> GetAsync(Guid id); 
+        Task<List<IQuestion>> GetByTestingAreaIdAsync(Guid testingAreaId, QuestionFilter filter = null);
+        Task<List<IQuestion>> GetByTypeIdAsync(Guid typeId, QuestionFilter filter = null);
 
-        Task<IQuestion> GetAsync(Guid id);
+        Task<int> InsertAsync(IQuestion entity);
+        Task<int> AddAsync(IUnitOfWork unitOfWork, IQuestion entity);
 
-        Task<int> InsertAsync(IQuestion entity, List<IAnswerChoice> choices,
-            IQuestionPicture picture = null, List<IAnswerChoicePicture> choicePictures = null);
+        Task<int> UpdateAsync(IQuestion entity);
 
-        Task<int> UpdateAsync(IQuestion entity, IQuestionPicture picture = null);
-        Task UnitOfWorkUpdateAsync(IUnitOfWork unitOfWork,
-            IQuestion entity, IQuestionPicture picture = null);
-
-        Task<int> DeleteAsync(IQuestion entity);
-
-        Task<int> DeleteAsync(Guid id);
-
-
-        Task<List<IQuestion>> GetByTestingAreaIdAsync(Guid testingAreaId, QuestionFilter filter);
-        Task<List<IQuestion>> GetByTypeIdAsync(Guid typeId, QuestionFilter filter);
+        Task<int> DeleteAsync(IUnitOfWork unitOfWork, IQuestion entity);
+        Task<int> DeleteAsync(IUnitOfWork unitOfWork, Guid id);
 
         Task<IUnitOfWork> CreateUnitOfWork();
     }

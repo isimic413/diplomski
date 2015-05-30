@@ -34,17 +34,27 @@ namespace ExamPreparation.Repository
 
         #region Get
 
-        public virtual async Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter)
+        public virtual async Task<List<IQuestionType>> GetAsync(QuestionTypeFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<IQuestionType>>(
-                    await Repository.WhereAsync<QuestionType>()
-                            .OrderBy(filter.SortOrder)
-                            .Skip<QuestionType>((filter.PageNumber - 1) * filter.PageSize)
-                            .Take<QuestionType>(filter.PageSize)
-                            .ToListAsync<QuestionType>()
-                    );
+                if (filter != null)
+                {
+                    return Mapper.Map<List<IQuestionType>>(
+                        await Repository.WhereAsync<QuestionType>()
+                                .OrderBy(filter.SortOrder)
+                                .Skip<QuestionType>((filter.PageNumber - 1) * filter.PageSize)
+                                .Take<QuestionType>(filter.PageSize)
+                                .ToListAsync<QuestionType>()
+                        );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<IQuestionType>>(
+                        await Repository.WhereAsync<QuestionType>()
+                        .ToListAsync()
+                        );
+                }
             }
             catch (Exception e)
             {
@@ -56,7 +66,8 @@ namespace ExamPreparation.Repository
         {
             try
             {
-                return Mapper.Map<IQuestionType>(await Repository.SingleAsync<QuestionType>(id));
+                return Mapper.Map<IQuestionType>(
+                    await Repository.SingleAsync<QuestionType>(id));
             }
             catch (Exception e)
             {

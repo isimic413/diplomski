@@ -19,6 +19,8 @@ namespace ExamPreparation.DAL.Models.Mapping
             this.Property(t => t.Id).HasColumnName("Id");
             this.Property(t => t.AnswerChoiceId).HasColumnName("AnswerChoiceId");
             this.Property(t => t.Picture).HasColumnName("Picture");
+            this.Property(t => t.DateCreated).HasColumnName("DateCreated");
+            this.Property(t => t.DateUpdated).HasColumnName("DateUpdated");
 
             // Relationships
             this.HasRequired(t => t.AnswerChoice)

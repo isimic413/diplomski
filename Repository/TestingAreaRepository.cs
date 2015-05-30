@@ -32,19 +32,27 @@ namespace ExamPreparation.Repository
 
         #region Methods
 
-        #region Get
-
-        public virtual async Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter)
+        public virtual async Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter = null)
         {
             try
             {
-                return Mapper.Map<List<ITestingArea>>(
-                    await Repository.WhereAsync<TestingArea>()
-                            .OrderBy(filter.SortOrder)
-                            .Skip<TestingArea>((filter.PageNumber - 1) * filter.PageSize)
-                            .Take<TestingArea>(filter.PageSize)
-                            .ToListAsync<TestingArea>()
-                    );
+                if (filter != null)
+                {
+                    return Mapper.Map<List<ITestingArea>>(
+                        await Repository.WhereAsync<TestingArea>()
+                                .OrderBy(filter.SortOrder)
+                                .Skip<TestingArea>((filter.PageNumber - 1) * filter.PageSize)
+                                .Take<TestingArea>(filter.PageSize)
+                                .ToListAsync<TestingArea>()
+                        );
+                }
+                else // return all
+                {
+                    return Mapper.Map<List<ITestingArea>>(
+                        await Repository.WhereAsync<TestingArea>()
+                        .ToListAsync()
+                        );
+                }
             }
             catch (Exception e)
             {
@@ -64,25 +72,17 @@ namespace ExamPreparation.Repository
             }
         }
 
-        #endregion Get
-
-        #region Insert
-
         public virtual Task<int> InsertAsync(ITestingArea entity)
         {
             try
             {
-                return Repository.AddAsync<TestingArea>(Mapper.Map<TestingArea>(entity));
+                return Repository.InsertAsync<TestingArea>(Mapper.Map<TestingArea>(entity));
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        #endregion Insert
-
-        #region Update
 
         public virtual Task<int> UpdateAsync(ITestingArea entity)
         {
@@ -95,10 +95,6 @@ namespace ExamPreparation.Repository
                 throw e;
             }
         }
-
-        #endregion Update
-
-        #region Delete
 
         public async Task<int> DeleteAsync(ITestingArea entity)
         {
@@ -154,8 +150,6 @@ namespace ExamPreparation.Repository
                 throw e;
             }
         }
-
-        #endregion Delete
 
         #endregion Methods
     }

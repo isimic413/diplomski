@@ -20,6 +20,6 @@ namespace ExamPreparation.Repository.Common
 
 
 
-        Task<int> AddAsync<T>(T entity) where T : class;
+        Task<int> AddAsync<T>(T entity) where T : class; // useranswer, userrole
     }
 }

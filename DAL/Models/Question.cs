@@ -19,8 +19,6 @@ namespace ExamPreparation.DAL.Models
         public System.Guid QuestionTypeId { get; set; }
         public string Text { get; set; }
         public byte Points { get; set; }
-        public bool HasPicture { get; set; }
-        public bool HasSteps { get; set; }
         public virtual ICollection<AnswerChoice> AnswerChoices { get; set; }
         public virtual ICollection<AnswerStep> AnswerSteps { get; set; }
         public virtual ICollection<ExamQuestion> ExamQuestions { get; set; }

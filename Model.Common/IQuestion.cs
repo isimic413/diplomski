@@ -10,8 +10,6 @@ namespace ExamPreparation.Model.Common
         System.Guid QuestionTypeId { get; set; }
         string Text { get; set; }
         byte Points { get; set; }
-        bool HasPicture { get; set; }
-        bool HasSteps { get; set; }
         ICollection<IAnswerChoice> AnswerChoices { get; set; }
         ICollection<IAnswerStep> AnswerSteps { get; set; }
         ICollection<IExamQuestion> ExamQuestions { get; set; }

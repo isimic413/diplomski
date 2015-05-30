@@ -9,7 +9,7 @@ namespace ExamPreparation.Repository.Common
 {
     public interface ITestingAreaRepository
     {
-        Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter);
+        Task<List<ITestingArea>> GetAsync(TestingAreaFilter filter = null);
         Task<ITestingArea> GetAsync(Guid id);
 
         Task<int> InsertAsync(ITestingArea entity);

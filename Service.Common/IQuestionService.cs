@@ -19,9 +19,7 @@ namespace ExamPreparation.Service.Common
             IQuestionPicture picture = null, List<IAnswerChoicePicture> choicePictures = null,
             List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null);
 
-        Task<int> UpdateAsync(IQuestion entity, IQuestionPicture picture = null,
-            List<IAnswerStep> steps = null, List<IAnswerStepPicture> stepPictures = null);
-        Task<int> UpdatePictureAsync(IQuestionPicture picture);
+        Task<int> UpdateAsync(IQuestion entity);
 
         Task<int> DeleteAsync(IQuestion entity);
         Task<int> DeleteAsync(Guid id);
